@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace WebHouse_Server.Packets;
+namespace WebHouse_Client.Networking.Packets;
 
 public class Packet
 {
@@ -8,7 +8,7 @@ public class Packet
     public PacketDataType DataType { get; }
     public string Sender { get; }
     public string[] Receivers { get; }
-    
+
     public Packet(object data, PacketDataType dataType, string sender, params string[] receivers)
     {
         this.Data = data.GetType() != typeof(string) ? JsonConvert.SerializeObject(data) : (string) data;
