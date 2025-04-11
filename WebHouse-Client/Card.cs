@@ -6,9 +6,9 @@ namespace WebHouse_Client;
 public class Card
 {
     public Panel cardPanel { get; }
-    private readonly int cornerRadius;
-    private readonly int borderWidth;
-    private readonly Color color;
+    private readonly int cornerRadius; //Radius der Ecken
+    private readonly int borderWidth; //Dicke des Rahmens
+    private readonly Color color; //Hintergrundfarbe der Karte
 
     public Card(Size size, int borderWidth, int cornerRadius, Color color, int outlineWidth)
     {
@@ -16,28 +16,30 @@ public class Card
         this.borderWidth = borderWidth;
         this.color = color;
 
+        //Panel wird erstellt
         cardPanel = new BufferPanel()
         {
             Size = size,
             BackColor = Color.Transparent
         };
 
+        //Karten werden erstellt
         cardPanel.Paint += (sender, e) =>
         {
             var g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-            using (GraphicsPath path = RoundedRect(new Rectangle(0, 0, size.Width, size.Height), cornerRadius))
+            using (GraphicsPath path = RoundedRectangle(new Rectangle(0, 0, size.Width, size.Height), cornerRadius))
             using (SolidBrush brush = new SolidBrush(color))
             using (Pen pen = new Pen(Color.White, outlineWidth))
             {
-                g.FillPath(brush, path);
-                g.DrawPath(pen, path);
+                g.FillPath(brush, path); //Farbe der Karte
+                g.DrawPath(pen, path); //Rahmen der Karte zeichnen
             }
         };
     }
 
-    private GraphicsPath RoundedRect(Rectangle rect, int cornerRadius)
+    private GraphicsPath RoundedRectangle(Rectangle rect, int cornerRadius)
     {
         int diameter = cornerRadius * 2;
         GraphicsPath path = new GraphicsPath();
