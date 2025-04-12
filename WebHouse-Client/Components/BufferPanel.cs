@@ -1,4 +1,4 @@
-﻿namespace WebHouse_Client;
+﻿namespace WebHouse_Client.Components;
 
 public class BufferPanel : Panel
 {

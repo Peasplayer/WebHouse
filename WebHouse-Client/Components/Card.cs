@@ -1,7 +1,6 @@
 ﻿using System.Drawing.Drawing2D;
-using System.Windows.Forms.VisualStyles;
 
-namespace WebHouse_Client;
+namespace WebHouse_Client.Components;
 
 public class Card
 {
