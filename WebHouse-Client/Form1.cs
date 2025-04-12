@@ -1,3 +1,5 @@
+using WebHouse_Client.Components;
+
 namespace WebHouse_Client;
 
 public partial class Form1 : Form
