@@ -19,5 +19,9 @@
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Websocket.Client" Version="5.1.2" />
     </ItemGroup>
-
+    
+    <ItemGroup>
+        <EmbeddedResource Include="Background_Images\*" />
+    </ItemGroup>
+    
 </Project>
