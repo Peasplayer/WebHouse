@@ -7,7 +7,6 @@ public partial class Form1 : Form
     public Form1()
     {
         InitializeComponent();
-        
         var snapTargets = new List<Control>();
 
         var discardPile = new Panel
@@ -19,6 +18,15 @@ public partial class Form1 : Form
         this.Controls.Add(discardPile);
         snapTargets.Add(discardPile); 
         
+        var chapterCard = new ChapterCard("Hotelzimmer", 1, new[] { Color.Red, Color.Green });
+        chapterCard.Cardpanel.Location = new Point(10, 10);
+        this.Controls.Add(chapterCard.Cardpanel);
+        snapTargets.Add(discardPile);
+        new DraggableControler(chapterCard.Cardpanel, snapTargets,200);
+        
+        
+        /*
+          
         var drawPile = new Panel
         {
             Size = new Size(125, 200),
@@ -37,5 +45,6 @@ public partial class Form1 : Form
             
             new DraggableControler(card.cardPanel, snapTargets, 200);
         }
+        */
     }
 }
