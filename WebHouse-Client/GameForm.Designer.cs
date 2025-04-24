@@ -38,7 +38,7 @@ partial class GameForm
         AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         ClientSize = new System.Drawing.Size(1365, 777);
-        Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+        Margin = new System.Windows.Forms.Padding(2);
         Text = "GameForm";
         ResumeLayout(false);
     }
