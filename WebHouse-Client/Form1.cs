@@ -18,8 +18,8 @@ public partial class Form1 : Form
         this.Controls.Add(discardPile);
         snapTargets.Add(discardPile); 
         
-        var chapterCard = new ChapterCard("Hotelzimmer", 1, new[] { Color.Red, Color.Green });
-        chapterCard.Cardpanel.Location = new Point(10, 10);
+        var chapterCard = new ChapterCard("Wald", 1, new[] { Color.Red, Color.Green });
+        chapterCard.Cardpanel.Location = new Point(50, 50);
         this.Controls.Add(chapterCard.Cardpanel);
         snapTargets.Add(discardPile);
         new DraggableControler(chapterCard.Cardpanel, snapTargets,200);

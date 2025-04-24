@@ -17,7 +17,7 @@ public class ChapterCard
         this.number = number;
         this.requirements = requirements;
 
-        Card = new Card(new Size(125, 200), 5, 10, Color.Black, 2);
+        Card = new Card(new Size(135, 200), 5, 10, Color.Black, 2);
         Cardpanel.Paint += DrawChapterCard;
     }
 
@@ -35,14 +35,20 @@ public class ChapterCard
     {
         Font font = new Font("Arial", 12, FontStyle.Bold);
         SizeF textSize = g.MeasureString(title, font);
-        PointF textPosition = new PointF((Cardpanel.Width - textSize.Width) / 2, 10);
+        PointF textPosition = new PointF((Cardpanel.Width - textSize.Width) / 2, 30);
         g.DrawString(title, font, Brushes.White, textPosition);
     }
 
     private void DrawArrow(Graphics g)
     {
-        Rectangle rect = new Rectangle(15, 70, 95, 30);
-        int arrowHeadSize = 20;
+        int shaftHeight = 30;
+        int shaftWidth = 80;         //Breite des Schafts
+        int arrowHeight = 50;        //Höhe des gesamten Pfeils
+        int arrowHeadWidth = 30;     //Breite der Spitze
+        int startX = 0;
+        int centerY = (Cardpanel.Height - arrowHeight) / 2 + 25;
+
+        Rectangle shaftRect = new Rectangle(startX, centerY, shaftWidth, shaftHeight);
 
         using var arrowBackground = new SolidBrush(Color.White);
         using var arrowFrame = new Pen(Color.Black, 2);
@@ -50,20 +56,27 @@ public class ChapterCard
         using var numberColor = new SolidBrush(Color.Black);
 
         var path = new System.Drawing.Drawing2D.GraphicsPath();
-        path.AddLine(rect.Left, rect.Top, rect.Right - arrowHeadSize, rect.Top);
-        path.AddLine(rect.Right - arrowHeadSize, rect.Top, rect.Right, rect.Top + rect.Height / 2);
-        path.AddLine(rect.Right, rect.Top + rect.Height / 2, rect.Right - arrowHeadSize, rect.Bottom);
-        path.AddLine(rect.Right - arrowHeadSize, rect.Bottom, rect.Left, rect.Bottom);
-        path.CloseFigure();
 
+        path.StartFigure();
+        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2, shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2); // Diagonale zur Spitze
+        path.AddLine(shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2); // Diagonale zur Spitze
+        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2);
+        
+        /*path.AddLine(shaftRect.Left, shaftRect.Top, shaftRect.Right, shaftRect.Top); 
+        path.AddLine(shaftRect.Right, shaftRect.Top, shaftRect.Right + arrowHeadWidth, shaftRect.Top + arrowHeight / 2); 
+        path.AddLine(shaftRect.Right + arrowHeadWidth, shaftRect.Top + arrowHeight / 2, shaftRect.Right, shaftRect.Bottom); 
+        path.AddLine(shaftRect.Right, shaftRect.Bottom, shaftRect.Left, shaftRect.Bottom); 
+        */path.CloseFigure();
+        
         g.FillPath(arrowBackground, path);
-        g.DrawPath(arrowFrame, path);
+        //g.DrawPath(arrowFrame, path);
+        g.FillRectangle(arrowBackground, shaftRect);
 
         var text = number.ToString();
         var textSize = g.MeasureString(text, numberFont);
-        g.DrawString(text, numberFont, numberColor,
-            rect.Left + (rect.Width - arrowHeadSize - textSize.Width) / 2,
-            rect.Top + (rect.Height - textSize.Height) / 2);
+        float textX = shaftRect.Left + (shaftRect.Width - textSize.Width) / 2;
+        float textY = shaftRect.Top + (shaftRect.Height - textSize.Height) / 2;
+        g.DrawString(text, numberFont, numberColor, textX, textY);
     }
     
     private void DrawDots(Graphics g)
