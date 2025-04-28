@@ -10,7 +10,7 @@ public partial class GameForm : Form
     int position = 0;
     private PictureBox? roomImage;
 
-    // Temporär zum erstellen der Felder
+    //Temporär zum erstellen der Felder
     protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
     {
         switch (keyData)
@@ -42,8 +42,6 @@ public partial class GameForm : Form
             case Keys.Enter:
             {
                 Console.WriteLine("new (" + x + ", " + y + "),");
-                x = y = 0;
-                slot.Location = new Point(x * roomImage.Width / 1920, y * roomImage.Width / 1920);
                 break;
             }
         }
@@ -71,7 +69,7 @@ public partial class GameForm : Form
     {
         //bild laden
         Image image = Image.FromStream(
-            Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Hotel.jpg"));// + GameLogic.CurrentRoom.Picture));
+            Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images." + GameLogic.CurrentRoom.Picture));
 
         if (roomImage != null)
         {
@@ -196,93 +194,103 @@ public partial class GameForm : Form
         } },
         { Room.RoomName.Hafen, new ()
         {
-            new (100, 200),
-            new (200, 200),
-            new (300, 200),
-            new (400, 200),
-            new (500, 200),
-            new (600, 200),
-            new (700, 200),
-            new (800, 200),
-            new (900, 200),
-            new (1000, 200),
-            new (1100, 200),
-            new (1200, 200),
-            new (1300, 200),
-            new (1400, 200),
-            new (1500, 200),
-            new (1600, 200),
-            new (1700, 200),
-            new (1800, 200),
-            new (1900, 200),
-            new (2000, 200)
+            new (65, 155),
+            new (195, 210),
+            new (310, 280),
+            new (310, 400),
+            new (310, 515),
+            new (370, 620),
+            new (495, 645),
+            new (550, 760),
+            new (680, 800),
+            new (815, 830),
+            new (1180, 810),
+            new (1290, 720),
+            new (1410, 680),
+            new (1490, 580),
+            new (1490, 470),
+            new (1490, 360),
+            new (1490, 250),
+            new (1535, 155),
+            new (1670, 140),
+            new (1800, 130)
         } },
         { Room.RoomName.Stadt, new ()
         {
-            new (100, 300),
-            new (200, 300),
-            new (300, 300),
-            new (400, 300),
-            new (500, 300),
-            new (600, 300),
-            new (700, 300),
-            new (800, 300),
-            new (900, 300),
-            new (1000, 300),
-            new (1100, 300),
-            new (1200, 300),
-            new (1300, 300),
-            new (1400, 300),
-            new (1500, 300),
-            new (1600, 300),
-            new (1700, 300),
-            new (1800, 300),
-            new (1900, 300)
+            new (50, 55),
+            new (175, 100),
+            new (220, 210),
+            new (270, 330),
+            new (285, 455),
+            new (270, 575),
+            new (355, 705),
+            new (405, 825),
+            new (505, 930),
+            new (640, 950),
+            new (765, 905),
+            new (1040, 910),
+            new (1170, 930),
+            new (1285, 855),
+            new (1395, 755),
+            new (1420, 640),
+            new (1550, 630),
+            new (1675, 620),
+            new (1785, 540)
             
         } },
         { Room.RoomName.Wald, new ()
         {
-            new (100, 400),
-            new (200, 400),
-            new (300, 400),
-            new (400, 400),
-            new (500, 400),
-            new (600, 400),
-            new (700, 400),
-            new (800, 400),
-            new (900, 400),
-            new (1000, 400),
-            new (1100, 400),
-            new (1200, 400),
-            new (1300, 400),
-            new (1400, 400),
-            new (1500, 400),
-            new (1600, 400),
-            new (1700, 400),
-            new (1800, 400)
+            new (50, 720),
+            new (160, 695),
+            new (260, 615),
+            new (335, 520),
+            new (450, 485),
+            new (570, 470),
+            new (685, 490),
+            new (800, 505),
+            new (1020, 540),
+            new (1130, 585),
+            new (1240, 630),
+            new (1355, 620),
+            new (1470, 580),
+            new (1580, 510),
+            new (1630, 410),
+            new (1670, 310),
+            new (1720, 215),
+            new (1800, 120),
         } },
         { Room.RoomName.SafeHouse, new ()
         {
-            new (100, 500),
-            new (200, 500),
-            new (300, 500),
-            new (400, 500),
-            new (500, 500),
-            new (600, 500),
-            new (700, 500),
-            new (800, 500),
-            new (900, 500),
-            new (1000, 500),
-            new (1100, 500),
-            new (1200, 500),
-            new (1300, 500),
-            new (1400, 500),
-            new (1500, 500),
-            new (1600, 500),
-            new (1700, 500),
-            new (1800, 500),
-            new (1900, 500),
-            new (2000, 500)
+            new (110, 765),
+            new (245, 805),
+            new (385, 825),
+            new (520, 855),
+            new (665, 905),
+            new (795, 880),
+            new (1040, 880),
+            new (1160, 875),
+            new (1280, 835),
+            new (1395, 755),
+            new (1360, 645),
+            new (1365, 510),
+            new (20, 25),
+            new (130, 40),
+            new (160, 140),
+            new (275, 155),
+            new (390, 195),
+            new (500, 180),
+            new (580, 85),
+            new (690, 60),
+            new (810, 25),
+            new (1035, 25),
+            new (1105, 115),
+            new (1220, 135),
+            new (1330, 125),
+            new (1440, 175),
+            new (1390, 270),
+            new (1360, 370),
+            new (1360, 500),
+
         } },
     };
 
