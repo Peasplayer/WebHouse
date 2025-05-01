@@ -1,4 +1,5 @@
-﻿using WebHouse_Client.Components;
+﻿using System.Drawing.Drawing2D;
+using WebHouse_Client.Components;
 
 namespace WebHouse_Client;
 
@@ -28,7 +29,7 @@ public class ChapterCard
 
         DrawTitle(g);
         DrawArrow(g);
-        DrawDots(g);
+        DrawNeededColors(g);
     }
 
     private void DrawTitle(Graphics g)
@@ -58,8 +59,8 @@ public class ChapterCard
         var path = new System.Drawing.Drawing2D.GraphicsPath();
 
         path.StartFigure();
-        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2, shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2); // Diagonale zur Spitze
-        path.AddLine(shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2); // Diagonale zur Spitze
+        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2, shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2); //Diagonale zur Spitze
+        path.AddLine(shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2); //Diagonale zur Spitze
         path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2);
         
         /*path.AddLine(shaftRect.Left, shaftRect.Top, shaftRect.Right, shaftRect.Top); 
@@ -79,18 +80,34 @@ public class ChapterCard
         g.DrawString(text, numberFont, numberColor, textX, textY);
     }
     
-    private void DrawDots(Graphics g)
+    private void DrawNeededColors(Graphics g)
     {
-        int circleSize = 20;
+        int dotWidth = 20;
+        int dotHeight = 28;
+        int cornerRadius = 6;
         int space = 5;
-        int totalWidth = requirements.Length * circleSize + (requirements.Length - 1) * space;
-        int startX = (125 - totalWidth) / 2;
-        int y = 200 - 35;
+        int totalWidth = requirements.Length * dotWidth + (requirements.Length - 1) * space;
+        int startX = (Cardpanel.Width - totalWidth) / 2;
+        int y = Cardpanel.Height - 35;
 
-        foreach (var (color, i) in requirements.Select((c, i) => (c, i)))
+        for (int i = 0; i < requirements.Length; i++)
         {
+            Color color = requirements[i];
             using var brush = new SolidBrush(color);
-            g.FillEllipse(brush, startX + i * (circleSize + space), y, circleSize, circleSize);
+            Rectangle rect = new Rectangle(startX + i * (dotWidth + space), y, dotWidth, dotHeight);
+            using var path = RoundedRectangle(rect, cornerRadius);
+            g.FillPath(brush, path);
         }
+    }
+    private GraphicsPath RoundedRectangle(Rectangle rect, int cornerRadius)
+    {
+        int diameter = cornerRadius * 2;
+        GraphicsPath path = new GraphicsPath();
+        path.AddArc(rect.Left, rect.Top, diameter, diameter, 180, 90);
+        path.AddArc(rect.Right - diameter, rect.Top, diameter, diameter, 270, 90);
+        path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
+        path.AddArc(rect.Left, rect.Bottom - diameter, diameter, diameter, 90, 90);
+        path.CloseFigure();
+        return path;
     }
 }

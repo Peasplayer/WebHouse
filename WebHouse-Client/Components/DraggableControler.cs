@@ -9,6 +9,8 @@ public class DraggableControler
     private Control snapTarget;
     private int snapRadius;
     private List<Control> snapTargets;
+    private Control HighlightTarget = null; //Der Stapel der farblich hervorgehoben wir da eine Karte in seiner nähe ist
+    private Color OriginalColor;
 
     public DraggableControler(Control control, List<Control> snapTargets, int snapRadius)
     {
@@ -67,21 +69,54 @@ public class DraggableControler
             }
         };
         
+        //Wir aufgerufen wen eine Karte bewegt wird
         Control.MouseMove += (sender, e) =>
         {
             if (isDragging)
             {
+                //Karte bewegen
                 var location = Control.Location;
                 location.Offset(e.Location.X - startLocation.X, e.Location.Y - startLocation.Y);
                 Control.Location = location;
+
+                Control nearestTarget = null;
+                
+                double nearestDistance = double.MaxValue;
+
+                //Suche den nächsten Stapel der im Snapradius ist
+                foreach (var target in snapTargets)
+                {
+                    var dx = (target.Left + target.Width / 2) - (Control.Left + Control.Width / 2);
+                    var dy = (target.Top + target.Height / 2) - (Control.Top + Control.Height / 2);
+                    double distance = Math.Sqrt(dx * dx + dy * dy);
+
+                    if (distance <= snapRadius && distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearestTarget = target;
+                        
+                    }
+                }
+
+                //Wenn sich das Snap Ziel geändert hat
+                if (nearestTarget != HighlightTarget)
+                {
+                    //Der alte Stapel wird zurückgefärbt
+                    if (HighlightTarget != null)
+                    {
+                        HighlightTarget.BackColor = OriginalColor;
+                    }
+
+                    //Stapel wird gelb gefärbt
+                    if (nearestTarget != null)
+                    {
+                        OriginalColor = nearestTarget.BackColor;  
+                        nearestTarget.BackColor = Color.Yellow; 
+                    }
+                    HighlightTarget = nearestTarget;
+
+                }
             }
         };
-    }
-
-    private double Distance(Point p1, Point p2)
-    {
-        int dx = p1.X - p2.X;
-        int dy = p1.Y - p2.Y;
-        return Math.Sqrt(dx * dx + dy * dy);
     }
 }
