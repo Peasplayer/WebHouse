@@ -60,14 +60,14 @@ public partial class GameForm : Form
         
         CreateGameField();
         TestKnopf();
-        MarkiereAktuellesFeld();
+        //MarkiereAktuellesFeld();
         
         GameLogic.Start();
     }
 
     public void CreateGameField()
     {
-        //bild laden
+        // Bild laden
         Image image = Image.FromStream(
             Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images." + GameLogic.CurrentRoom.Picture));
 
@@ -75,59 +75,49 @@ public partial class GameForm : Form
         {
             roomImage.Dispose();
         }
-        
-        //pictureBox erstellen
+
+        //Hintergrundbild setzen
         PictureBox pictureBox = new PictureBox();
         pictureBox.Image = image;
         pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
-
-        //Größe auf ein Viertel des Fensters setzen
         pictureBox.Width = GetPercentage(true, 60);
         pictureBox.Height = GetPercentage(true, 60) * 9 / 16;
-
-        //Oben rechts positionieren
         pictureBox.Location = new Point(this.ClientSize.Width - pictureBox.Width, 0);
-
-        Panel panel = new Panel();
-        panel.Size = new Size(70 * pictureBox.Width / 1920, 70 * pictureBox.Height / 1080);
-        panel.Location = new Point(x * pictureBox.Width / 1920, y * pictureBox.Width / 1920);
-        panel.BackColor = Color.Fuchsia;
-        pictureBox.Controls.Add(panel);
-        pictureBox.BringToFront();
-        slot = panel;
-        
-        //PictureBox zur Form hinzufügen
         this.Controls.Add(pictureBox);
         roomImage = pictureBox;
-        
-        foreach (Button btn in GameField) //vorhandenen Buttons entfernen und die Liste leeren
+
+        //Alte PictureBox entfernen
+        if (figureBox != null)
         {
-            this.Controls.Remove(btn); //entfernt Buttons
-            btn.Dispose(); //entfernt die Buttons aus dem Speicher (nicht nur Grafisch)
+            figureBox.Dispose();
         }
 
-        GameField.Clear();
+        // Neue PictureBox erzeugen
+        figureBox = new PictureBox();
+        figureBox.Size = new Size(50, 50);
+        figureBox.BackColor = Color.Blue;
+        figureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+        //Bild für PictureBox: figureBox.Image = Image.FromFile("pfad_zur_figur.png");
+        roomImage.Controls.Add(figureBox);
 
+        position = 0;
+        SetFigurePosition();
+    }
+    
+    private void SetFigurePosition()
+    {
         var fields = Fields[GameLogic.CurrentRoom.RoomType];
-        foreach (var point in fields)
+        if (position >= 0 && position < fields.Count)
         {
-            Button fieldButton = new Button(); //Erstelle einen neuen Button
-            //fieldButton.Width = 40; //Setze die Breite des Buttons
-            //fieldButton.Height = 40; //Setze die Höhe des Buttons
-            fieldButton.Size = new Size(70 * pictureBox.Width / 1920, 70 * pictureBox.Height / 1080);
-            fieldButton.Text = (fields.IndexOf(point) + 1).ToString();
-
-            //Positioniere den Button basierend auf den Koordinaten
-            //fieldButton.Location = new Point(point.X - fieldButton.Width / 2, point.Y - fieldButton.Height / 2);
-            fieldButton.Location = new Point(point.X * pictureBox.Width / 1920, point.Y * pictureBox.Width / 1920);
-            fieldButton.BringToFront();
-            
-            //Füge den Button zu den Steuerelementen der Form hinzu
-            roomImage.Controls.Add(fieldButton);
-
-            GameField.Add(fieldButton); //Fügt das Feld der Liste Hinzu
+            var point = fields[position];
+            figureBox.Location = new Point(
+                point.X * roomImage.Width / 1920,
+                point.Y * roomImage.Width / 1920
+            );
         }
     }
+
+
 
     private void TestKnopf()
     {
@@ -140,26 +130,27 @@ public partial class GameForm : Form
 
     private void figureMovement(object sender, EventArgs e)
     {
-        //Aktuelles Feld zurücksetzen
-        GameField[position].BackColor = SystemColors.Control;
-
-        //Position erhöhen
         position++;
-        if (position >= GameField.Count)
+        var fields = Fields[GameLogic.CurrentRoom.RoomType];
+
+        if (position >= fields.Count)
         {
-            position = 0; //Zurück zum Anfang
+            position = 0;
             GameLogic.SwitchRoom();
             CreateGameField();
+            return;
         }
 
-        //Neues Feld markieren
-        MarkiereAktuellesFeld();
+        SetFigurePosition();
     }
 
+/*
     private void MarkiereAktuellesFeld() //Blau = eigene Figur
     {
         GameField[position].BackColor = Color.Blue;
     }
+    
+*/
 
     private int GetPercentage(bool width, int percentage)
     {
@@ -297,4 +288,5 @@ public partial class GameForm : Form
     private int x;
     private int y;
     private Panel slot;
+    private PictureBox figureBox;
 }
