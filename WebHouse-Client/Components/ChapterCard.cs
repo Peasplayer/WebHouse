@@ -1,31 +1,26 @@
 ﻿using System.Drawing.Drawing2D;
-using WebHouse_Client.Components;
+using WebHouse_Client.Logic;
 
-namespace WebHouse_Client;
+namespace WebHouse_Client.Components;
 
 public class ChapterCard
 {
-    public Card Card { get; }
-    public Panel Cardpanel => Card.cardPanel;
+    private Card CardComponent { get; }
+    public Panel Panel => CardComponent.Panel;
+    public Logic.ChapterCard Card { get; }
 
-    private string title;
-    private int number;
-    private Color[] requirements;
-
-    public ChapterCard(string title, int number, Color[] requirements)
+    public ChapterCard(Logic.ChapterCard card)
     {
-        this.title = title;
-        this.number = number;
-        this.requirements = requirements;
-
-        Card = new Card(new Size(135, 200), 5, 10, Color.Black, 2);
-        Cardpanel.Paint += DrawChapterCard;
+        Card = card;
+        
+        CardComponent = new Card(new Size(135, 200), 5, 10, Color.Black, 2);
+        Panel.Paint += DrawChapterCard;
     }
 
     private void DrawChapterCard(object? sender, PaintEventArgs e)
     {
         Graphics g = e.Graphics;
-        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        g.SmoothingMode = SmoothingMode.AntiAlias;
 
         DrawTitle(g);
         DrawArrow(g);
@@ -35,9 +30,9 @@ public class ChapterCard
     private void DrawTitle(Graphics g)
     {
         Font font = new Font("Arial", 12, FontStyle.Bold);
-        SizeF textSize = g.MeasureString(title, font);
-        PointF textPosition = new PointF((Cardpanel.Width - textSize.Width) / 2, 30);
-        g.DrawString(title, font, Brushes.White, textPosition);
+        SizeF textSize = g.MeasureString(Card.Chapter, font);
+        PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, 30);
+        g.DrawString(Card.Chapter, font, Brushes.White, textPosition);
     }
 
     private void DrawArrow(Graphics g)
@@ -47,7 +42,7 @@ public class ChapterCard
         int arrowHeight = 50;        //Höhe des gesamten Pfeils
         int arrowHeadWidth = 30;     //Breite der Spitze
         int startX = 0;
-        int centerY = (Cardpanel.Height - arrowHeight) / 2 + 25;
+        int centerY = (Panel.Height - arrowHeight) / 2 + 25;
 
         Rectangle shaftRect = new Rectangle(startX, centerY, shaftWidth, shaftHeight);
 
@@ -73,7 +68,7 @@ public class ChapterCard
         //g.DrawPath(arrowFrame, path);
         g.FillRectangle(arrowBackground, shaftRect);
 
-        var text = number.ToString();
+        var text = Card.Steps.ToString();
         var textSize = g.MeasureString(text, numberFont);
         float textX = shaftRect.Left + (shaftRect.Width - textSize.Width) / 2;
         float textY = shaftRect.Top + (shaftRect.Height - textSize.Height) / 2;
@@ -86,13 +81,13 @@ public class ChapterCard
         int dotHeight = 28;
         int cornerRadius = 6;
         int space = 5;
-        int totalWidth = requirements.Length * dotWidth + (requirements.Length - 1) * space;
-        int startX = (Cardpanel.Width - totalWidth) / 2;
-        int y = Cardpanel.Height - 35;
+        int totalWidth = Card.Requirements.Count * dotWidth + (Card.Requirements.Count - 1) * space;
+        int startX = (Panel.Width - totalWidth) / 2;
+        int y = Panel.Height - 35;
 
-        for (int i = 0; i < requirements.Length; i++)
+        for (int i = 0; i < Card.Requirements.Count; i++)
         {
-            Color color = requirements[i];
+            Color color = Card.Requirements[i].GetColor();
             using var brush = new SolidBrush(color);
             Rectangle rect = new Rectangle(startX + i * (dotWidth + space), y, dotWidth, dotHeight);
             using var path = RoundedRectangle(rect, cornerRadius);

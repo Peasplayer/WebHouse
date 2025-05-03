@@ -1,31 +1,26 @@
 ﻿namespace WebHouse_Client.Components;
 
-public class DraggableControler
+public class DraggableControl
 {
-    public Control Control { get; }
-    private bool isDragging;
-    private Point startLocation;
-    private int ZIndex;
-    private Control snapTarget;
-    private int snapRadius;
-    private List<Control> snapTargets;
-    private Control HighlightTarget = null; //Der Stapel der farblich hervorgehoben wir da eine Karte in seiner nähe ist
-    private Color OriginalColor;
+    public const int SnapRadius = 200; //Radius in dem die Karte an einen Stapel angeheftet wird
 
-    public DraggableControler(Control control, List<Control> snapTargets, int snapRadius)
+    private Control Control { get; }
+    private bool _isDragging;
+    private Point _startLocation;
+    private Control? _highlightTarget; //Der Stapel der farblich hervorgehoben wir da eine Karte in seiner nähe ist
+    private Color _originalColor;
+
+    public DraggableControl(Control control, List<Control> snapTargets)
     {
         Control = control;
-        this.snapTargets = snapTargets;
-        this.snapRadius = snapRadius;
 
         //Wird ausgeführt wenn die Maustase gedrückt wird
         Control.MouseDown += (sender, e) =>
         {
             if (e.Button == MouseButtons.Left)
             {
-                isDragging = true;
-                startLocation = e.Location;
-                ZIndex = Control.Parent.Controls.GetChildIndex(Control); //Z-Index der Karte merken
+                _isDragging = true;
+                _startLocation = e.Location;
                 Control.BringToFront(); //Karte wird in den Vordergrund gebracht damit sie nicht hinter einem Stable verschwindet
             }
         };
@@ -33,11 +28,11 @@ public class DraggableControler
         //Wird ausgeführt wenn die Maustaste losgelassen wird
         Control.MouseUp += (sender, e) =>
         {
-            if (!isDragging)
+            if (!_isDragging)
             {
                 return; //Wenn die Karte nicht bewegt wird wird nichts gemacht
             } 
-            isDragging = false;
+            _isDragging = false;
 
             Control closest = null;
             double closestDistance = double.MaxValue; //Nutzt die größte mögliche Distanz damit jeder andere Wert immer kleiner ist
@@ -51,7 +46,7 @@ public class DraggableControler
                 double distance = dx * dx + dy * dy; //Abstand wird quadriert um die Distanz herauszufinden (Satz des Pythagoras)
 
                 //Überprüft ob die Karte in den Snap Radius ist und ob die Distanz kleiner ist als die vorherige
-                if (distance <= snapRadius * snapRadius && distance < closestDistance)
+                if (distance <= SnapRadius * SnapRadius && distance < closestDistance)
                 {
                     closestDistance = distance; //Neuer kleinster Wert
                     closest = target; //Ziel wird gespeichert
@@ -72,11 +67,11 @@ public class DraggableControler
         //Wir aufgerufen wen eine Karte bewegt wird
         Control.MouseMove += (sender, e) =>
         {
-            if (isDragging)
+            if (_isDragging)
             {
                 //Karte bewegen
                 var location = Control.Location;
-                location.Offset(e.Location.X - startLocation.X, e.Location.Y - startLocation.Y);
+                location.Offset(e.Location.X - _startLocation.X, e.Location.Y - _startLocation.Y);
                 Control.Location = location;
 
                 Control nearestTarget = null;
@@ -90,7 +85,7 @@ public class DraggableControler
                     var dy = (target.Top + target.Height / 2) - (Control.Top + Control.Height / 2);
                     double distance = Math.Sqrt(dx * dx + dy * dy);
 
-                    if (distance <= snapRadius && distance < nearestDistance)
+                    if (distance <= SnapRadius && distance < nearestDistance)
                     {
                         nearestDistance = distance;
                         nearestTarget = target;
@@ -99,22 +94,21 @@ public class DraggableControler
                 }
 
                 //Wenn sich das Snap Ziel geändert hat
-                if (nearestTarget != HighlightTarget)
+                if (nearestTarget != _highlightTarget)
                 {
                     //Der alte Stapel wird zurückgefärbt
-                    if (HighlightTarget != null)
+                    if (_highlightTarget != null)
                     {
-                        HighlightTarget.BackColor = OriginalColor;
+                        _highlightTarget.BackColor = _originalColor;
                     }
 
                     //Stapel wird gelb gefärbt
                     if (nearestTarget != null)
                     {
-                        OriginalColor = nearestTarget.BackColor;  
+                        _originalColor = nearestTarget.BackColor;  
                         nearestTarget.BackColor = Color.Yellow; 
                     }
-                    HighlightTarget = nearestTarget;
-
+                    _highlightTarget = nearestTarget;
                 }
             }
         };

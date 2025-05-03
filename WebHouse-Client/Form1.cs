@@ -1,4 +1,6 @@
 using WebHouse_Client.Components;
+using WebHouse_Client.Logic;
+using ChapterCard = WebHouse_Client.Logic.ChapterCard;
 
 namespace WebHouse_Client;
 
@@ -18,11 +20,11 @@ public partial class Form1 : Form
         this.Controls.Add(discardPile);
         snapTargets.Add(discardPile); 
         
-        var chapterCard = new ChapterCard("Wald", 1, new[] { Color.Red, Color.Green });
-        chapterCard.Cardpanel.Location = new Point(50, 50);
-        this.Controls.Add(chapterCard.Cardpanel);
+        var chapterCard = new ChapterCard("Wald", 1, new () { CardColor.Red, CardColor.Green });
+        chapterCard.Component.Panel.Location = new Point(50, 50);
+        this.Controls.Add(chapterCard.Component.Panel);
         snapTargets.Add(discardPile);
-        new DraggableControler(chapterCard.Cardpanel, snapTargets,200);
+        new DraggableControl(chapterCard.Component.Panel, snapTargets);
         
         
         /*
