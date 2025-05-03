@@ -14,7 +14,6 @@ public class ChapterCard
         Steps = steps;
         Requirements = requirements;
         
-        
         Component = new Components.ChapterCard(this);
     }
 }
