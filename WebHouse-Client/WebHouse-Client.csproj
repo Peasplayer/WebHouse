@@ -10,8 +10,19 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Update="GameForm.cs">
+        <SubType>Form</SubType>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Websocket.Client" Version="5.1.2" />
     </ItemGroup>
-
+    
+    <ItemGroup>
+        <EmbeddedResource Include="Resources\Sounds\*" />
+        <EmbeddedResource Include="Resources\Background_Images\*" />
+    </ItemGroup>
+    
 </Project>
