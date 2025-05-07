@@ -14,7 +14,7 @@ public class DraggableControl
     {
         Control = control;
 
-        //Wird ausgeführt wenn die Maustase gedrückt wird
+        //Wird ausgeführt wenn die Maustaste gedrückt wird
         Control.MouseDown += (sender, e) =>
         {
             if (e.Button == MouseButtons.Left)
@@ -22,6 +22,16 @@ public class DraggableControl
                 _isDragging = true;
                 _startLocation = e.Location;
                 Control.BringToFront(); //Karte wird in den Vordergrund gebracht damit sie nicht hinter einem Stable verschwindet
+                
+                //Entfernt die ausgewählte Karten aus dem Dictionary in CardManager
+                foreach(var group in CardManager.CardGroup)
+                {
+                    if (group.Value.Contains(Control))
+                    {
+                        group.Value.Remove(Control); //Karte wird aus dem Stapel entfernt
+                        break;
+                    }
+                }
             }
         };
         
@@ -56,11 +66,28 @@ public class DraggableControl
             //Wenn ein Ziel gefunden wurde wird die Karte in die Mitte von dessem gesetzt
             if (closest != null)
             {
+                if (!CardManager.CardGroup.ContainsKey(closest))
+                    CardManager.CardGroup[closest] = new List<Control>();
+
+                var group = CardManager.CardGroup[closest];
+                group.Add(Control);
+
+                // Position berechnen (horizontal nebeneinander)
+                int index = group.Count - 1;
+                int spacing = 10; // Abstand zwischen den Karten
+                int startX = closest.Left + (closest.Width - (Control.Width * group.Count + spacing * (group.Count - 1))) / 2;
+
                 Control.Location = new Point(
-                    closest.Left + (closest.Width - Control.Width) / 2,
+                    startX + index * (Control.Width + spacing),
                     closest.Top + (closest.Height - Control.Height) / 2
                 );
-                Control.BringToFront(); //Karte wird in den Vordergrund gebracht damit sie nicht hinter einem Stable verschwindet
+
+                Control.BringToFront();//Karte wird in den Vordergrund gebracht damit sie nicht hinter einem Stable verschwindet
+            }
+            if (_highlightTarget != null)
+            {
+                _highlightTarget.BackColor = _originalColor;
+                _highlightTarget = null;
             }
         };
         
