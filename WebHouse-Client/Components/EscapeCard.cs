@@ -17,8 +17,8 @@ public class EscapeCard
         
         CardComponent = new Card(new Size(135, 200), 5, 10, Card.Color.GetColor(), 2);
         Panel.Paint += DrawEscapeCards;
+        Panel.Tag = this;
         EscapeCardsList.Add(this);
-        PositionCards();
     }
     private void DrawEscapeCards(object? sender, PaintEventArgs e)
     {
@@ -58,6 +58,8 @@ public class EscapeCard
         }
     }
     
+    /*
+     Ordnet die Karten in einer Horizontalen Line an. Nutzbar für das Inventar
     private void PositionCards()
     {
         int spacing = 10; //Abstand zwischen den einzelnen Karten
@@ -71,4 +73,5 @@ public class EscapeCard
             card.Panel.Location = new Point(x, card.Panel.Top);
         }
     }
+    */
 }

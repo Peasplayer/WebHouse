@@ -7,7 +7,7 @@ public class DraggableControl
     private Control Control { get; }
     private bool _isDragging;
     private Point _startLocation;
-    private Control? _highlightTarget; //Der Stapel der farblich hervorgehoben wir da eine Karte in seiner nähe ist
+    private Control? _highlightTarget; //Der Stapel der farblich hervorgehoben wird, da eine Karte in seiner Nähe ist
     private Color _originalColor;
 
     public DraggableControl(Control control, List<Control> snapTargets)
@@ -21,7 +21,7 @@ public class DraggableControl
             {
                 _isDragging = true;
                 _startLocation = e.Location;
-                Control.BringToFront(); //Karte wird in den Vordergrund gebracht damit sie nicht hinter einem Stable verschwindet
+                Control.BringToFront(); //Karte wird in den Vordergrund gebracht, damit sie nicht hinter einem Stapel verschwindet
                 
                 //Entfernt die ausgewählte Karten aus dem Dictionary in CardManager
                 foreach(var group in CardManager.CardGroup)
@@ -45,17 +45,17 @@ public class DraggableControl
             _isDragging = false;
 
             Control closest = null;
-            double closestDistance = double.MaxValue; //Nutzt die größte mögliche Distanz damit jeder andere Wert immer kleiner ist
+            double closestDistance = double.MaxValue; //Nutzt die größte mögliche Distanz, damit jeder andere Wert immer kleiner ist
 
-            //Überprüft alle möglichen Snapp Ziele
+            //Überprüft alle möglichen Snap Ziele
             foreach (var target in snapTargets)
             {
-                //Berechnet die Distantz zum Mittelpunkt des Ziels
+                //Berechnet die Distanz zum Mittelpunkt des Ziels
                 var dx = (target.Left + target.Width / 2) - (Control.Left + Control.Width / 2);
                 var dy = (target.Top + target.Height / 2) - (Control.Top + Control.Height / 2);
-                double distance = dx * dx + dy * dy; //Abstand wird quadriert um die Distanz herauszufinden (Satz des Pythagoras)
+                double distance = dx * dx + dy * dy; //Abstand wird quadriert, um die Distanz herauszufinden (Satz des Pythagoras)
 
-                //Überprüft ob die Karte in den Snap Radius ist und ob die Distanz kleiner ist als die vorherige
+                //Überprüft ob die Karte im Snap-Radius ist und ob die Distanz kleiner ist als die vorherige
                 if (distance <= SnapRadius * SnapRadius && distance < closestDistance)
                 {
                     closestDistance = distance; //Neuer kleinster Wert
@@ -63,7 +63,7 @@ public class DraggableControl
                 }
             }
 
-            //Wenn ein Ziel gefunden wurde wird die Karte in die Mitte von dessem gesetzt
+            //Wenn ein Ziel gefunden wurde, wird die Karte in die Mitte dessen gesetzt
             if (closest != null)
             {
                 if (!CardManager.CardGroup.ContainsKey(closest))
@@ -72,18 +72,30 @@ public class DraggableControl
                 var group = CardManager.CardGroup[closest];
                 group.Add(Control);
 
-                // Position berechnen (horizontal nebeneinander)
-                int index = group.Count - 1;
-                int spacing = 10; // Abstand zwischen den Karten
-                int startX = closest.Left + (closest.Width - (Control.Width * group.Count + spacing * (group.Count - 1))) / 2;
-
+                //Wird auf dem 
                 Control.Location = new Point(
-                    startX + index * (Control.Width + spacing),
+                    closest.Left + (closest.Width - Control.Width) / 2,
                     closest.Top + (closest.Height - Control.Height) / 2
                 );
 
-                Control.BringToFront();//Karte wird in den Vordergrund gebracht damit sie nicht hinter einem Stable verschwindet
+                Control.SendToBack(); //Karte wird hinter den Stapel gelegt (EscapeCard hinter ChapterCard)
+
+                //Farbanforderungen entfernen wen eine passende Karte angelegt wurde
+                if (closest is Panel chapterPanel && Control is Panel escapePanel)
+                {
+                    if (chapterPanel.Tag is Components.ChapterCard chapterCard &&
+                        escapePanel.Tag is Components.EscapeCard escapeCard)
+                    {
+                        var color = escapeCard.Card.Color;
+                        if (chapterCard.Card.Requirements.Contains(color))
+                        {
+                            chapterCard.Card.Requirements.Remove(color); //Farbe entfernen
+                            chapterPanel.Invalidate(); //Chapter Card neu zeichnen
+                        }
+                    }
+                }
             }
+
             if (_highlightTarget != null)
             {
                 _highlightTarget.BackColor = _originalColor;
@@ -102,7 +114,6 @@ public class DraggableControl
                 Control.Location = location;
 
                 Control nearestTarget = null;
-                
                 double nearestDistance = double.MaxValue;
 
                 //Suche den nächsten Stapel der im Snapradius ist
@@ -116,14 +127,12 @@ public class DraggableControl
                     {
                         nearestDistance = distance;
                         nearestTarget = target;
-                        
                     }
                 }
 
                 //Wenn sich das Snap Ziel geändert hat
                 if (nearestTarget != _highlightTarget)
                 {
-                    //Der alte Stapel wird zurückgefärbt
                     if (_highlightTarget != null)
                     {
                         _highlightTarget.BackColor = _originalColor;
@@ -132,9 +141,10 @@ public class DraggableControl
                     //Stapel wird gelb gefärbt
                     if (nearestTarget != null)
                     {
-                        _originalColor = nearestTarget.BackColor;  
-                        nearestTarget.BackColor = Color.Yellow; 
+                        _originalColor = nearestTarget.BackColor;
+                        nearestTarget.BackColor = Color.Yellow;
                     }
+
                     _highlightTarget = nearestTarget;
                 }
             }
