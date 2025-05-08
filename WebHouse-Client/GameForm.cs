@@ -60,7 +60,6 @@ public partial class GameForm : Form
         
         CreateGameField();
         TestKnopf();
-        //MarkiereAktuellesFeld();
         
         GameLogic.Start();
     }
@@ -116,9 +115,7 @@ public partial class GameForm : Form
             );
         }
     }
-
-
-
+    
     private void TestKnopf()
     {
         weiterButton.Text = "Weiter";
@@ -131,9 +128,8 @@ public partial class GameForm : Form
     private void figureMovement(object sender, EventArgs e)
     {
         position++;
-        var fields = Fields[GameLogic.CurrentRoom.RoomType];
 
-        if (position >= fields.Count)
+        if (position >= Fields[GameLogic.CurrentRoom.RoomType].Count)
         {
             position = 0;
             GameLogic.SwitchRoom();
@@ -143,14 +139,6 @@ public partial class GameForm : Form
 
         SetFigurePosition();
     }
-
-/*
-    private void MarkiereAktuellesFeld() //Blau = eigene Figur
-    {
-        GameField[position].BackColor = Color.Blue;
-    }
-    
-*/
 
     private int GetPercentage(bool width, int percentage)
     {
