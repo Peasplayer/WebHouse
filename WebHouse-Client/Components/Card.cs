@@ -4,7 +4,7 @@ namespace WebHouse_Client.Components;
 
 public class Card
 {
-    public Panel cardPanel { get; }
+    public Panel Panel { get; }
     private readonly int cornerRadius; //Radius der Ecken
     private readonly int borderWidth; //Dicke des Rahmens
     private readonly Color color; //Hintergrundfarbe der Karte
@@ -16,14 +16,14 @@ public class Card
         this.color = color;
 
         //Panel wird erstellt
-        cardPanel = new BufferPanel()
+        Panel = new BufferPanel()
         {
             Size = size,
             BackColor = Color.Transparent
         };
 
         //Karten werden erstellt
-        cardPanel.Paint += (sender, e) =>
+        Panel.Paint += (sender, e) =>
         {
             var g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
