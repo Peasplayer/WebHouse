@@ -5,7 +5,7 @@ namespace WebHouse_Client.Components;
 
 public class EscapeCard
 {
-    private Card CardComponent { get; }
+    public Card CardComponent { get; }
     public Panel Panel => CardComponent.Panel;
     public Logic.EscapeCard Card { get; }
 

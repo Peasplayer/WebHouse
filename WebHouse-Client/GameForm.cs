@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using WebHouse_Client.Components;
 using WebHouse_Client.Logic;
+using ChapterCard = WebHouse_Client.Logic.ChapterCard;
 
 namespace WebHouse_Client;
 
@@ -9,47 +11,8 @@ public partial class GameForm : Form
     Button weiterButton = new Button(); //testknopf
     int position = 0;
     private PictureBox? roomImage;
-
-    // Temporär zum erstellen der Felder
-    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-    {
-        switch (keyData)
-        {
-            case Keys.Left:
-            {
-                x -= 5;
-                slot.Location = new Point(x * roomImage.Width / 1920, y * roomImage.Width / 1920);
-                break;
-            }
-            case Keys.Right:
-            {
-                x += 5;
-                slot.Location = new Point(x * roomImage.Width / 1920, y * roomImage.Width / 1920);
-                break;
-            }
-            case Keys.Up:
-            {
-                y -= 5;
-                slot.Location = new Point(x * roomImage.Width / 1920, y * roomImage.Width / 1920);
-                break;
-            }
-            case Keys.Down:
-            {
-                y += 5;
-                slot.Location = new Point(x * roomImage.Width / 1920, y * roomImage.Width / 1920);
-                break;
-            }
-            case Keys.Enter:
-            {
-                Console.WriteLine("new (" + x + ", " + y + "),");
-                x = y = 0;
-                slot.Location = new Point(x * roomImage.Width / 1920, y * roomImage.Width / 1920);
-                break;
-            }
-        }
-
-        return base.ProcessCmdKey(ref msg, keyData);
-    }
+    private Panel? inventoryContainer;
+    private List<ChapterCard> chapterCards = new List<ChapterCard>();
     
     public GameForm()
     {
@@ -78,29 +41,62 @@ public partial class GameForm : Form
             roomImage.Dispose();
         }
         
-        //pictureBox erstellen
-        PictureBox pictureBox = new PictureBox();
-        pictureBox.Image = image;
-        pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+        //roomImage erstellen
+        roomImage = new PictureBox();
+        roomImage.Image = image;
+        roomImage.SizeMode = PictureBoxSizeMode.Zoom;
 
         //Größe auf ein Viertel des Fensters setzen
-        pictureBox.Width = GetPercentage(true, 60);
-        pictureBox.Height = GetPercentage(true, 60) * 9 / 16;
-
+        var width = GetRelativeSize(ClientSize, true, percentage: 60);
+        var height = GetRelativeSize(ClientSize, true, percentage: 60) * 9 / 16;
+        if (height > GetRelativeSize(ClientSize, false, percentage: 60))
+        {
+            width = GetRelativeSize(ClientSize, false, percentage: 60) * 16 / 9;
+            height = GetRelativeSize(ClientSize, false, percentage: 60);
+        }
+        roomImage.Width = width;
+        roomImage.Height = height;
         //Oben rechts positionieren
-        pictureBox.Location = new Point(this.ClientSize.Width - pictureBox.Width, 0);
+        roomImage.Location = new Point(ClientSize.Width - roomImage.Width, 0);
+        //roomImage zur Form hinzufügen
+        Controls.Add(roomImage);
 
-        Panel panel = new Panel();
-        panel.Size = new Size(70 * pictureBox.Width / 1920, 70 * pictureBox.Height / 1080);
-        panel.Location = new Point(x * pictureBox.Width / 1920, y * pictureBox.Width / 1920);
-        panel.BackColor = Color.Fuchsia;
-        pictureBox.Controls.Add(panel);
-        pictureBox.BringToFront();
-        slot = panel;
+        if (inventoryContainer != null)
+        {
+            inventoryContainer.Dispose();
+        }
         
-        //PictureBox zur Form hinzufügen
-        this.Controls.Add(pictureBox);
-        roomImage = pictureBox;
+        inventoryContainer = new Panel();
+        inventoryContainer.Size = new Size(GetRelativeSize(ClientSize, true, percentage: 50), GetRelativeSize(ClientSize, false, percentage: 40));
+        inventoryContainer.Location = new Point(ClientSize.Width - inventoryContainer.Width, ClientSize.Height - inventoryContainer.Height);
+        inventoryContainer.BackColor = Color.Aquamarine;
+        Controls.Add(inventoryContainer);
+
+        if (chapterCards.Count == 0)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                var card = new ChapterCard("Test", i + 1, new List<CardColor> {CardColor.Red, CardColor.Blue, CardColor.Green});
+                Controls.Add(card.Component.Panel);
+                card.Component.Panel.BringToFront();
+                new DraggableControl(card.Component.Panel);
+                chapterCards.Add(card);
+            }
+        }
+
+        var cardWidth = GetRelativeSize(inventoryContainer.Size, true, percentage: 20);
+        var cardHeight = cardWidth * 3 / 2;
+        if (cardHeight > inventoryContainer.Height)
+        {
+            cardHeight = inventoryContainer.Height;
+            cardWidth = cardHeight * 2 / 3;
+        }
+        foreach (var card in chapterCards)
+        {
+            card.Component.CardComponent.Size = new Size(cardWidth, cardHeight);
+            card.Component.Panel.Location =
+                inventoryContainer.Location with { X = inventoryContainer.Location.X + chapterCards.IndexOf(card) * cardWidth };
+        }
         
         foreach (Button btn in GameField) //vorhandenen Buttons entfernen und die Liste leeren
         {
@@ -116,14 +112,13 @@ public partial class GameForm : Form
             Button fieldButton = new Button(); //Erstelle einen neuen Button
             //fieldButton.Width = 40; //Setze die Breite des Buttons
             //fieldButton.Height = 40; //Setze die Höhe des Buttons
-            fieldButton.Size = new Size(70 * pictureBox.Width / 1920, 70 * pictureBox.Height / 1080);
+            fieldButton.Size = new Size(GetRelativeSize(roomImage.Size, true, 70), GetRelativeSize(roomImage.Size, false, 70));
             fieldButton.Text = (fields.IndexOf(point) + 1).ToString();
 
             //Positioniere den Button basierend auf den Koordinaten
             //fieldButton.Location = new Point(point.X - fieldButton.Width / 2, point.Y - fieldButton.Height / 2);
-            fieldButton.Location = new Point(point.X * pictureBox.Width / 1920, point.Y * pictureBox.Width / 1920);
+            fieldButton.Location = new Point(GetRelativeSize(roomImage.Size, true, point.X), GetRelativeSize(roomImage.Size, false, point.Y));
             fieldButton.BringToFront();
-            
             //Füge den Button zu den Steuerelementen der Form hinzu
             roomImage.Controls.Add(fieldButton);
 
@@ -163,9 +158,19 @@ public partial class GameForm : Form
         GameField[position].BackColor = Color.Blue;
     }
 
-    private int GetPercentage(bool width, int percentage)
+    private int GetRelativeSize(Size size, bool width, int? pixels = null, int? percentage = null)
     {
-        return (width ? this.ClientSize.Width : this.ClientSize.Height) / 100 * percentage; 
+        if (pixels != null)
+        {
+            return pixels.Value * (width ? size.Width : size.Height) / (width ? 1920 : 1080);
+        }
+
+        if (percentage != null)
+        {
+            return (width ? size.Width : size.Height) / 100 * percentage.Value; 
+        }
+        
+        throw new ArgumentException("Either pixels or percentage must be provided.");
     }
 
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
@@ -285,8 +290,4 @@ public partial class GameForm : Form
             new (2000, 500)
         } },
     };
-
-    private int x;
-    private int y;
-    private Panel slot;
 }

@@ -5,37 +5,49 @@ namespace WebHouse_Client.Components;
 public class Card
 {
     public Panel Panel { get; }
-    private readonly int cornerRadius; //Radius der Ecken
-    private readonly int borderWidth; //Dicke des Rahmens
-    private readonly Color color; //Hintergrundfarbe der Karte
+    public Size Size;
+    private readonly int _cornerRadius; //Radius der Ecken
+    private readonly int _borderWidth; //Dicke des Rahmens
+    private readonly Color _color; //Hintergrundfarbe der Karte
+    private readonly Action<Graphics>? _additionalPaint;
 
-    public Card(Size size, int borderWidth, int cornerRadius, Color color, int outlineWidth)
+    public Card(Size size, int borderWidth, int cornerRadius, Color color, int outlineWidth, Action<Graphics>? additionalPaint = null)
     {
-        this.cornerRadius = cornerRadius;
-        this.borderWidth = borderWidth;
-        this.color = color;
+        Size = size;
+        _cornerRadius = cornerRadius;
+        _borderWidth = borderWidth;
+        _color = color;
+        _additionalPaint = additionalPaint;
 
         //Panel wird erstellt
         Panel = new BufferPanel()
         {
-            Size = size,
+            Size = Size,
             BackColor = Color.Transparent
         };
 
         //Karten werden erstellt
-        Panel.Paint += (sender, e) =>
-        {
-            var g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        Panel.Paint += DrawCard;
+    }
+    
+    private void DrawCard(object? sender, PaintEventArgs e)
+    {
+        Panel.Size = Size;
+        
+        var g = e.Graphics;
+        g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            using (GraphicsPath path = RoundedRectangle(new Rectangle(0, 0, size.Width, size.Height), cornerRadius))
-            using (SolidBrush brush = new SolidBrush(color))
-            using (Pen pen = new Pen(Color.White, outlineWidth))
+        using (GraphicsPath path = RoundedRectangle(new Rectangle(0, 0, Size.Width, Size.Height), _cornerRadius))
+        using (SolidBrush brush = new SolidBrush(_color))
+        using (Pen pen = new Pen(Color.Red, 3))
+        {
+            g.FillPath(brush, path); //Hintergrund der Karte
+            if (_additionalPaint != null)
             {
-                g.FillPath(brush, path); //Farbe der Karte
-                g.DrawPath(pen, path); //Rahmen der Karte zeichnen
+                _additionalPaint(g); //Zusätzliche Zeichnungen
             }
-        };
+            g.DrawPath(pen, path); //Rahmen der Karte zeichnen
+        }
     }
 
     private GraphicsPath RoundedRectangle(Rectangle rect, int cornerRadius)
