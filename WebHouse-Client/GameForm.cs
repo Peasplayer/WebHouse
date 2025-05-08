@@ -93,7 +93,7 @@ public partial class GameForm : Form
 
         // Neue PictureBox erzeugen
         figureBox = new PictureBox();
-        figureBox.Size = new Size(50, 50);
+        figureBox.Size = new Size(70 * pictureBox.Width / 1920, 70 * pictureBox.Height / 1080);
         figureBox.BackColor = Color.Blue;
         figureBox.SizeMode = PictureBoxSizeMode.StretchImage;
         //Bild für PictureBox: figureBox.Image = Image.FromFile("pfad_zur_figur.png");
