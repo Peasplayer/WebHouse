@@ -5,7 +5,7 @@ namespace WebHouse_Client.Components;
 
 public class ChapterCard
 {
-    private Card CardComponent { get; }
+    public Card CardComponent { get; }
     public Panel Panel => CardComponent.Panel;
     public Logic.ChapterCard Card { get; }
 
@@ -13,18 +13,14 @@ public class ChapterCard
     {
         Card = card;
         
-        CardComponent = new Card(new Size(135, 200), 5, 10, Color.Black, 2);
-        Panel.Paint += DrawChapterCard;
-    }
+        CardComponent = new Card(new Size(135, 200), 5, 10, Color.Black, 2, g =>
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-    private void DrawChapterCard(object? sender, PaintEventArgs e)
-    {
-        Graphics g = e.Graphics;
-        g.SmoothingMode = SmoothingMode.AntiAlias;
-
-        DrawTitle(g);
-        DrawArrow(g);
-        DrawNeededColors(g);
+            DrawTitle(g);
+            DrawArrow(g);
+            DrawNeededColors(g);
+        });
     }
 
     private void DrawTitle(Graphics g)

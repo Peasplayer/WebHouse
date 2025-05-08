@@ -10,7 +10,7 @@ public class DraggableControl
     private Control? _highlightTarget; //Der Stapel der farblich hervorgehoben wir da eine Karte in seiner nähe ist
     private Color _originalColor;
 
-    public DraggableControl(Control control, List<Control> snapTargets)
+    public DraggableControl(Control control, List<Control>? snapTargets = null)
     {
         Control = control;
 
@@ -34,7 +34,10 @@ public class DraggableControl
             } 
             _isDragging = false;
 
-            Control closest = null;
+            if (snapTargets == null)
+                return;
+
+            Control? closest = null;
             double closestDistance = double.MaxValue; //Nutzt die größte mögliche Distanz damit jeder andere Wert immer kleiner ist
 
             //Überprüft alle möglichen Snapp Ziele
@@ -73,9 +76,11 @@ public class DraggableControl
                 var location = Control.Location;
                 location.Offset(e.Location.X - _startLocation.X, e.Location.Y - _startLocation.Y);
                 Control.Location = location;
-
-                Control nearestTarget = null;
                 
+                if (snapTargets == null)
+                    return;
+                
+                Control? nearestTarget = null;
                 double nearestDistance = double.MaxValue;
 
                 //Suche den nächsten Stapel der im Snapradius ist
