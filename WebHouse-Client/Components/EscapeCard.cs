@@ -17,7 +17,7 @@ public class EscapeCard
         
         CardComponent = new Card(new Size(135, 200), 5, 10, Card.Color.GetColor(), 2);
         Panel.Paint += DrawEscapeCards;
-        Panel.Tag = this;
+        Panel.Tag = this; //Verbindet das Objekt Pannel mit seinem EscapeCard Objekt
         EscapeCardsList.Add(this);
     }
     private void DrawEscapeCards(object? sender, PaintEventArgs e)

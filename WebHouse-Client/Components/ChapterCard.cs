@@ -15,7 +15,7 @@ public class ChapterCard
         
         CardComponent = new Card(new Size(135, 200), 5, 10, Color.Black, 2);
         Panel.Paint += DrawChapterCard;
-        Panel.Tag = this;
+        Panel.Tag = this; //Verbindet das Objekt Pannel mit seinem ChapterCard Objekt
     }
 
     private void DrawChapterCard(object? sender, PaintEventArgs e)

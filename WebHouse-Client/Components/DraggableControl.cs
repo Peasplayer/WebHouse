@@ -87,11 +87,19 @@ public class DraggableControl
                         escapePanel.Tag is Components.EscapeCard escapeCard)
                     {
                         var color = escapeCard.Card.Color;
+                        //Überprüft ob eine Escape Karte die Farbe hat die auch in der ChapterCard benötigt wird
                         if (chapterCard.Card.Requirements.Contains(color))
                         {
                             chapterCard.Card.Requirements.Remove(color); //Farbe entfernen
-                            chapterPanel.Invalidate(); //Chapter Card neu zeichnen
+                            chapterPanel.Invalidate(); //ChapterCard neu zeichnen
                         }
+                        else
+                        {
+                            //Wenn die Karte nicht passt wird sie weggeschoben
+                            Control.Location = new Point(Control.Left - (Control.Width / 2), Control.Top - (Control.Height / 2));
+                            return;
+                        }
+                        
                     }
                 }
             }
