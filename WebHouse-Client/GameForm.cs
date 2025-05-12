@@ -67,7 +67,7 @@ public partial class GameForm : Form
 
     public void CreateGameField()
     {
-        // Bild laden
+        //Bild laden
         Image image = Image.FromStream(
             Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images." + GameLogic.CurrentRoom.Picture));
 
@@ -94,10 +94,12 @@ public partial class GameForm : Form
 
         // Neue PictureBox erzeugen
         figureBox = new PictureBox();
-        figureBox.Size = new Size(50, 50);
-        figureBox.BackColor = Color.Blue;
+        figureBox.Size = new Size(70, 80);
+        //figureBox.BackColor = Color.Blue;
+        figureBox.BackColor = Color.Transparent;
         figureBox.SizeMode = PictureBoxSizeMode.StretchImage;
-        //Bild für PictureBox: figureBox.Image = Image.FromFile("pfad_zur_figur.png");
+        figureBox.Image = Image.FromStream(
+            Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.player.png"));
         roomImage.Controls.Add(figureBox);
 
         position = 0;
@@ -144,14 +146,6 @@ public partial class GameForm : Form
         SetFigurePosition();
     }
 
-/*
-    private void MarkiereAktuellesFeld() //Blau = eigene Figur
-    {
-        GameField[position].BackColor = Color.Blue;
-    }
-    
-*/
-
     private int GetPercentage(bool width, int percentage)
     {
         return (width ? this.ClientSize.Width : this.ClientSize.Height) / 100 * percentage; 
@@ -161,27 +155,27 @@ public partial class GameForm : Form
     {
         { Room.RoomName.HotelZimmer, new ()
         {
-            new (95, 115),
-            new (240, 115),
-            new (370, 190),
-            new (405, 305),
-            new (355, 420),
-            new (280, 540),
-            new (230, 665),
-            new (245, 795),
-            new (385, 820),
-            new (530, 850),
-            new (675, 855),
-            new (790, 750),
-            new (1055, 775),
-            new (1205, 780),
-            new (1345, 855),
-            new (1460, 765),
-            new (1465, 630),
-            new (1520, 495),
-            new (1595, 370),
-            new (1675, 250),
-            new (1750, 135),
+            new (95, 117),
+            new (240, 117),
+            new (370, 197),
+            new (405, 307),
+            new (355, 422),
+            new (280, 542),
+            new (230, 667),
+            new (245, 797),
+            new (385, 822),
+            new (530, 852),
+            new (675, 857),
+            new (790, 752),
+            new (1055, 772),
+            new (1205, 782),
+            new (1345, 857),
+            new (1460, 767),
+            new (1465, 632),
+            new (1520, 497),
+            new (1595, 372),
+            new (1675, 252),
+            new (1750, 137),
         } },
         { Room.RoomName.Hafen, new ()
         {
