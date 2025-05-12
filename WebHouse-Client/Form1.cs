@@ -1,3 +1,4 @@
+using WebHouse_Client.Components;
 namespace WebHouse_Client;
 
 public partial class Form1 : Form
@@ -5,6 +6,7 @@ public partial class Form1 : Form
     public Form1()
     {
         InitializeComponent();
+        
         this.FormBorderStyle = FormBorderStyle.None; //kein Rand
         this.WindowState = FormWindowState.Maximized; //macht Vollbild
     }
