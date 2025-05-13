@@ -7,44 +7,48 @@ namespace WebHouse_Client;
 
 public partial class GameForm : Form
 {
-    List<Button> GameField = new List<Button>();
-    Button weiterButton = new Button(); //testknopf
-    int position = 0;
+    int figurePosition = 0;
+    int opponentPosition = 0;
+    
+    private Button figureMoveButton = new Button();
+    private Button opponentMoveButton = new Button();
+    
     private PictureBox? roomImage;
-    private PictureBox? figureBox;
+    private PictureBox? figureImage;
+    private PictureBox? opponentImage;
     private Panel? inventoryContainer;
     private List<ChapterCard> chapterCards = new List<ChapterCard>();
     
     public GameForm()
     {
         InitializeComponent(); 
+        AddTempButtons();
+        
         this.WindowState = FormWindowState.Maximized; //macht Vollbild
         this.SizeChanged += (_, _) =>
         {
-            CreateGameField();
+            RenderBoard();
         };
         
-        CreateGameField();
-        TestKnopf();
+        RenderBoard();
         
-        GameLogic.Start();
+        GameLogic.Start(this);
     }
-
-    public void CreateGameField()
+    
+    public void RenderBoard()
     {
-        // Bild laden
-        Image image = Image.FromStream(
-            Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images." + GameLogic.CurrentRoom.Picture));
-
-        if (roomImage != null)
+        if (roomImage == null)
         {
-            roomImage.Dispose();
+            //roomImage erstellen
+            roomImage = new PictureBox();
+            roomImage.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream
+                    ("WebHouse_Client.Resources.Background_Images." + GameLogic.CurrentRoom.Picture));
+            roomImage.SizeMode = PictureBoxSizeMode.Zoom;
+            
+            //roomImage zur Form hinzufügen
+            Controls.Add(roomImage);
         }
-        
-        //roomImage erstellen
-        roomImage = new PictureBox();
-        roomImage.Image = image;
-        roomImage.SizeMode = PictureBoxSizeMode.Zoom;
 
         //Größe auf ein Viertel des Fensters setzen
         var width = GetRelativeSize(ClientSize, true, percentage: 60);
@@ -58,19 +62,16 @@ public partial class GameForm : Form
         roomImage.Height = height;
         //Oben rechts positionieren
         roomImage.Location = new Point(ClientSize.Width - roomImage.Width, 0);
-        //roomImage zur Form hinzufügen
-        Controls.Add(roomImage);
 
-        if (inventoryContainer != null)
+        if (inventoryContainer == null)
         {
-            inventoryContainer.Dispose();
+            inventoryContainer = new Panel();
+            inventoryContainer.BackColor = Color.Aquamarine;
+            Controls.Add(inventoryContainer);
         }
         
-        inventoryContainer = new Panel();
         inventoryContainer.Size = new Size(GetRelativeSize(ClientSize, true, percentage: 50), GetRelativeSize(ClientSize, false, percentage: 40));
         inventoryContainer.Location = new Point(ClientSize.Width - inventoryContainer.Width, ClientSize.Height - inventoryContainer.Height);
-        inventoryContainer.BackColor = Color.Aquamarine;
-        Controls.Add(inventoryContainer);
 
         if (chapterCards.Count == 0)
         {
@@ -99,54 +100,93 @@ public partial class GameForm : Form
         }
         
         //Alte PictureBox entfernen
-        if (figureBox != null)
+        if (figureImage == null)
         {
-            figureBox.Dispose();
+            // Neue PictureBox erzeugen
+            figureImage = new PictureBox();
+            figureImage.BackColor = Color.Transparent;
+            figureImage.SizeMode = PictureBoxSizeMode.Zoom;
+            figureImage.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream
+                    ("WebHouse_Client.Resources.Images.Figure.png"));
+            figureImage.Image.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            roomImage.Controls.Add(figureImage);
         }
+        
+        figureImage.Size = new Size(GetRelativeSize(roomImage.Size, true, 80), GetRelativeSize(roomImage.Size, false, 120));
+        
+        //Alte PictureBox entfernen
+        if (opponentImage == null)
+        {
+            // Neue PictureBox erzeugen
+            opponentImage = new PictureBox();
+            opponentImage.BackColor = Color.Transparent;
+            opponentImage.SizeMode = PictureBoxSizeMode.Zoom;
+            opponentImage.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream
+                    ("WebHouse_Client.Resources.Images.Opponent.png"));
+            opponentImage.Image.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            roomImage.Controls.Add(opponentImage);
+        }
+        
+        opponentImage.Size = new Size(GetRelativeSize(roomImage.Size, true, 80), GetRelativeSize(roomImage.Size, false, 120));
 
-        // Neue PictureBox erzeugen
-        figureBox = new PictureBox();
-        figureBox.Size = new Size(GetRelativeSize(roomImage.Size, true, 70), GetRelativeSize(roomImage.Size, false, 70));
-        figureBox.BackColor = Color.Blue;
-        figureBox.SizeMode = PictureBoxSizeMode.StretchImage;
-        //Bild für PictureBox: figureBox.Image = Image.FromFile("pfad_zur_figur.png");
-        roomImage.Controls.Add(figureBox);
-
-        position = 0;
+        figurePosition = 0;
         SetFigurePosition();
     }
     
     private void SetFigurePosition()
     {
         var fields = Fields[GameLogic.CurrentRoom.RoomType];
-        if (position >= 0 && position < fields.Count)
+        if (figurePosition >= 0 && figurePosition < fields.Count)
         {
-            var point = fields[position];
-            figureBox.Location = new Point(
+            var point = fields[figurePosition];
+            figureImage.Location = new Point(
                 point.X * roomImage.Width / 1920,
-                point.Y * roomImage.Width / 1920
+                (point.Y - 50) * roomImage.Width / 1920
+            );
+        }
+        
+        if (opponentPosition >= 0 && opponentPosition < fields.Count)
+        {
+            var point = fields[opponentPosition];
+            opponentImage.Location = new Point(
+                point.X * roomImage.Width / 1920,
+                (point.Y - 50) * roomImage.Width / 1920
             );
         }
     }
-
-    private void TestKnopf()
+    
+    private void AddTempButtons()
     {
-        weiterButton.Text = "Weiter";
-        weiterButton.Size = new Size(100, 30);
-        weiterButton.Location = new Point(10, 10);
-        weiterButton.Click += figureMovement;
-        this.Controls.Add(weiterButton);
+        figureMoveButton.Text = "Move Player";
+        figureMoveButton.Size = new Size(100, 50);
+        figureMoveButton.Location = new Point(10, 10);
+        figureMoveButton.Click += (_, _) => MoveFigure();
+        Controls.Add(figureMoveButton);
+
+        opponentMoveButton.Text = "Move Opponent";
+        opponentMoveButton.Size = new Size(100, 50);
+        opponentMoveButton.Location = new Point(10, 70);
+        opponentMoveButton.Click += (_, _) => MoveOpponent();
+        Controls.Add(opponentMoveButton);
     }
 
-    private void figureMovement(object sender, EventArgs e)
+    public void MoveOpponent()
     {
-        position++;
+        opponentPosition++;
+        SetFigurePosition();
+    }
 
-        if (position >= Fields[GameLogic.CurrentRoom.RoomType].Count)
+    private void MoveFigure()
+    {
+        figurePosition++;
+
+        if (figurePosition >= Fields[GameLogic.CurrentRoom.RoomType].Count)
         {
-            position = 0;
+            figurePosition = 0;
             GameLogic.SwitchRoom();
-            CreateGameField();
+            RenderBoard();
             return;
         }
 

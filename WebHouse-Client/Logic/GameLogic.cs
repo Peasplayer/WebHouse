@@ -8,6 +8,7 @@ public class GameLogic
 {
     private static int _currentRoom = 0;
     private static Timer _opponentTimer;
+    private static GameForm _gameForm;
     
     public static Room CurrentRoom => Rooms[_currentRoom];
     public static List<Room> Rooms = new List<Room>
@@ -31,8 +32,10 @@ public class GameLogic
         });
     }
     
-    public static void Start()
+    public static void Start(GameForm form)
     {
+        _gameForm = form;
+        
         StartOpponent();
         
         _opponentTimer = new Timer(1000 * 10);
