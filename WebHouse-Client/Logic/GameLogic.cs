@@ -10,14 +10,16 @@ public class GameLogic
     private static Timer _opponentTimer;
     private static GameForm _gameForm;
     
+    public static int PlayerPosition = 0;
+    public static int OpponentPosition = 0;
     public static Room CurrentRoom => Rooms[_currentRoom];
-    public static List<Room> Rooms = new List<Room>
+    public static List<Room> Rooms = new List<Room> // Raum-Liste wird erstellt
     {
-        new Room(Room.RoomName.HotelZimmer, "Hotel.jpg"), //Raum wird mit den Daten gefüllt
-        new Room(Room.RoomName.Hafen, "Hafen.jpg"), //Raum wird mit den Daten gefüllt
-        new Room(Room.RoomName.Stadt, "Stadt.jpg"), //Raum wird mit den Daten gefüllt
-        new Room(Room.RoomName.Wald, "Wald.jpg"), //Raum wird mit den Daten gefüllt
-        new Room(Room.RoomName.SafeHouse, "Safehouse.jpg"), //Raum wird mit den Daten gefüllt
+        new Room(Room.RoomName.HotelZimmer),
+        new Room(Room.RoomName.Hafen),
+        new Room(Room.RoomName.Stadt),
+        new Room(Room.RoomName.Wald),
+        new Room(Room.RoomName.SafeHouse),
     };
 
     private static void StartOpponent()
@@ -47,8 +49,23 @@ public class GameLogic
         _opponentTimer.Enabled = true;
     }
 
+    public static void MovePlayer(int steps)
+    {
+        PlayerPosition += steps;
+        // TODO: Check if field is opponent field
+        if (PlayerPosition >= CurrentRoom.Steps)
+        {
+            PlayerPosition = 0;
+            SwitchRoom();
+        }
+        
+        _gameForm.UpdatePositions();
+    }
+    
     public static void SwitchRoom()
     {
         _currentRoom++;
+        _gameForm.RenderBoard();
+        // TODO: Set positions of player and opponent
     }
 }

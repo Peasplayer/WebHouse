@@ -7,14 +7,11 @@ namespace WebHouse_Client;
 
 public partial class GameForm : Form
 {
-    int figurePosition = 0;
-    int opponentPosition = 0;
-    
-    private Button figureMoveButton = new Button();
+    private Button playerMoveButton = new Button();
     private Button opponentMoveButton = new Button();
     
     private PictureBox? roomImage;
-    private PictureBox? figureImage;
+    private PictureBox? playerImage;
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
     private List<ChapterCard> chapterCards = new List<ChapterCard>();
@@ -100,20 +97,20 @@ public partial class GameForm : Form
         }
         
         //Alte PictureBox entfernen
-        if (figureImage == null)
+        if (playerImage == null)
         {
             // Neue PictureBox erzeugen
-            figureImage = new PictureBox();
-            figureImage.BackColor = Color.Transparent;
-            figureImage.SizeMode = PictureBoxSizeMode.Zoom;
-            figureImage.Image = Image.FromStream(
+            playerImage = new PictureBox();
+            playerImage.BackColor = Color.Transparent;
+            playerImage.SizeMode = PictureBoxSizeMode.Zoom;
+            playerImage.Image = Image.FromStream(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream
                     ("WebHouse_Client.Resources.Images.Figure.png"));
-            figureImage.Image.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            roomImage.Controls.Add(figureImage);
+            playerImage.Image.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            roomImage.Controls.Add(playerImage);
         }
         
-        figureImage.Size = new Size(GetRelativeSize(roomImage.Size, true, 80), GetRelativeSize(roomImage.Size, false, 120));
+        playerImage.Size = new Size(GetRelativeSize(roomImage.Size, true, 80), GetRelativeSize(roomImage.Size, false, 120));
         
         //Alte PictureBox entfernen
         if (opponentImage == null)
@@ -131,25 +128,24 @@ public partial class GameForm : Form
         
         opponentImage.Size = new Size(GetRelativeSize(roomImage.Size, true, 80), GetRelativeSize(roomImage.Size, false, 120));
 
-        figurePosition = 0;
-        SetFigurePosition();
+        UpdatePositions();
     }
     
-    private void SetFigurePosition()
+    public void UpdatePositions()
     {
         var fields = Fields[GameLogic.CurrentRoom.RoomType];
-        if (figurePosition >= 0 && figurePosition < fields.Count)
+        if (GameLogic.PlayerPosition >= 0 && GameLogic.PlayerPosition < fields.Count)
         {
-            var point = fields[figurePosition];
-            figureImage.Location = new Point(
+            var point = fields[GameLogic.PlayerPosition];
+            playerImage.Location = new Point(
                 point.X * roomImage.Width / 1920,
                 (point.Y - 50) * roomImage.Width / 1920
             );
         }
         
-        if (opponentPosition >= 0 && opponentPosition < fields.Count)
+        if (GameLogic.OpponentPosition >= 0 && GameLogic.OpponentPosition < fields.Count)
         {
-            var point = fields[opponentPosition];
+            var point = fields[GameLogic.OpponentPosition];
             opponentImage.Location = new Point(
                 point.X * roomImage.Width / 1920,
                 (point.Y - 50) * roomImage.Width / 1920
@@ -159,38 +155,17 @@ public partial class GameForm : Form
     
     private void AddTempButtons()
     {
-        figureMoveButton.Text = "Move Player";
-        figureMoveButton.Size = new Size(100, 50);
-        figureMoveButton.Location = new Point(10, 10);
-        figureMoveButton.Click += (_, _) => MoveFigure();
-        Controls.Add(figureMoveButton);
+        playerMoveButton.Text = "Move Player";
+        playerMoveButton.Size = new Size(100, 50);
+        playerMoveButton.Location = new Point(10, 10);
+        playerMoveButton.Click += (_, _) => GameLogic.MovePlayer(1);
+        Controls.Add(playerMoveButton);
 
         opponentMoveButton.Text = "Move Opponent";
         opponentMoveButton.Size = new Size(100, 50);
         opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) => MoveOpponent();
+        opponentMoveButton.Click += (_, _) => GameLogic.MovePlayer(1);
         Controls.Add(opponentMoveButton);
-    }
-
-    public void MoveOpponent()
-    {
-        opponentPosition++;
-        SetFigurePosition();
-    }
-
-    private void MoveFigure()
-    {
-        figurePosition++;
-
-        if (figurePosition >= Fields[GameLogic.CurrentRoom.RoomType].Count)
-        {
-            figurePosition = 0;
-            GameLogic.SwitchRoom();
-            RenderBoard();
-            return;
-        }
-
-        SetFigurePosition();
     }
 
     private int GetRelativeSize(Size size, bool width, int? pixels = null, int? percentage = null)
