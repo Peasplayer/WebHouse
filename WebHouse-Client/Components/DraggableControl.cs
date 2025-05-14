@@ -2,160 +2,53 @@
 
 public class DraggableControl
 {
-    public const int SnapRadius = 200; //Radius in dem die Karte an einen Stapel angeheftet wird
-
     private Control Control { get; }
-    private bool _isDragging;
-    private Point _startLocation;
-    private Control? _highlightTarget; //Der Stapel der farblich hervorgehoben wird, da eine Karte in seiner Nähe ist
-    private Color _originalColor;
+    private List<Control> SnapTargets { get; }
+
+    private static Control selectedCard = null;
+    private static Color originalColor;
 
     public DraggableControl(Control control, List<Control> snapTargets)
     {
         Control = control;
+        SnapTargets = snapTargets;
 
-        //Wird ausgeführt wenn die Maustaste gedrückt wird
-        Control.MouseDown += (sender, e) =>
+        //Wenn auf die Karte geklickt wird
+        Control.Click += (sender, e) =>
         {
-            if (e.Button == MouseButtons.Left)
+            if (selectedCard == null)
             {
-                _isDragging = true;
-                _startLocation = e.Location;
-                Control.BringToFront(); //Karte wird in den Vordergrund gebracht, damit sie nicht hinter einem Stapel verschwindet
-                
-                //Entfernt die ausgewählte Karten aus dem Dictionary in CardManager
-                foreach(var group in CardManager.CardGroup)
-                {
-                    if (group.Value.Contains(Control))
-                    {
-                        group.Value.Remove(Control); //Karte wird aus dem Stapel entfernt
-                        break;
-                    }
-                }
+                selectedCard = Control;
+                originalColor = Control.BackColor;
+                Control.BackColor = Color.LightBlue;
+            }
+            else if (selectedCard == Control)
+            {
+                //Auswahl aufheben
+                Control.BackColor = originalColor;
+                selectedCard = null;
             }
         };
-        
-        //Wird ausgeführt wenn die Maustaste losgelassen wird
-        Control.MouseUp += (sender, e) =>
+
+        foreach (var target in SnapTargets)
         {
-            if (!_isDragging)
+            target.Click += (sender, e) =>
             {
-                return; //Wenn die Karte nicht bewegt wird wird nichts gemacht
-            } 
-            _isDragging = false;
+                if (selectedCard == null)
+                    return;
 
-            Control closest = null;
-            double closestDistance = double.MaxValue; //Nutzt die größte mögliche Distanz, damit jeder andere Wert immer kleiner ist
-
-            //Überprüft alle möglichen Snap Ziele
-            foreach (var target in snapTargets)
-            {
-                //Berechnet die Distanz zum Mittelpunkt des Ziels
-                var dx = (target.Left + target.Width / 2) - (Control.Left + Control.Width / 2);
-                var dy = (target.Top + target.Height / 2) - (Control.Top + Control.Height / 2);
-                double distance = dx * dx + dy * dy; //Abstand wird quadriert, um die Distanz herauszufinden (Satz des Pythagoras)
-
-                //Überprüft ob die Karte im Snap-Radius ist und ob die Distanz kleiner ist als die vorherige
-                if (distance <= SnapRadius * SnapRadius && distance < closestDistance)
-                {
-                    closestDistance = distance; //Neuer kleinster Wert
-                    closest = target; //Ziel wird gespeichert
-                }
-            }
-
-            //Wenn ein Ziel gefunden wurde, wird die Karte in die Mitte dessen gesetzt
-            if (closest != null)
-            {
-                if (!CardManager.CardGroup.ContainsKey(closest))
-                    CardManager.CardGroup[closest] = new List<Control>();
-
-                var group = CardManager.CardGroup[closest];
-                group.Add(Control);
-
-                //Wird auf dem 
-                Control.Location = new Point(
-                    closest.Left + (closest.Width - Control.Width) / 2,
-                    closest.Top + (closest.Height - Control.Height) / 2
+                //Legt die Karte zentriert auf das Ziel
+                selectedCard.Location = new Point(
+                    target.Left + (target.Width - selectedCard.Width) / 2,
+                    target.Top + (target.Height - selectedCard.Height) / 2
                 );
 
-                Control.SendToBack(); //Karte wird hinter den Stapel gelegt (EscapeCard hinter ChapterCard)
+                selectedCard.SendToBack(); 
 
-                //Farbanforderungen entfernen wen eine passende Karte angelegt wurde
-                if (closest is Panel chapterPanel && Control is Panel escapePanel)
-                {
-                    if (chapterPanel.Tag is Components.ChapterCard chapterCard &&
-                        escapePanel.Tag is Components.EscapeCard escapeCard)
-                    {
-                        var color = escapeCard.Card.Color;
-                        //Überprüft ob eine Escape Karte die Farbe hat die auch in der ChapterCard benötigt wird
-                        if (chapterCard.Card.Requirements.Contains(color))
-                        {
-                            chapterCard.Card.Requirements.Remove(color); //Farbe entfernen
-                            chapterPanel.Invalidate(); //ChapterCard neu zeichnen
-                        }
-                        else
-                        {
-                            //Wenn die Karte nicht passt wird sie weggeschoben
-                            Control.Location = new Point(Control.Left - (Control.Width / 2), Control.Top - (Control.Height / 2));
-                            return;
-                        }
-                        
-                    }
-                }
-            }
-
-            if (_highlightTarget != null)
-            {
-                _highlightTarget.BackColor = _originalColor;
-                _highlightTarget = null;
-            }
-        };
-        
-        //Wir aufgerufen wen eine Karte bewegt wird
-        Control.MouseMove += (sender, e) =>
-        {
-            if (_isDragging)
-            {
-                //Karte bewegen
-                var location = Control.Location;
-                location.Offset(e.Location.X - _startLocation.X, e.Location.Y - _startLocation.Y);
-                Control.Location = location;
-
-                Control nearestTarget = null;
-                double nearestDistance = double.MaxValue;
-
-                //Suche den nächsten Stapel der im Snapradius ist
-                foreach (var target in snapTargets)
-                {
-                    var dx = (target.Left + target.Width / 2) - (Control.Left + Control.Width / 2);
-                    var dy = (target.Top + target.Height / 2) - (Control.Top + Control.Height / 2);
-                    double distance = Math.Sqrt(dx * dx + dy * dy);
-
-                    if (distance <= SnapRadius && distance < nearestDistance)
-                    {
-                        nearestDistance = distance;
-                        nearestTarget = target;
-                    }
-                }
-
-                //Wenn sich das Snap Ziel geändert hat
-                if (nearestTarget != _highlightTarget)
-                {
-                    if (_highlightTarget != null)
-                    {
-                        _highlightTarget.BackColor = _originalColor;
-                    }
-
-                    //Stapel wird gelb gefärbt
-                    if (nearestTarget != null)
-                    {
-                        _originalColor = nearestTarget.BackColor;
-                        nearestTarget.BackColor = Color.Yellow;
-                    }
-
-                    _highlightTarget = nearestTarget;
-                }
-            }
-        };
+                //Auswahl und Farbe zurücksetzen
+                selectedCard.BackColor = originalColor;
+                selectedCard = null;
+            };
+        }
     }
 }
