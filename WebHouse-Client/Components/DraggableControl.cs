@@ -13,42 +13,47 @@ public class DraggableControl
         Control = control;
         SnapTargets = snapTargets;
 
-        //Wenn auf die Karte geklickt wird
-        Control.Click += (sender, e) =>
-        {
-            if (selectedCard == null)
-            {
-                selectedCard = Control;
-                originalColor = Control.BackColor;
-                Control.BackColor = Color.LightBlue;
-            }
-            else if (selectedCard == Control)
-            {
-                //Auswahl aufheben
-                Control.BackColor = originalColor;
-                selectedCard = null;
-            }
-        };
-
         foreach (var target in SnapTargets)
         {
-            target.Click += (sender, e) =>
+            target.MouseEnter += (s, e) =>
             {
-                if (selectedCard == null)
-                    return;
+                if (selectedCard != null)
+                    target.BackColor = Color.LightGreen;
+            };
 
-                //Legt die Karte zentriert auf das Ziel
-                selectedCard.Location = new Point(
-                    target.Left + (target.Width - selectedCard.Width) / 2,
-                    target.Top + (target.Height - selectedCard.Height) / 2
-                );
-
-                selectedCard.SendToBack(); 
-
-                //Auswahl und Farbe zurücksetzen
-                selectedCard.BackColor = originalColor;
-                selectedCard = null;
+            target.MouseLeave += (s, e) =>
+            {
+                target.BackColor = Color.LightGray;
             };
         }
+
+        Control.Click += (sender, e) =>
+        {
+            if (selectedCard != null)
+            {
+                // Karte teleportieren, wenn ein Ziel geklickt wurde
+                if (sender is Control clickedControl)
+                {
+                    foreach (var snapTarget in SnapTargets)
+                    {
+                        if (snapTarget.Bounds.Contains(clickedControl.PointToScreen(Point.Empty)))
+                        {
+                            selectedCard.Location = new Point(
+                                snapTarget.Left + (snapTarget.Width - selectedCard.Width) / 2,
+                                snapTarget.Top + (snapTarget.Height - selectedCard.Height) / 2
+                            );
+                            selectedCard.BackColor = Color.White;
+                            selectedCard = null;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                selectedCard = Control;
+                selectedCard.BackColor = Color.LightBlue;
+            }
+        };
     }
 }
