@@ -12,7 +12,9 @@ public class GameLogic
     
     public static int PlayerPosition = 0;
     public static int OpponentPosition = 0;
+    public static List<ICard> Inventory = new List<ICard>();
     public static Room CurrentRoom => Rooms[_currentRoom];
+    
     public static List<Room> Rooms = new List<Room> // Raum-Liste wird erstellt
     {
         new Room(Room.RoomName.HotelZimmer),
@@ -22,14 +24,16 @@ public class GameLogic
         new Room(Room.RoomName.SafeHouse),
     };
 
+    private static Stream MusicStream = Assembly.GetExecutingAssembly()
+        .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav");
+
     private static void StartOpponent()
     {
         Task.Run(() =>
         {
-            var sound = new SoundPlayer(Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Ikea.wav"));
+            var sound = new SoundPlayer(MusicStream);
             sound.PlaySync();
-            MessageBox.Show("ALARM");
+            _gameForm.BeginInvoke(() => MoveOpponent(1));
             StartOpponent();
         });
     }
@@ -39,14 +43,11 @@ public class GameLogic
         _gameForm = form;
         
         StartOpponent();
-        
-        _opponentTimer = new Timer(1000 * 10);
-        _opponentTimer.Elapsed += (s, e) =>
-        {
-            SoundPlayer test = new SoundPlayer(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Test.wav"));
-            test.Play();
-        };
-        _opponentTimer.Enabled = true;
+    }
+
+    public static void Stop()
+    {
+        // TODO: Game over
     }
 
     public static void MovePlayer(int steps)
@@ -57,6 +58,19 @@ public class GameLogic
         {
             PlayerPosition = 0;
             SwitchRoom();
+        }
+        
+        _gameForm.UpdatePositions();
+    }
+    
+    public static void MoveOpponent(int steps)
+    {
+        OpponentPosition += steps;
+        // TODO: Check if field is opponent field
+        if (OpponentPosition >= PlayerPosition)
+        {
+            Stop();
+            return;
         }
         
         _gameForm.UpdatePositions();

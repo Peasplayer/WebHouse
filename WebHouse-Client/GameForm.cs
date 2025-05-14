@@ -2,6 +2,7 @@
 using WebHouse_Client.Components;
 using WebHouse_Client.Logic;
 using ChapterCard = WebHouse_Client.Logic.ChapterCard;
+using EscapeCard = WebHouse_Client.Logic.EscapeCard;
 
 namespace WebHouse_Client;
 
@@ -14,7 +15,6 @@ public partial class GameForm : Form
     private PictureBox? playerImage;
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
-    private List<ChapterCard> chapterCards = new List<ChapterCard>();
     
     public GameForm()
     {
@@ -70,7 +70,7 @@ public partial class GameForm : Form
         inventoryContainer.Size = new Size(GetRelativeSize(ClientSize, true, percentage: 50), GetRelativeSize(ClientSize, false, percentage: 40));
         inventoryContainer.Location = new Point(ClientSize.Width - inventoryContainer.Width, ClientSize.Height - inventoryContainer.Height);
 
-        if (chapterCards.Count == 0)
+        if (GameLogic.Inventory.Count == 0)
         {
             for (int i = 0; i < 5; i++)
             {
@@ -78,7 +78,7 @@ public partial class GameForm : Form
                 Controls.Add(card.Component.Panel);
                 card.Component.Panel.BringToFront();
                 new DraggableControl(card.Component.Panel);
-                chapterCards.Add(card);
+                GameLogic.Inventory.Add(card);
             }
         }
 
@@ -89,11 +89,21 @@ public partial class GameForm : Form
             cardHeight = inventoryContainer.Height;
             cardWidth = cardHeight * 2 / 3;
         }
-        foreach (var card in chapterCards)
+        foreach (var card in GameLogic.Inventory)
         {
-            card.Component.CardComponent.Size = new Size(cardWidth, cardHeight);
-            card.Component.Panel.Location =
-                inventoryContainer.Location with { X = inventoryContainer.Location.X + chapterCards.IndexOf(card) * cardWidth };
+            if (card is EscapeCard escapeCard)
+            {
+                escapeCard.Component.CardComponent.Size = new Size(cardWidth, cardHeight);
+                escapeCard.Component.Panel.Location =
+                    inventoryContainer.Location with { X = inventoryContainer.Location.X + GameLogic.Inventory.IndexOf(card) * cardWidth };
+            }
+
+            if (card is ChapterCard chapterCard)
+            {
+                chapterCard.Component.CardComponent.Size = new Size(cardWidth, cardHeight);
+                chapterCard.Component.Panel.Location =
+                    inventoryContainer.Location with { X = inventoryContainer.Location.X + GameLogic.Inventory.IndexOf(card) * cardWidth };
+            }
         }
         
         //Alte PictureBox entfernen

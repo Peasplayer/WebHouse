@@ -1,6 +1,6 @@
 ﻿namespace WebHouse_Client.Logic;
 
-public class ChapterCard
+public class ChapterCard : ICard
 {
     public string Chapter { get; }
     public int Steps { get; }
@@ -33,7 +33,7 @@ public class ChapterCard
 
         if (Requirements.Count == 0)
         {
-            
+            GameLogic.MovePlayer(Steps);
         }
     }
 }
