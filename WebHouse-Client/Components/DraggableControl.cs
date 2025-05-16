@@ -1,40 +1,43 @@
-﻿using WebHouse_Client.Components;
-
-namespace WinFormsTest;
+﻿namespace WebHouse_Client.Components;
 
 public class DraggableControl
 {
     public Control Control { get; }
 
-    private static DraggableControl? _selectedControl = null;
-    private static bool _isFormClickHandlerAttached = false;
+    private static DraggableControl? selected = null; //Ausgewählte Karte
+    private static bool FormCklickHandler = false; //Verhindert das mehrmals der ClickHandler für die Form hinzugefügt wird
+    public static DraggableControl? SelectedControl => selected; //Macht die ausgewählte Karte für andere Klassen nutzbar
+    public static event Action? SelectionChanged; //Wird aufgerufen wenn eine Karte ausgewählt wird
 
     public DraggableControl(Control control)
     {
         Control = control;
 
+        //Wird ausgeführt wenn eine Karte angecklickt wird
         Control.MouseClick += (sender, e) =>
         {
             if (e.Button != MouseButtons.Left) return;
 
-            if (_selectedControl == this)
+            if (selected == this)
             {
-                Deselect();
+                Deselect(); //Wenn die Karte schon ausgewählt ist wird sie abgewählt
             }
             else
             {
-                _selectedControl?.Deselect();
-                _selectedControl = this;
+                selected?.Deselect(); //Wenn eine andere Karte ausgewählt ist wird sie abgewählt
+                selected = this; 
+                SelectionChanged?.Invoke(); 
+                Control.Invalidate(); //Kartenrahmen zeichnen
             }
         };
-
-        //Versuche erst später das Form zu finden
+        
+        //Sorgt dafür das die Klick händerl nur einemal hinzugefügt wird und verhindert so Probleme
         Control.HandleCreated += (sender, e) =>
         {
             var form = Control.FindForm();
-            if (!_isFormClickHandlerAttached && form != null)
+            if (!FormCklickHandler && form != null)
             {
-                _isFormClickHandlerAttached = true;
+                FormCklickHandler = true;
                 form.MouseClick += GlobalFormClick;
             }
         };
@@ -42,18 +45,27 @@ public class DraggableControl
 
     private void Deselect()
     {
-        _selectedControl = null;
+        Control.Invalidate(); //Alten Rahmen löschen
+        selected = null;
+        SelectionChanged?.Invoke();
     }
-
+    public static void ClearSelection()
+    {
+        selected?.Control.Invalidate();
+        selected = null;
+        SelectionChanged?.Invoke();
+    }
+    
+    //wird aufgerufen wenn auf die Form gecklickt wird und Teleportiert die Karte an diese Stelle
     private static void GlobalFormClick(object? sender, MouseEventArgs e)
     {
-        if (_selectedControl == null) return;
+        if (selected == null) return;
         if (sender is not Form form) return;
 
         var newLocation = e.Location;
-        newLocation.Offset(-_selectedControl.Control.Width / 2, -_selectedControl.Control.Height / 2);
+        newLocation.Offset(-selected.Control.Width / 2, -selected.Control.Height / 2); //Zentriert die Karte auf dem Klick. Ohne dieses wird die linke obere Ecke an den Cursor gesetzt
 
-        _selectedControl.Control.Location = newLocation;
-        _selectedControl.Deselect();
+        selected.Control.Location = newLocation; //Bewegt die Karte an ihre neue Position
+        selected.Deselect();
     }
 }

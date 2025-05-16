@@ -26,14 +26,24 @@ public class Card
         Panel.Paint += (sender, e) =>
         {
             var g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
             using (GraphicsPath path = RoundedRectangle(new Rectangle(0, 0, size.Width, size.Height), cornerRadius))
             using (SolidBrush brush = new SolidBrush(color))
             using (Pen pen = new Pen(Color.White, outlineWidth))
+            using (Pen highlightPen = new Pen(Color.HotPink, outlineWidth + 1))
             {
-                g.FillPath(brush, path); //Farbe der Karte
-                g.DrawPath(pen, path); //Rahmen der Karte zeichnen
+                g.FillPath(brush, path);
+
+                //Wenn eine Karte ausgewählt wird wird die Outline gemahlt
+                if (DraggableControl.SelectedControl?.Control == Panel)
+                {
+                    g.DrawPath(highlightPen, path);
+                }
+                else
+                {
+                    g.DrawPath(pen, path);
+                }
             }
         };
     }
