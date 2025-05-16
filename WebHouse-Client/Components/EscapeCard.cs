@@ -1,5 +1,6 @@
 ﻿using System.Drawing.Drawing2D;
 using WebHouse_Client.Logic;
+using WinFormsTest;
 
 namespace WebHouse_Client.Components;
 
@@ -19,6 +20,7 @@ public class EscapeCard
         Panel.Paint += DrawEscapeCards;
         Panel.Tag = this; //Verbindet das Objekt Pannel mit seinem EscapeCard Objekt
         EscapeCardsList.Add(this);
+        new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
     }
     private void DrawEscapeCards(object? sender, PaintEventArgs e)
     {

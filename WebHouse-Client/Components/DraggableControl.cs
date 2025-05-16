@@ -1,59 +1,59 @@
-﻿namespace WebHouse_Client.Components;
+﻿using WebHouse_Client.Components;
+
+namespace WinFormsTest;
 
 public class DraggableControl
 {
-    private Control Control { get; }
-    private List<Control> SnapTargets { get; }
+    public Control Control { get; }
 
-    private static Control selectedCard = null;
-    private static Color originalColor;
+    private static DraggableControl? _selectedControl = null;
+    private static bool _isFormClickHandlerAttached = false;
 
-    public DraggableControl(Control control, List<Control> snapTargets)
+    public DraggableControl(Control control)
     {
         Control = control;
-        SnapTargets = snapTargets;
 
-        foreach (var target in SnapTargets)
+        Control.MouseClick += (sender, e) =>
         {
-            target.MouseEnter += (s, e) =>
-            {
-                if (selectedCard != null)
-                    target.BackColor = Color.LightGreen;
-            };
+            if (e.Button != MouseButtons.Left) return;
 
-            target.MouseLeave += (s, e) =>
+            if (_selectedControl == this)
             {
-                target.BackColor = Color.LightGray;
-            };
-        }
-
-        Control.Click += (sender, e) =>
-        {
-            if (selectedCard != null)
-            {
-                // Karte teleportieren, wenn ein Ziel geklickt wurde
-                if (sender is Control clickedControl)
-                {
-                    foreach (var snapTarget in SnapTargets)
-                    {
-                        if (snapTarget.Bounds.Contains(clickedControl.PointToScreen(Point.Empty)))
-                        {
-                            selectedCard.Location = new Point(
-                                snapTarget.Left + (snapTarget.Width - selectedCard.Width) / 2,
-                                snapTarget.Top + (snapTarget.Height - selectedCard.Height) / 2
-                            );
-                            selectedCard.BackColor = Color.White;
-                            selectedCard = null;
-                            break;
-                        }
-                    }
-                }
+                Deselect();
             }
             else
             {
-                selectedCard = Control;
-                selectedCard.BackColor = Color.LightBlue;
+                _selectedControl?.Deselect();
+                _selectedControl = this;
             }
         };
+
+        //Versuche erst später das Form zu finden
+        Control.HandleCreated += (sender, e) =>
+        {
+            var form = Control.FindForm();
+            if (!_isFormClickHandlerAttached && form != null)
+            {
+                _isFormClickHandlerAttached = true;
+                form.MouseClick += GlobalFormClick;
+            }
+        };
+    }
+
+    private void Deselect()
+    {
+        _selectedControl = null;
+    }
+
+    private static void GlobalFormClick(object? sender, MouseEventArgs e)
+    {
+        if (_selectedControl == null) return;
+        if (sender is not Form form) return;
+
+        var newLocation = e.Location;
+        newLocation.Offset(-_selectedControl.Control.Width / 2, -_selectedControl.Control.Height / 2);
+
+        _selectedControl.Control.Location = newLocation;
+        _selectedControl.Deselect();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Drawing.Drawing2D;
 using WebHouse_Client.Logic;
+using WinFormsTest;
 
 namespace WebHouse_Client.Components;
 
@@ -16,6 +17,7 @@ public class ChapterCard
         CardComponent = new Card(new Size(135, 200), 5, 10, Color.Black, 2);
         Panel.Paint += DrawChapterCard;
         Panel.Tag = this; //Verbindet das Objekt Pannel mit seinem ChapterCard Objekt
+        new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
     }
 
     private void DrawChapterCard(object? sender, PaintEventArgs e)
