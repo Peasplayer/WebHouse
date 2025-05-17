@@ -6,6 +6,7 @@ public class DraggableControl
 
     private static DraggableControl? selected = null; //Ausgewählte Karte
     private static bool FormCklickHandler = false; //Verhindert das mehrmals der ClickHandler für die Form hinzugefügt wird
+    private static bool NextClick  = false; //Unterdrückt den clickt auf die ChapterCard nachdem eine EscapeCard an sie gelegt wurde
     public static DraggableControl? SelectedControl => selected; //Macht die ausgewählte Karte für andere Klassen nutzbar
     public static event Action? SelectionChanged; //Wird aufgerufen wenn eine Karte ausgewählt wird
 
@@ -16,7 +17,16 @@ public class DraggableControl
         //Wird ausgeführt wenn eine Karte angecklickt wird
         Control.MouseClick += (sender, e) =>
         {
-            if (e.Button != MouseButtons.Left) return;
+            if (NextClick)
+            {
+                NextClick = false;
+                return;
+            }
+
+            if (e.Button != MouseButtons.Left)
+            {
+                return;
+            }
 
             if (selected == this)
             {
@@ -67,5 +77,10 @@ public class DraggableControl
 
         selected.Control.Location = newLocation; //Bewegt die Karte an ihre neue Position
         selected.Deselect();
+    }
+
+    public static void NoNextClick()
+    {
+        NextClick = true;
     }
 }

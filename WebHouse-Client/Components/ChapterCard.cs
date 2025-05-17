@@ -15,18 +15,77 @@ public class ChapterCard
         
         CardComponent = new Card(new Size(135, 200), 5, 10, Color.Black, 2);
         Panel.Paint += DrawChapterCard;
+        Panel.Tag = this; //Ermöglicht das zugreifen auf ein bestimmtes ChapterCard Objekt
+        Panel.MouseClick += Onclick;
         new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
     }
 
     private void Onclick(object? sender, MouseEventArgs e)
     {
-        var selected = DraggableControl.SelectedControl?.Control;
-        if (selected is Panel panel && EscapeCard.IsEscapeCard(panel))
+       
+        var selectedControl = DraggableControl.SelectedControl?.Control;
+        //Wenn keine Karte ausgewählt ist wird die Methode abgebrochen
+        if (selectedControl == null)
+        {
+            return;
+        }
+        //Wenn die Karte keine EscapeCard ist wird die Methode abgebrochen
+        if (!EscapeCard.IsEscapeCard(selectedControl))
+        {
+            return;
+        }
+
+        //Bekommt durch den Tag die ausgewählte EscapeCard
+        var escapeCard = selectedControl.Tag as EscapeCard;
+        //Wenn die EscapeCard null ist wird die Methode abgebrochen
+        if (escapeCard == null)
+        {
+            return;
+        }
+
+        //Wenn die EscapeCard nicht auf der ChapterCard ist wird die Methode abgebrochen
+        if (sender is not Control chapterPanel || chapterPanel.Tag is not ChapterCard chapterCard)
+        {
+            return;
+        }
+
+        //Die Farben werden verglichen
+        var escapeColor = escapeCard.Card.Color.GetColor();
+        bool colorMatches = false;
+        foreach (var requirement in chapterCard.Card.Requirements)
+        {
+            if (requirement.GetColor() == escapeColor)
+            {
+                colorMatches = true;
+                break;
+            }
+        }
+        //Wenn keine Farbe übereinstimmt wird die Methode abgebrochen
+        if (!colorMatches)
+        {
+            return;
+        }
+
+        //Entfernt aus einer Kopie der Requirements Liste die übereinstimmende Farbe
+        foreach (var requirement in chapterCard.Card.Requirements.ToList())
+        {
+            if (requirement.GetColor() == escapeColor)
+            {
+                chapterCard.Card.Requirements.Remove(requirement);
+                break;
+            }
+        }
+        
+        //Angelegte EscapeCard wird entfernt
+        if (selectedControl is Panel panel)
         {
             EscapeCard.Remove(panel);
             DraggableControl.ClearSelection();
         }
+        chapterCard.Panel.Invalidate(); //ChapterCard neu zeichnen
+        DraggableControl.NoNextClick();
     }
+    
     private void DrawChapterCard(object? sender, PaintEventArgs e)
     {
         Graphics g = e.Graphics;

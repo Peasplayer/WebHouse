@@ -21,10 +21,12 @@ public class EscapeCard
         new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
     }
 
+    ///Überprüft ob die Karte eine EscapeCard ist
     public static bool IsEscapeCard(Control control)
     {
         return AllEscapeCards.Contains(control);
     }
+    ///Entfernt die EscapeCard aus der Liste und von der Form
     public static void Remove(Panel panel)
     {
         AllEscapeCards.Remove(panel);
