@@ -22,6 +22,7 @@ public class ChapterCard
             DrawTitle(g);
             DrawArrow(g);
             DrawNeededColors(g);
+            DrawCounter(g);
         });
         
         Panel.Tag = this; //Ermöglicht das zugreifen auf ein bestimmtes ChapterCard Objekt
@@ -148,5 +149,17 @@ public class ChapterCard
         path.AddArc(rect.Left, rect.Bottom - diameter, diameter, diameter, 90, 90);
         path.CloseFigure();
         return path;
+    }
+    private void DrawCounter(Graphics g)
+    {
+        using var font = new Font("Arial", 10, FontStyle.Bold);
+        using var brush = new SolidBrush(Color.White);
+        
+        string text = $"#{Card.Counter}";
+        SizeF textSize = g.MeasureString(text, font);
+        float padding = 8; //Abstand zum Rand
+        float x = Panel.Width - textSize.Width - padding;
+        float y = padding;
+        g.DrawString(text, font, brush, x, y);
     }
 }
