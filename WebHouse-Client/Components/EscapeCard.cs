@@ -6,6 +6,8 @@ namespace WebHouse_Client.Components;
 
 public class EscapeCard
 {
+    public static EscapeCard? SelectedEscapeCard;
+    
     public Card CardComponent { get; }
     public Panel Panel => CardComponent.Panel;
     public Logic.EscapeCard Card { get; }
@@ -13,10 +15,45 @@ public class EscapeCard
     {
         Card = card;
         
-        CardComponent = new Card(new Size(135, 200), 5, 10,
+        CardComponent = new Card(5, 10,
             Color.Black, 2);
         Panel.Paint += DrawEscapeCards;
+        Panel.Tag = this; //Verbindet das Objekt Pannel mit seinem EscapeCard Objekt
+        Panel.MouseClick += (_, args) =>
+        {
+            if (args.Button == MouseButtons.Left)
+                OnClick();
+        };
+        
+        //new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
     }
+
+    private void OnClick()
+    {
+        if (SelectedEscapeCard != null)
+        {
+            SelectedEscapeCard.CardComponent.SetHighlighted(false);
+
+            //Wenn man die gleiche Karte ancklickt wird sie abgewählt
+            if (SelectedEscapeCard == this)
+            {
+                SelectedEscapeCard = null;
+                return;
+            }
+        }
+
+        //Karte wird abgewählt wenn eine andere Karte ausgewählt wird
+        if (ChapterCard.SelectedChapterCard != null)
+        {
+            ChapterCard.SelectedChapterCard.CardComponent.SetHighlighted(false);
+            ChapterCard.SelectedChapterCard = null;
+        }
+
+        //Die neue Karte wird ausgewählt
+        SelectedEscapeCard = this;
+        CardComponent.SetHighlighted(true);
+    }
+    
     private void DrawEscapeCards(object? sender, PaintEventArgs e)
     {
         Graphics g = e.Graphics;
@@ -58,4 +95,21 @@ public class EscapeCard
             g.DrawString(Card.Room, font, brush, roomPos);
         }
     }
+    
+    /*
+     Ordnet die Karten in einer Horizontalen Line an. Nutzbar für das Inventar
+    private void PositionCards()
+    {
+        int spacing = 10; //Abstand zwischen den einzelnen Karten
+        int startX = 0; //Startposition für die erste Karte
+
+        //Berechne die Position für jeder Karte
+        for (int i = 0; i < EscapeCardsList.Count; i++)
+        {
+            var card = EscapeCardsList[i];
+            int x = startX + i * (card.Panel.Width + spacing); //Berechne die X-Position
+            card.Panel.Location = new Point(x, card.Panel.Top);
+        }
+    }
+    */
 }
