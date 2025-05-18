@@ -8,44 +8,78 @@ public class GameLogic
 {
     private static int _currentRoom = 0;
     private static Timer _opponentTimer;
+    private static GameForm _gameForm;
     
+    public static int PlayerPosition = 0;
+    public static int OpponentPosition = 0;
+    public static List<ICard> Inventory = new List<ICard>();
     public static Room CurrentRoom => Rooms[_currentRoom];
-    public static List<Room> Rooms = new List<Room>
+    
+    public static List<Room> Rooms = new List<Room> // Raum-Liste wird erstellt
     {
-        new Room(Room.RoomName.HotelZimmer, "Hotel.jpg"), //Raum wird mit den Daten gefüllt
-        new Room(Room.RoomName.Hafen, "Hafen.jpg"), //Raum wird mit den Daten gefüllt
-        new Room(Room.RoomName.Stadt, "Stadt.jpg"), //Raum wird mit den Daten gefüllt
-        new Room(Room.RoomName.Wald, "Wald.jpg"), //Raum wird mit den Daten gefüllt
-        new Room(Room.RoomName.SafeHouse, "Safehouse.jpg"), //Raum wird mit den Daten gefüllt
+        new Room(Room.RoomName.HotelZimmer),
+        new Room(Room.RoomName.Hafen),
+        new Room(Room.RoomName.Stadt),
+        new Room(Room.RoomName.Wald),
+        new Room(Room.RoomName.SafeHouse),
     };
+
+    private static Stream MusicStream = Assembly.GetExecutingAssembly()
+        .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav");
 
     private static void StartOpponent()
     {
         Task.Run(() =>
         {
-            var sound = new SoundPlayer(Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Ikea.wav"));
+            var sound = new SoundPlayer(MusicStream);
             sound.PlaySync();
-            MessageBox.Show("ALARM");
+            _gameForm.BeginInvoke(() => MoveOpponent(1));
             StartOpponent();
         });
     }
     
-    public static void Start()
+    public static void Start(GameForm form)
     {
-        StartOpponent();
+        _gameForm = form;
         
-        _opponentTimer = new Timer(1000 * 10);
-        _opponentTimer.Elapsed += (s, e) =>
-        {
-            SoundPlayer test = new SoundPlayer(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Test.wav"));
-            test.Play();
-        };
-        _opponentTimer.Enabled = true;
+        StartOpponent();
     }
 
+    public static void Stop()
+    {
+        // TODO: Game over
+    }
+
+    public static void MovePlayer(int steps)
+    {
+        PlayerPosition += steps;
+        // TODO: Check if field is opponent field
+        if (PlayerPosition >= CurrentRoom.Steps)
+        {
+            PlayerPosition = 0;
+            SwitchRoom();
+        }
+        
+        _gameForm.UpdatePositions();
+    }
+    
+    public static void MoveOpponent(int steps)
+    {
+        OpponentPosition += steps;
+        // TODO: Check if field is opponent field
+        if (OpponentPosition >= PlayerPosition)
+        {
+            Stop();
+            return;
+        }
+        
+        _gameForm.UpdatePositions();
+    }
+    
     public static void SwitchRoom()
     {
         _currentRoom++;
+        _gameForm.RenderBoard();
+        // TODO: Set positions of player and opponent
     }
 }

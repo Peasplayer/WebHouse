@@ -1,6 +1,6 @@
 ﻿namespace WebHouse_Client.Logic;
 
-public class EscapeCard
+public class EscapeCard : ICard
 {
     public int Number { get; }
     public string Room { get; }
