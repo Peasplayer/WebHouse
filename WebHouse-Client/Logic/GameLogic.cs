@@ -10,7 +10,7 @@ public class GameLogic
     private static Timer _opponentTimer;
     private static GameForm _gameForm;
     
-    public static int PlayerPosition = 0;
+    public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
     public static List<ICard> Inventory = new List<ICard>();
     public static Room CurrentRoom => Rooms[_currentRoom];
@@ -60,6 +60,12 @@ public class GameLogic
             SwitchRoom();
         }
         
+        if (CurrentRoom.OpponentMoveTriggerFields.Contains(PlayerPosition))
+        {
+            MoveOpponent(1);
+        }
+
+        
         _gameForm.UpdatePositions();
     }
     
@@ -75,11 +81,29 @@ public class GameLogic
         
         _gameForm.UpdatePositions();
     }
-    
     public static void SwitchRoom()
     {
         _currentRoom++;
+
+        //Spieler startet immer an StartField des neuen Raumes
+        PlayerPosition = CurrentRoom.StartField;
+
+        //Beispiel Offset: 
+        //Du musst den Offset für das neue Level definieren
+        int levelOffset = -12; // z.B. wenn Level 2 bei visueller Nummer 3 startet (entsprechend anpassen!)
+
+        //Gegner neue Position berechnen
+        int newOpponentPosition = levelOffset + OpponentPosition;
+
+        //Absichern: Wenn neue Position außerhalb liegt, korrigieren
+        if (newOpponentPosition < 0) newOpponentPosition = 0;
+        if (newOpponentPosition >= CurrentRoom.Steps) newOpponentPosition = CurrentRoom.Steps - 1;
+
+        OpponentPosition = newOpponentPosition;
+
         _gameForm.RenderBoard();
-        // TODO: Set positions of player and opponent
+        _gameForm.UpdatePositions();
     }
+
+
 }
