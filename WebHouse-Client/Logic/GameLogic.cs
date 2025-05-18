@@ -10,7 +10,7 @@ public class GameLogic
     private static Timer _opponentTimer;
     private static GameForm _gameForm;
     
-    public static int PlayerPosition = 0;
+    public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
     public static List<ICard> Inventory = new List<ICard>();
     public static List<ChapterCard> PlacedChapterCards = new List<ChapterCard>();
@@ -60,6 +60,11 @@ public class GameLogic
             SwitchRoom();
         }
         
+        if (CurrentRoom.OpponentMoveTriggerFields.Contains(PlayerPosition))
+        {
+            MoveOpponent(1);
+        }
+        
         _gameForm.UpdatePositions();
     }
     
@@ -78,8 +83,14 @@ public class GameLogic
     public static void SwitchRoom()
     {
         _currentRoom++;
+
+        //Spieler startet immer an StartField des neuen Raumes
+        PlayerPosition = CurrentRoom.StartField;
+        // Neue Gegner Position berechnen
+        OpponentPosition = Math.Max(0, OpponentPosition - 12);
+
         _gameForm.RenderBoard();
-        // TODO: Set positions of player and opponent
+        _gameForm.UpdatePositions();
     }
 
     public static void PlaceChapterCard(ChapterCard card)

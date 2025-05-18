@@ -37,9 +37,9 @@ public partial class GameForm : Form
             RenderBoard();
         };
         
-        RenderBoard();
-        
         GameLogic.Start(this);
+
+        RenderBoard();
     }
     
     public void RenderBoard()
@@ -62,16 +62,14 @@ public partial class GameForm : Form
         
         if (roomImage == null)
         {
-            //roomImage erstellen
             roomImage = new PictureBox();
-            roomImage.Image = Image.FromStream(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream
-                    ("WebHouse_Client.Resources.Background_Images." + GameLogic.CurrentRoom.Picture));
             roomImage.SizeMode = PictureBoxSizeMode.Zoom;
-            
-            //roomImage zur Form hinzufügen
             Controls.Add(roomImage);
         }
+
+        // Bild immer neu setzen
+        roomImage.Image = Image.FromStream(
+            Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images."+ GameLogic.CurrentRoom.Picture));
 
         roomImage.BackColor = Color.Green;
         roomImage.Width = 16 * widthUnit;//Math.Min(9 * heightUnit, 20 * widthUnit * 9 / 16);//heightUnit * 9;//roomImageHeight;
@@ -133,7 +131,7 @@ public partial class GameForm : Form
         //Alte PictureBox entfernen
         if (opponentImage == null)
         {
-            // Neue PictureBox erzeugen
+            //Neue PictureBox erzeugen
             opponentImage = new PictureBox();
             opponentImage.BackColor = Color.Transparent;
             opponentImage.SizeMode = PictureBoxSizeMode.Zoom;
@@ -289,7 +287,7 @@ public partial class GameForm : Form
         opponentMoveButton.Text = "Move Opponent";
         opponentMoveButton.Size = new Size(100, 50);
         opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) => GameLogic.MovePlayer(1);
+        opponentMoveButton.Click += (_, _) => GameLogic.MoveOpponent(1);
         Controls.Add(opponentMoveButton);
     }
 
@@ -432,7 +430,6 @@ public partial class GameForm : Form
             new (1390, 270),
             new (1360, 370),
             new (1360, 500),
-
         } },
     };
 }
