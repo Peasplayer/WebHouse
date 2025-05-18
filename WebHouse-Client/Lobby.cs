@@ -31,7 +31,7 @@ public partial class Lobby : Form
 
     private void UpdateStartButtonLayout()
     {
-        Startbtn.Size = new Size(this.ClientSize.Width / 5, this.ClientSize.Height / 12); //proportionale Größe
+        Startbtn.Size = new Size(this.ClientSize.Width / 3, this.ClientSize.Height / 8); //proportionale Größe
         //Button-Position zentriert, 80% Höhe
         int x = (this.ClientSize.Width - Startbtn.Width) / 2; //mittig
         int y = (int)(this.ClientSize.Height * 0.8);

@@ -31,14 +31,16 @@ partial class Lobby
     /// </summary>
     private void InitializeComponent()
     {
+        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Lobby));
         Startbtn = new System.Windows.Forms.Button();
         SuspendLayout();
         // 
         // Startbtn
         // 
-        Startbtn.BackColor = System.Drawing.Color.Transparent;
-        Startbtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-        Startbtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+        Startbtn.BackColor = System.Drawing.Color.DimGray;
+        Startbtn.BackgroundImage = ((System.Drawing.Image)resources.GetObject("Startbtn.BackgroundImage"));
+        Startbtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+        Startbtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
         Startbtn.Location = new System.Drawing.Point(516, 850);
         Startbtn.Name = "Startbtn";
         Startbtn.Size = new System.Drawing.Size(375, 105);

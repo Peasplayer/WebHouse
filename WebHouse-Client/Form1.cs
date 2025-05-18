@@ -8,21 +8,19 @@ public partial class Form1 : Form
     public Form1()
     {
         InitializeComponent();
-        BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LoginBackground.jpeg"));
-        this.FormBorderStyle = FormBorderStyle.FixedSingle;
+        BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LogIn.png"));
+        this.BackgroundImageLayout = ImageLayout.Stretch;
+        this.Width = 1920; //Startgröße
+        this.Height = 1080;
         this.MaximizeBox = false;
-        this.ClientSize = new Size(1920, 1080);
+        this.MinimizeBox = false;
+        this.StartPosition = FormStartPosition.CenterScreen;
     }
 
-    private void GameFormBTN_Click(object sender, EventArgs e)
+    private void Startbtn_Click(object sender, EventArgs e)
     {
-        Lobby Lobby = new Lobby();
-        Lobby.Show();  //Zeige die neue Form
-        this.Hide(); //Verstecke die aktuelle Form
-    }
-
-    private void Form1_Load(object sender, EventArgs e)
-    {
-        //throw new System.NotImplementedException();
+        Lobby lobby = new Lobby();
+        lobby.Show();
+        this.Hide();
     }
 }
