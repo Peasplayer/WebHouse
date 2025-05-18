@@ -8,7 +8,6 @@ public class DraggableControl
     private static bool FormCklickHandler = false; //Verhindert das mehrmals der ClickHandler für die Form hinzugefügt wird
     private static bool NextClick  = false; //Unterdrückt den clickt auf die ChapterCard nachdem eine EscapeCard an sie gelegt wurde
     public static DraggableControl? SelectedControl => selected; //Macht die ausgewählte Karte für andere Klassen nutzbar
-    public static event Action? SelectionChanged; //Wird aufgerufen wenn eine Karte ausgewählt wird
 
     public DraggableControl(Control control)
     {
@@ -36,7 +35,6 @@ public class DraggableControl
             {
                 selected?.Deselect(); //Wenn eine andere Karte ausgewählt ist wird sie abgewählt
                 selected = this; 
-                SelectionChanged?.Invoke(); 
                 Control.Invalidate(); //Kartenrahmen zeichnen
             }
         };
@@ -57,13 +55,11 @@ public class DraggableControl
     {
         Control.Invalidate(); //Alten Rahmen löschen
         selected = null;
-        SelectionChanged?.Invoke();
     }
     public static void ClearSelection()
     {
         selected?.Control.Invalidate();
         selected = null;
-        SelectionChanged?.Invoke();
     }
     
     //wird aufgerufen wenn auf die Form gecklickt wird und Teleportiert die Karte an diese Stelle
