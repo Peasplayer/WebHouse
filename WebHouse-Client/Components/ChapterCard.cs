@@ -21,8 +21,32 @@ public class ChapterCard
             DrawArrow(g);
             DrawNeededColors(g);
         });
+        
+        Panel.Tag = this; //Ermöglicht das zugreifen auf ein bestimmtes ChapterCard Objekt
+        Panel.MouseClick += (_, args) =>
+        {
+            if (args.Button == MouseButtons.Left)
+                OnClick();
+        };
+        //new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
     }
 
+    private void OnClick()
+    {
+        if (EscapeCard.SelectedEscapeCard == null)
+            return;
+
+        if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
+        {
+            Card.AddEscapeCard(EscapeCard.SelectedEscapeCard.Card);
+            EscapeCard.SelectedEscapeCard.Panel.Dispose();
+        }
+        else
+            EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false);
+        
+        EscapeCard.SelectedEscapeCard = null;
+    }
+    
     private void DrawTitle(Graphics g)
     {
         Font font = new Font("Arial", 12, FontStyle.Bold);
