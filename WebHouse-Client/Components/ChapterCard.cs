@@ -6,8 +6,10 @@ namespace WebHouse_Client.Components;
 public class ChapterCard
 {
     public Card CardComponent { get; }
+    public DiscardPile DiscardPileInstance { get; set; } = null!;
     public Panel Panel => CardComponent.Panel;
     public Logic.ChapterCard Card { get; }
+    public static ChapterCard? SelectedChapterCard;
 
     public ChapterCard(Logic.ChapterCard card)
     {
@@ -33,18 +35,40 @@ public class ChapterCard
 
     private void OnClick()
     {
-        if (EscapeCard.SelectedEscapeCard == null)
-            return;
-
-        if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
+        //Überprüfen ob eine EscapeCard ausgewählt ist
+        if (EscapeCard.SelectedEscapeCard != null)
         {
-            Card.AddEscapeCard(EscapeCard.SelectedEscapeCard.Card);
-            EscapeCard.SelectedEscapeCard.Panel.Dispose();
+            //Überprüft ob die EscapeCard an die ChapterCard angelegt werden darf
+            if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
+            {
+                Card.AddEscapeCard(EscapeCard.SelectedEscapeCard.Card);
+                EscapeCard.SelectedEscapeCard.Panel.Dispose();
+                Panel.Invalidate();
+            }
+            else
+            {
+                EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false);
+            }
+           
+            EscapeCard.SelectedEscapeCard = null;
+            return;
+        }
+        //Prüft ob die ChapterCard schon ausgewählt ist
+        if (SelectedChapterCard == this)
+        {
+            //Wenn sie schon ausgewählt ist wird sie abgewählt
+            CardComponent.SetHighlighted(false);
+            SelectedChapterCard = null;
         }
         else
-            EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false);
-        
-        EscapeCard.SelectedEscapeCard = null;
+        {
+            //Wenn sie noch nicht ausgewählt ist wird sie ausgewählt
+            if (SelectedChapterCard != null)
+                SelectedChapterCard.CardComponent.SetHighlighted(false);
+
+            SelectedChapterCard = this;
+            CardComponent.SetHighlighted(true);
+        }
     }
     
     private void DrawTitle(Graphics g)

@@ -33,6 +33,8 @@ public class EscapeCard
         if (SelectedEscapeCard != null)
         {
             SelectedEscapeCard.CardComponent.SetHighlighted(false);
+
+            //Wenn man die gleiche Karte ancklickt wird sie abgewählt
             if (SelectedEscapeCard == this)
             {
                 SelectedEscapeCard = null;
@@ -40,6 +42,14 @@ public class EscapeCard
             }
         }
 
+        //Karte wird abgewählt wenn eine andere Karte ausgewählt wird
+        if (ChapterCard.SelectedChapterCard != null)
+        {
+            ChapterCard.SelectedChapterCard.CardComponent.SetHighlighted(false);
+            ChapterCard.SelectedChapterCard = null;
+        }
+
+        //Die neue Karte wird ausgewählt
         SelectedEscapeCard = this;
         CardComponent.SetHighlighted(true);
     }
