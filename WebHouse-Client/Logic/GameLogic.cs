@@ -87,10 +87,8 @@ public class GameLogic
 
         //Spieler startet immer an StartField des neuen Raumes
         PlayerPosition = CurrentRoom.StartField;
-
-        //Beispiel Offset: 
-        //Du musst den Offset für das neue Level definieren
-        int levelOffset = -12; // z.B. wenn Level 2 bei visueller Nummer 3 startet (entsprechend anpassen!)
+        
+        int levelOffset = -12;
 
         //Gegner neue Position berechnen
         int newOpponentPosition = levelOffset + OpponentPosition;

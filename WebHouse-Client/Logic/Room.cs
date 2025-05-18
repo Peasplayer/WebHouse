@@ -53,7 +53,7 @@ public class Room
         RoomName.Stadt => 7,
         RoomName.Wald => 6,
         RoomName.SafeHouse => 0,
-        _ => 9
+        _ => 0
     };
 
 
