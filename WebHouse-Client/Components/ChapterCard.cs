@@ -5,7 +5,10 @@ namespace WebHouse_Client.Components;
 
 public class ChapterCard
 {
+    public static ChapterCard? SelectedChapterCard;
+    
     public Card CardComponent { get; }
+    public DiscardPile? Pile { get; set; }
     public Panel Panel => CardComponent.Panel;
     public Logic.ChapterCard Card { get; }
 
@@ -13,13 +16,14 @@ public class ChapterCard
     {
         Card = card;
         
-        CardComponent = new Card(new Size(135, 200), 5, 10, Color.Black, 2, g =>
+        CardComponent = new Card(5, 10, Color.Black, 2, g =>
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             DrawTitle(g);
             DrawArrow(g);
             DrawNeededColors(g);
+            DrawCounter(g);
         });
         
         Panel.Tag = this; //Ermöglicht das zugreifen auf ein bestimmtes ChapterCard Objekt
@@ -33,18 +37,48 @@ public class ChapterCard
 
     private void OnClick()
     {
-        if (EscapeCard.SelectedEscapeCard == null)
-            return;
-
-        if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
+        //Überprüfen ob eine EscapeCard ausgewählt ist
+        if (EscapeCard.SelectedEscapeCard != null)
         {
-            Card.AddEscapeCard(EscapeCard.SelectedEscapeCard.Card);
-            EscapeCard.SelectedEscapeCard.Panel.Dispose();
+            if (Pile != null)
+            {
+                //Überprüft ob die EscapeCard an die ChapterCard angelegt werden darf
+                if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
+                {
+                    GameLogic.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Card);
+                }
+                else
+                {
+                    EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false);
+                }
+           
+                EscapeCard.SelectedEscapeCard = null;
+                return;
+            }
+            
+            EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false); 
+            EscapeCard.SelectedEscapeCard = null;
+        }
+
+        if (Pile != null)
+            return;
+        
+        //Prüft ob die ChapterCard schon ausgewählt ist
+        if (SelectedChapterCard == this)
+        {
+            //Wenn sie schon ausgewählt ist wird sie abgewählt
+            CardComponent.SetHighlighted(false);
+            SelectedChapterCard = null;
         }
         else
-            EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false);
-        
-        EscapeCard.SelectedEscapeCard = null;
+        {
+            //Wenn sie noch nicht ausgewählt ist wird sie ausgewählt
+            if (SelectedChapterCard != null)
+                SelectedChapterCard.CardComponent.SetHighlighted(false);
+
+            SelectedChapterCard = this;
+            CardComponent.SetHighlighted(true);
+        }
     }
     
     private void DrawTitle(Graphics g)
@@ -124,5 +158,17 @@ public class ChapterCard
         path.AddArc(rect.Left, rect.Bottom - diameter, diameter, diameter, 90, 90);
         path.CloseFigure();
         return path;
+    }
+    private void DrawCounter(Graphics g)
+    {
+        using var font = new Font("Arial", 10, FontStyle.Bold);
+        using var brush = new SolidBrush(Color.White);
+        
+        string text = $"#{Card.Counter}";
+        SizeF textSize = g.MeasureString(text, font);
+        float padding = 8; //Abstand zum Rand
+        float x = Panel.Width - textSize.Width - padding;
+        float y = padding;
+        g.DrawString(text, font, brush, x, y);
     }
 }
