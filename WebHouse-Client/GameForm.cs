@@ -16,9 +16,10 @@ public partial class GameForm : Form
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
     private Panel? drawPile1;
-    private Panel? drawPile2;
-    private Panel? drawPile3;
+    private Button? drawChapterCardButton;
+    private Button? drawEscapeCardButton;
     private Panel? drawPile4;
+    private List<DiscardPile> discardPiles = new List<DiscardPile>();
     private Panel? infoPanel;
     
     private Rectangle boardContainer;
@@ -88,37 +89,26 @@ public partial class GameForm : Form
         inventoryContainer.Size = new Size(16 * widthUnit, 6 * heightUnit);//(GetRelativeSize(ClientSize, true, percentage: 50), GetRelativeSize(ClientSize, false, percentage: 33.34));
         inventoryContainer.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + 11 * heightUnit);//new Point(boardContainer.X + boardContainer.Width - widthUnit - inventoryContainer.Width, boardContainer.Y + 11 * heightUnit);
 
-        if (GameLogic.Inventory.Count == 0)
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                var card = new ChapterCard("Test", i + 1, new List<CardColor> {CardColor.Red, CardColor.Blue, CardColor.Green});
-                Controls.Add(card.Component.Panel);
-                card.Component.Panel.BringToFront();
-                new DraggableControl(card.Component.Panel);
-                GameLogic.Inventory.Add(card);
-            }
-        }
-
         var cardHeight = Math.Min(inventoryContainer.Height,GetRelativeSize(inventoryContainer.Size, true, percentage: 16.67) * 3 / 2);//cardWidth * 3 / 2;
         var cardWidth = cardHeight * 2 / 3;//GetRelativeSize(inventoryContainer.Size, true, percentage: 16.67);
-        foreach (var card in GameLogic.Inventory)
+        for (var i = 0; i < GameLogic.Inventory.Count; i++)
         {
+            var card = GameLogic.Inventory[i];
             var location = new Point(inventoryContainer.Location.X + (cardWidth / 6) 
-                + GameLogic.Inventory.IndexOf(card) * cardWidth + GameLogic.Inventory.IndexOf(card) * (cardWidth / 6),
+                + i * cardWidth + i * (cardWidth / 6),
                 inventoryContainer.Location.Y + (inventoryContainer.Height - cardHeight) / 2);
             var size = new Size(cardWidth, cardHeight);
             
             if (card is EscapeCard escapeCard)
             {
-                escapeCard.Component.CardComponent.Size = size;
+                escapeCard.Component.Panel.Size = size;
                 escapeCard.Component.Panel.Location = location;
                 escapeCard.Component.Panel.BringToFront();
             }
 
             if (card is ChapterCard chapterCard)
             {
-                chapterCard.Component.CardComponent.Size = size;
+                chapterCard.Component.Panel.Size = size;
                 chapterCard.Component.Panel.Location = location;
                 chapterCard.Component.Panel.BringToFront();
             }
@@ -168,25 +158,57 @@ public partial class GameForm : Form
         drawPile1.Size = new Size(widthUnit * 2, heightUnit * 3);
         drawPile1.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 1 * heightUnit);
         
-        if (drawPile2 == null)
+        if (drawChapterCardButton == null)
         {
-            drawPile2 = new Panel();
-            drawPile2.BackColor = Color.Yellow;
-            Controls.Add(drawPile2);
+            drawChapterCardButton = new Button();
+            drawChapterCardButton.Text = "ChapterCard";
+            drawChapterCardButton.MouseClick += (_, args) =>
+            {
+                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
+                    return;
+                
+                var card = new ChapterCard(GameLogic.CurrentRoom.RoomType.ToString(), 3, new List<CardColor> {CardColor.Red, CardColor.Blue, CardColor.Green});
+                Controls.Add(card.Component.Panel);
+                card.Component.Panel.BringToFront();
+                GameLogic.Inventory.Add(card);
+                
+                RenderBoard();
+            };
+            drawChapterCardButton.BackColor = Color.Yellow;
+            Controls.Add(drawChapterCardButton);
         }
 
-        drawPile2.Size = new Size(widthUnit * 2, heightUnit * 3);
-        drawPile2.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 6 * heightUnit);
+        drawChapterCardButton.Size = new Size(widthUnit * 2, heightUnit * 3);
+        drawChapterCardButton.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 6 * heightUnit);
         
-        if (drawPile3 == null)
+        if (drawEscapeCardButton == null)
         {
-            drawPile3 = new Panel();
-            drawPile3.BackColor = Color.Yellow;
-            Controls.Add(drawPile3);
+            drawEscapeCardButton = new Button();
+            drawEscapeCardButton.Text = "EscapeCard";
+            drawEscapeCardButton.MouseClick += (_, args) =>
+            {
+                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
+                    return;
+                
+                var escapeCard = new EscapeCard(Random.Shared.Next(15) + 1, "Test", Random.Shared.Next(3) switch
+                {
+                    0 => CardColor.Red,
+                    1 => CardColor.Green,
+                    2 => CardColor.Blue,
+                    _ => CardColor.Red
+                });
+                Controls.Add(escapeCard.Component.Panel);
+                escapeCard.Component.Panel.BringToFront();
+                GameLogic.Inventory.Add(escapeCard);
+                
+                RenderBoard();
+            };
+            drawEscapeCardButton.BackColor = Color.Yellow;
+            Controls.Add(drawEscapeCardButton);
         }
 
-        drawPile3.Size = new Size(widthUnit * 2, heightUnit * 3);
-        drawPile3.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 10 * heightUnit);
+        drawEscapeCardButton.Size = new Size(widthUnit * 2, heightUnit * 3);
+        drawEscapeCardButton.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 10 * heightUnit);
         
         if (drawPile4 == null)
         {
@@ -203,6 +225,31 @@ public partial class GameForm : Form
             infoPanel = new Panel();
             infoPanel.BackColor = Color.Red;
             Controls.Add(infoPanel);
+        }
+        
+        if (discardPiles.Count == 0)
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                var pile = new DiscardPile();
+                discardPiles.Add(pile);
+                Controls.Add(pile.Panel);
+            }
+        }
+
+        foreach (var pile in discardPiles)
+        {
+            pile.Panel.Size = new Size(2 * widthUnit, 3 * heightUnit);
+            pile.Panel.Location = new Point(boardContainer.X + (2 + discardPiles.IndexOf(pile) % 3 * 3) * widthUnit, boardContainer.Y + (6 + discardPiles.IndexOf(pile) / 3 * 4) * heightUnit);
+            pile.Panel.BringToFront();
+            pile.Panel.Invalidate();
+        }
+
+        foreach (var card in GameLogic.PlacedChapterCards)
+        {
+            card.Component.Panel.Size = new Size(2 * widthUnit, 3 * heightUnit);
+            card.Component.Panel.Location = new Point(boardContainer.X + (2 + discardPiles.IndexOf(card.Component.Pile) % 3 * 3) * widthUnit, boardContainer.Y + (6 + discardPiles.IndexOf(card.Component.Pile) / 3 * 4) * heightUnit);
+            card.Component.Panel.BringToFront();
         }
 
         infoPanel.Size = new Size(widthUnit * 10, heightUnit * 4);

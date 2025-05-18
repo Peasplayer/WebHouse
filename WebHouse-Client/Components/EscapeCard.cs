@@ -15,7 +15,7 @@ public class EscapeCard
     {
         Card = card;
         
-        CardComponent = new Card(new Size(135, 200), 5, 10,
+        CardComponent = new Card(5, 10,
             Color.Black, 2);
         Panel.Paint += DrawEscapeCards;
         Panel.Tag = this; //Verbindet das Objekt Pannel mit seinem EscapeCard Objekt

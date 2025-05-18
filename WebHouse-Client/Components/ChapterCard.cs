@@ -5,17 +5,18 @@ namespace WebHouse_Client.Components;
 
 public class ChapterCard
 {
+    public static ChapterCard? SelectedChapterCard;
+    
     public Card CardComponent { get; }
-    public DiscardPile DiscardPileInstance { get; set; } = null!;
+    public DiscardPile? Pile { get; set; }
     public Panel Panel => CardComponent.Panel;
     public Logic.ChapterCard Card { get; }
-    public static ChapterCard? SelectedChapterCard;
 
     public ChapterCard(Logic.ChapterCard card)
     {
         Card = card;
         
-        CardComponent = new Card(new Size(135, 200), 5, 10, Color.Black, 2, g =>
+        CardComponent = new Card(5, 10, Color.Black, 2, g =>
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -39,21 +40,29 @@ public class ChapterCard
         //Überprüfen ob eine EscapeCard ausgewählt ist
         if (EscapeCard.SelectedEscapeCard != null)
         {
-            //Überprüft ob die EscapeCard an die ChapterCard angelegt werden darf
-            if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
+            if (Pile != null)
             {
-                Card.AddEscapeCard(EscapeCard.SelectedEscapeCard.Card);
-                EscapeCard.SelectedEscapeCard.Panel.Dispose();
-                Panel.Invalidate();
-            }
-            else
-            {
-                EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false);
-            }
+                //Überprüft ob die EscapeCard an die ChapterCard angelegt werden darf
+                if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
+                {
+                    GameLogic.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Card);
+                }
+                else
+                {
+                    EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false);
+                }
            
+                EscapeCard.SelectedEscapeCard = null;
+                return;
+            }
+            
+            EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false); 
             EscapeCard.SelectedEscapeCard = null;
-            return;
         }
+
+        if (Pile != null)
+            return;
+        
         //Prüft ob die ChapterCard schon ausgewählt ist
         if (SelectedChapterCard == this)
         {

@@ -13,6 +13,7 @@ public class GameLogic
     public static int PlayerPosition = 0;
     public static int OpponentPosition = 0;
     public static List<ICard> Inventory = new List<ICard>();
+    public static List<ChapterCard> PlacedChapterCards = new List<ChapterCard>();
     public static Room CurrentRoom => Rooms[_currentRoom];
     
     public static List<Room> Rooms = new List<Room> // Raum-Liste wird erstellt
@@ -24,14 +25,13 @@ public class GameLogic
         new Room(Room.RoomName.SafeHouse),
     };
 
-    private static Stream MusicStream = Assembly.GetExecutingAssembly()
-        .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav");
-
     private static void StartOpponent()
     {
         Task.Run(() =>
         {
-            var sound = new SoundPlayer(MusicStream);
+            var sound = new SoundPlayer(Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav"));
+            sound.Load();
             sound.PlaySync();
             _gameForm.BeginInvoke(() => MoveOpponent(1));
             StartOpponent();
@@ -66,7 +66,6 @@ public class GameLogic
     public static void MoveOpponent(int steps)
     {
         OpponentPosition += steps;
-        // TODO: Check if field is opponent field
         if (OpponentPosition >= PlayerPosition)
         {
             Stop();
@@ -81,5 +80,23 @@ public class GameLogic
         _currentRoom++;
         _gameForm.RenderBoard();
         // TODO: Set positions of player and opponent
+    }
+
+    public static void PlaceChapterCard(ChapterCard card)
+    {
+        Inventory.Remove(card);
+        PlacedChapterCards.Add(card);
+        
+        _gameForm.RenderBoard();
+    }
+    
+    public static void PlaceEscapeCard(EscapeCard card, ChapterCard chapterCard)
+    {
+        Inventory.Remove(card);
+        chapterCard.AddEscapeCard(card);
+        
+        card.Component.Panel.Dispose();
+        chapterCard.Component.Panel.Invalidate();
+        _gameForm.RenderBoard();
     }
 }
