@@ -15,6 +15,15 @@ public partial class GameForm : Form
     private PictureBox? playerImage;
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
+    private Panel? drawPile1;
+    private Panel? drawPile2;
+    private Panel? drawPile3;
+    private Panel? drawPile4;
+    private Panel? infoPanel;
+    
+    private Rectangle boardContainer;
+    private int widthUnit;
+    private int heightUnit;
     
     public GameForm()
     {
@@ -34,6 +43,22 @@ public partial class GameForm : Form
     
     public void RenderBoard()
     {
+        boardContainer = new Rectangle();
+        
+        var boardWidth = ClientSize.Width;
+        var boardHeight = ClientSize.Width * 9 / 16;
+        if (boardHeight > ClientSize.Height)
+        {
+            boardWidth = ClientSize.Height * 16 / 9;
+            boardHeight = ClientSize.Height;
+        }
+        boardContainer.Width = boardWidth;
+        boardContainer.Height = boardHeight;
+        boardContainer.Location = new Point((ClientSize.Width - boardContainer.Width) / 2, (ClientSize.Height - boardContainer.Height) / 2);
+        
+        widthUnit = boardContainer.Width / 32;
+        heightUnit = boardContainer.Height / 18;
+        
         if (roomImage == null)
         {
             //roomImage erstellen
@@ -47,18 +72,11 @@ public partial class GameForm : Form
             Controls.Add(roomImage);
         }
 
-        //Größe auf ein Viertel des Fensters setzen
-        var width = GetRelativeSize(ClientSize, true, percentage: 60);
-        var height = GetRelativeSize(ClientSize, true, percentage: 60) * 9 / 16;
-        if (height > GetRelativeSize(ClientSize, false, percentage: 60))
-        {
-            width = GetRelativeSize(ClientSize, false, percentage: 60) * 16 / 9;
-            height = GetRelativeSize(ClientSize, false, percentage: 60);
-        }
-        roomImage.Width = width;
-        roomImage.Height = height;
+        roomImage.BackColor = Color.Green;
+        roomImage.Width = 16 * widthUnit;//Math.Min(9 * heightUnit, 20 * widthUnit * 9 / 16);//heightUnit * 9;//roomImageHeight;
+        roomImage.Height = 9 * heightUnit;//roomImage.Height * 16 / 9;//widthUnit * 20;//roomImageWidth;
         //Oben rechts positionieren
-        roomImage.Location = new Point(ClientSize.Width - roomImage.Width, 0);
+        roomImage.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + heightUnit);//new Point(boardContainer.X + boardContainer.Width - widthUnit - roomImage.Width, boardContainer.Y + heightUnit);
 
         if (inventoryContainer == null)
         {
@@ -67,8 +85,8 @@ public partial class GameForm : Form
             Controls.Add(inventoryContainer);
         }
         
-        inventoryContainer.Size = new Size(GetRelativeSize(ClientSize, true, percentage: 50), GetRelativeSize(ClientSize, false, percentage: 40));
-        inventoryContainer.Location = new Point(ClientSize.Width - inventoryContainer.Width, ClientSize.Height - inventoryContainer.Height);
+        inventoryContainer.Size = new Size(16 * widthUnit, 6 * heightUnit);//(GetRelativeSize(ClientSize, true, percentage: 50), GetRelativeSize(ClientSize, false, percentage: 33.34));
+        inventoryContainer.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + 11 * heightUnit);//new Point(boardContainer.X + boardContainer.Width - widthUnit - inventoryContainer.Width, boardContainer.Y + 11 * heightUnit);
 
         if (GameLogic.Inventory.Count == 0)
         {
@@ -82,27 +100,27 @@ public partial class GameForm : Form
             }
         }
 
-        var cardWidth = GetRelativeSize(inventoryContainer.Size, true, percentage: 20);
-        var cardHeight = cardWidth * 3 / 2;
-        if (cardHeight > inventoryContainer.Height)
-        {
-            cardHeight = inventoryContainer.Height;
-            cardWidth = cardHeight * 2 / 3;
-        }
+        var cardHeight = Math.Min(inventoryContainer.Height,GetRelativeSize(inventoryContainer.Size, true, percentage: 16.67) * 3 / 2);//cardWidth * 3 / 2;
+        var cardWidth = cardHeight * 2 / 3;//GetRelativeSize(inventoryContainer.Size, true, percentage: 16.67);
         foreach (var card in GameLogic.Inventory)
         {
+            var location = new Point(inventoryContainer.Location.X + (cardWidth / 6) 
+                + GameLogic.Inventory.IndexOf(card) * cardWidth + GameLogic.Inventory.IndexOf(card) * (cardWidth / 6),
+                inventoryContainer.Location.Y + (inventoryContainer.Height - cardHeight) / 2);
+            var size = new Size(cardWidth, cardHeight);
+            
             if (card is EscapeCard escapeCard)
             {
-                escapeCard.Component.CardComponent.Size = new Size(cardWidth, cardHeight);
-                escapeCard.Component.Panel.Location =
-                    inventoryContainer.Location with { X = inventoryContainer.Location.X + GameLogic.Inventory.IndexOf(card) * cardWidth };
+                escapeCard.Component.CardComponent.Size = size;
+                escapeCard.Component.Panel.Location = location;
+                escapeCard.Component.Panel.BringToFront();
             }
 
             if (card is ChapterCard chapterCard)
             {
-                chapterCard.Component.CardComponent.Size = new Size(cardWidth, cardHeight);
-                chapterCard.Component.Panel.Location =
-                    inventoryContainer.Location with { X = inventoryContainer.Location.X + GameLogic.Inventory.IndexOf(card) * cardWidth };
+                chapterCard.Component.CardComponent.Size = size;
+                chapterCard.Component.Panel.Location = location;
+                chapterCard.Component.Panel.BringToFront();
             }
         }
         
@@ -139,6 +157,56 @@ public partial class GameForm : Form
         opponentImage.Size = new Size(GetRelativeSize(roomImage.Size, true, 80), GetRelativeSize(roomImage.Size, false, 120));
 
         UpdatePositions();
+        
+        if (drawPile1 == null)
+        {
+            drawPile1 = new Panel();
+            drawPile1.BackColor = Color.Yellow;
+            Controls.Add(drawPile1);
+        }
+
+        drawPile1.Size = new Size(widthUnit * 2, heightUnit * 3);
+        drawPile1.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 1 * heightUnit);
+        
+        if (drawPile2 == null)
+        {
+            drawPile2 = new Panel();
+            drawPile2.BackColor = Color.Yellow;
+            Controls.Add(drawPile2);
+        }
+
+        drawPile2.Size = new Size(widthUnit * 2, heightUnit * 3);
+        drawPile2.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 6 * heightUnit);
+        
+        if (drawPile3 == null)
+        {
+            drawPile3 = new Panel();
+            drawPile3.BackColor = Color.Yellow;
+            Controls.Add(drawPile3);
+        }
+
+        drawPile3.Size = new Size(widthUnit * 2, heightUnit * 3);
+        drawPile3.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 10 * heightUnit);
+        
+        if (drawPile4 == null)
+        {
+            drawPile4 = new Panel();
+            drawPile4.BackColor = Color.Yellow;
+            Controls.Add(drawPile4);
+        }
+
+        drawPile4.Size = new Size(widthUnit * 2, heightUnit * 3);
+        drawPile4.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
+        
+        if (infoPanel == null)
+        {
+            infoPanel = new Panel();
+            infoPanel.BackColor = Color.Red;
+            Controls.Add(infoPanel);
+        }
+
+        infoPanel.Size = new Size(widthUnit * 10, heightUnit * 4);
+        infoPanel.Location = new Point(boardContainer.X + 1 * widthUnit, boardContainer.Y + 1 * heightUnit);
     }
     
     public void UpdatePositions()
@@ -178,7 +246,7 @@ public partial class GameForm : Form
         Controls.Add(opponentMoveButton);
     }
 
-    private int GetRelativeSize(Size size, bool width, int? pixels = null, int? percentage = null)
+    private int GetRelativeSize(Size size, bool width, int? pixels = null, double? percentage = null)
     {
         if (pixels != null)
         {
@@ -187,7 +255,7 @@ public partial class GameForm : Form
 
         if (percentage != null)
         {
-            return (width ? size.Width : size.Height) / 100 * percentage.Value; 
+            return (int) Math.Round((width ? size.Width : size.Height) * percentage.Value / 100f, MidpointRounding.AwayFromZero);
         }
         
         throw new ArgumentException("Either pixels or percentage must be provided.");
