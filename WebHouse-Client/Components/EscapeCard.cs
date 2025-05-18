@@ -6,6 +6,8 @@ namespace WebHouse_Client.Components;
 
 public class EscapeCard
 {
+    public static EscapeCard? SelectedEscapeCard;
+    
     public Card CardComponent { get; }
     public Panel Panel => CardComponent.Panel;
     public Logic.EscapeCard Card { get; }
@@ -17,7 +19,29 @@ public class EscapeCard
             Color.Black, 2);
         Panel.Paint += DrawEscapeCards;
         Panel.Tag = this; //Verbindet das Objekt Pannel mit seinem EscapeCard Objekt
-        new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
+        Panel.MouseClick += (_, args) =>
+        {
+            if (args.Button == MouseButtons.Left)
+                OnClick();
+        };
+        
+        //new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
+    }
+
+    private void OnClick()
+    {
+        if (SelectedEscapeCard != null)
+        {
+            SelectedEscapeCard.CardComponent.SetHighlighted(false);
+            if (SelectedEscapeCard == this)
+            {
+                SelectedEscapeCard = null;
+                return;
+            }
+        }
+
+        SelectedEscapeCard = this;
+        CardComponent.SetHighlighted(true);
     }
     
     private void DrawEscapeCards(object? sender, PaintEventArgs e)

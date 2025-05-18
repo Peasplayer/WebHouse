@@ -6,6 +6,7 @@ public class Card
 {
     public Panel Panel { get; }
     public Size Size;
+    public bool Highlighted { get; private set; } //Ob die Karte hervorgehoben werden soll
     private readonly int _cornerRadius; //Radius der Ecken
     private readonly int _borderWidth; //Dicke des Rahmens
     private readonly Color _color; //Hintergrundfarbe der Karte
@@ -47,7 +48,8 @@ public class Card
             {
                 _additionalPaint(g); //Zusätzliche Zeichnungen
             }
-            g.DrawPath(pen, path); //Rahmen der Karte zeichnen
+            
+            g.DrawPath(Highlighted ? highlightPen : pen, path); //Rahmen der Karte zeichnen
         }
     }
 
@@ -61,5 +63,11 @@ public class Card
         path.AddArc(rect.Left, rect.Bottom - diameter, diameter, diameter, 90, 90);
         path.CloseFigure();
         return path;
+    }
+    
+    public void SetHighlighted(bool highlighted)
+    {
+        Highlighted = highlighted;
+        Panel.Invalidate(); //Panel neu zeichnen
     }
 }
