@@ -28,6 +28,10 @@ public partial class GameForm : Form
     
     public GameForm()
     {
+        this.DoubleBuffered = true;
+        BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Wood.jpg"));
+        this.BackgroundImageLayout = ImageLayout.Stretch;
+        
         InitializeComponent(); 
         AddTempButtons();
         
@@ -62,7 +66,8 @@ public partial class GameForm : Form
         
         if (roomImage == null)
         {
-            roomImage = new PictureBox();
+            roomImage = new BufferPictureBox();
+            roomImage.BorderStyle = BorderStyle.FixedSingle;
             roomImage.SizeMode = PictureBoxSizeMode.Zoom;
             Controls.Add(roomImage);
         }
@@ -71,7 +76,6 @@ public partial class GameForm : Form
         roomImage.Image = Image.FromStream(
             Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images."+ GameLogic.CurrentRoom.Picture));
 
-        roomImage.BackColor = Color.Green;
         roomImage.Width = 16 * widthUnit;//Math.Min(9 * heightUnit, 20 * widthUnit * 9 / 16);//heightUnit * 9;//roomImageHeight;
         roomImage.Height = 9 * heightUnit;//roomImage.Height * 16 / 9;//widthUnit * 20;//roomImageWidth;
         //Oben rechts positionieren
@@ -79,8 +83,9 @@ public partial class GameForm : Form
 
         if (inventoryContainer == null)
         {
-            inventoryContainer = new Panel();
-            inventoryContainer.BackColor = Color.Aquamarine;
+            inventoryContainer = new BufferPanel();
+            inventoryContainer.BorderStyle = BorderStyle.FixedSingle;
+            inventoryContainer.BackColor = Color.FromArgb(50, Color.AntiqueWhite);
             Controls.Add(inventoryContainer);
         }
         
@@ -116,7 +121,7 @@ public partial class GameForm : Form
         if (playerImage == null)
         {
             // Neue PictureBox erzeugen
-            playerImage = new PictureBox();
+            playerImage = new BufferPictureBox();
             playerImage.BackColor = Color.Transparent;
             playerImage.SizeMode = PictureBoxSizeMode.Zoom;
             playerImage.Image = Image.FromStream(
@@ -132,7 +137,7 @@ public partial class GameForm : Form
         if (opponentImage == null)
         {
             //Neue PictureBox erzeugen
-            opponentImage = new PictureBox();
+            opponentImage = new BufferPictureBox();
             opponentImage.BackColor = Color.Transparent;
             opponentImage.SizeMode = PictureBoxSizeMode.Zoom;
             opponentImage.Image = Image.FromStream(
@@ -148,8 +153,8 @@ public partial class GameForm : Form
         
         if (drawPile1 == null)
         {
-            drawPile1 = new Panel();
-            drawPile1.BackColor = Color.Yellow;
+            drawPile1 = new BufferPanel();
+            drawPile1.BackColor = Color.LightGoldenrodYellow;
             Controls.Add(drawPile1);
         }
 
@@ -172,7 +177,7 @@ public partial class GameForm : Form
                 
                 RenderBoard();
             };
-            drawChapterCardButton.BackColor = Color.Yellow;
+            drawChapterCardButton.BackColor = Color.LightGoldenrodYellow;
             Controls.Add(drawChapterCardButton);
         }
 
@@ -204,7 +209,7 @@ public partial class GameForm : Form
                 
                 RenderBoard();
             };
-            drawEscapeCardButton.BackColor = Color.Yellow;
+            drawEscapeCardButton.BackColor = Color.LightGoldenrodYellow;
             Controls.Add(drawEscapeCardButton);
         }
 
@@ -213,8 +218,8 @@ public partial class GameForm : Form
         
         if (drawPile4 == null)
         {
-            drawPile4 = new Panel();
-            drawPile4.BackColor = Color.Yellow;
+            drawPile4 = new BufferPanel();
+            drawPile4.BackColor = Color.LightGoldenrodYellow;
             Controls.Add(drawPile4);
         }
 
@@ -223,8 +228,9 @@ public partial class GameForm : Form
         
         if (infoPanel == null)
         {
-            infoPanel = new Panel();
-            infoPanel.BackColor = Color.Red;
+            infoPanel = new BufferPanel();
+            infoPanel.BorderStyle = BorderStyle.FixedSingle;
+            infoPanel.BackColor = Color.FromArgb(100, Color.DimGray);
             Controls.Add(infoPanel);
         }
         
@@ -243,7 +249,6 @@ public partial class GameForm : Form
             pile.Panel.Size = new Size(2 * widthUnit, 3 * heightUnit);
             pile.Panel.Location = new Point(boardContainer.X + (2 + discardPiles.IndexOf(pile) % 3 * 3) * widthUnit, boardContainer.Y + (6 + discardPiles.IndexOf(pile) / 3 * 4) * heightUnit);
             pile.Panel.BringToFront();
-            pile.Panel.Invalidate();
         }
 
         foreach (var card in GameLogic.PlacedChapterCards)
