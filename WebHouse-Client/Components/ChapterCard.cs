@@ -161,14 +161,17 @@ public class ChapterCard
     }
     private void DrawCounter(Graphics g)
     {
-        using var font = new Font("Arial", 10, FontStyle.Bold);
-        using var brush = new SolidBrush(Color.White);
+        if(Card.Counter > 0)
+        {
+            using var font = new Font("Arial", 10, FontStyle.Bold);
+            using var brush = new SolidBrush(Color.White);
         
-        string text = $"#{Card.Counter}";
-        SizeF textSize = g.MeasureString(text, font);
-        float padding = 8; //Abstand zum Rand
-        float x = Panel.Width - textSize.Width - padding;
-        float y = padding;
-        g.DrawString(text, font, brush, x, y);
+            string text = $"#{Card.Counter}";
+            SizeF textSize = g.MeasureString(text, font);
+            float padding = 8; //Abstand zum Rand
+            float x = Panel.Width - textSize.Width - padding;
+            float y = padding;
+            g.DrawString(text, font, brush, x, y);
+        }
     }
 }
