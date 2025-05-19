@@ -29,30 +29,61 @@ partial class Form1
     /// </summary>
     private void InitializeComponent()
     {
-        GameFormBTN = new System.Windows.Forms.Button();
+        Startbtn = new System.Windows.Forms.Button();
+        textBox1 = new System.Windows.Forms.TextBox();
+        textBox2 = new System.Windows.Forms.TextBox();
         SuspendLayout();
         // 
-        // GameFormBTN
+        // Startbtn
         // 
-        GameFormBTN.Location = new System.Drawing.Point(226, 68);
-        GameFormBTN.Name = "GameFormBTN";
-        GameFormBTN.Size = new System.Drawing.Size(173, 270);
-        GameFormBTN.TabIndex = 0;
-        GameFormBTN.Text = "button1";
-        GameFormBTN.UseVisualStyleBackColor = true;
-        GameFormBTN.Click += GameFormBTN_Click;
+        Startbtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+        Startbtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+        Startbtn.Location = new System.Drawing.Point(850, 700);
+        Startbtn.Name = "Startbtn";
+        Startbtn.Size = new System.Drawing.Size(584, 132);
+        Startbtn.TabIndex = 0;
+        Startbtn.UseVisualStyleBackColor = true;
+        Startbtn.Click += Startbtn_Click;
+        // 
+        // textBox1
+        // 
+        textBox1.BackColor = System.Drawing.SystemColors.InfoText;
+        textBox1.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+        textBox1.ForeColor = System.Drawing.SystemColors.HighlightText;
+        textBox1.Location = new System.Drawing.Point(850, 205);
+        textBox1.Name = "textBox1";
+        textBox1.Size = new System.Drawing.Size(474, 61);
+        textBox1.TabIndex = 1;
+        // 
+        // textBox2
+        // 
+        textBox2.BackColor = System.Drawing.SystemColors.InfoText;
+        textBox2.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+        textBox2.ForeColor = System.Drawing.SystemColors.HighlightText;
+        textBox2.Location = new System.Drawing.Point(850, 356);
+        textBox2.Name = "textBox2";
+        textBox2.Size = new System.Drawing.Size(474, 61);
+        textBox2.TabIndex = 2;
         // 
         // Form1
         // 
-        AutoScaleDimensions = new System.Drawing.SizeF(12F, 30F);
+        AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        ClientSize = new System.Drawing.Size(1316, 859);
-        Controls.Add(GameFormBTN);
-        Text = "Form1";
+        BackColor = System.Drawing.SystemColors.Control;
+        ClientSize = new System.Drawing.Size(1627, 1055);
+        Controls.Add(textBox2);
+        Controls.Add(textBox1);
+        Controls.Add(Startbtn);
+        Location = new System.Drawing.Point(19, 19);
+        Margin = new System.Windows.Forms.Padding(2);
         ResumeLayout(false);
+        PerformLayout();
     }
 
-    private System.Windows.Forms.Button GameFormBTN;
+    private System.Windows.Forms.TextBox textBox1;
+    private System.Windows.Forms.TextBox textBox2;
+
+    private System.Windows.Forms.Button Startbtn;
 
     #endregion
 }
