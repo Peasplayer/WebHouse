@@ -36,7 +36,7 @@ public partial class GameForm : Form
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Wood.jpg"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
-        TimerLablelInfo();
+        TimerLablelInfo(); //Erstellt das Label für den Timer
         InitializeComponent(); 
         AddTempButtons();
         
@@ -325,6 +325,7 @@ public partial class GameForm : Form
     {
         if (timerLabel == null)
         {
+            //Erstell ein Lable für den Timer das in der InfoBox angezeigt wird
             timerLabel = new Label()
             {
                 AutoSize = true,
@@ -347,6 +348,7 @@ public partial class GameForm : Form
 
     public void UpdateTimerLabel()
     {
+        //Wenn der Timer noch nicht null ist wird der Text geupdatet
         if (playTime > 0)
         {
             timerLabel.Text = $"Noch {playTime} Minuten bis der Verfolger euch hat!";
@@ -354,10 +356,11 @@ public partial class GameForm : Form
         }
         else
         {
-            timerLabel.Text = "Der Verfolger hat euch erwischt!";
+            timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird angezeigt das man verloren hat
         }
     }
 
+    //Verringert dem Timer um 2 Minuten
     public void LowerTimer()
     {
         if (playTime > 0)
