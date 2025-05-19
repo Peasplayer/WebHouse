@@ -14,6 +14,7 @@ public partial class GameForm : Form
     private Button opponentMoveButton = new Button();
     
     private PictureBox? roomImage;
+    private PictureBox? bookImage;
     private PictureBox? playerImage;
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
@@ -37,6 +38,7 @@ public partial class GameForm : Form
         InitializeComponent(); 
         AddTempButtons();
         
+        //this.FormBorderStyle = FormBorderStyle.None; //kein Rand
         this.WindowState = FormWindowState.Maximized; //macht Vollbild
         this.SizeChanged += (_, _) =>
         {
@@ -71,6 +73,19 @@ public partial class GameForm : Form
         widthUnit = boardContainer.Width / 32;
         heightUnit = boardContainer.Height / 18;
         
+        if (bookImage == null)
+        {
+            bookImage = new BufferPictureBox();
+            bookImage.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Book.png"));
+            bookImage.SizeMode = PictureBoxSizeMode.Zoom;
+            bookImage.BackColor = Color.Transparent;
+            Controls.Add(bookImage);
+        }
+        bookImage.Width = 16 * widthUnit;//Math.Min(9 * heightUnit, 20 * widthUnit * 9 / 16);//heightUnit * 9;//roomImageHeight;
+        bookImage.Height = 9 * heightUnit;
+        bookImage.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + heightUnit);
+        
         if (roomImage == null)
         {
             roomImage = new BufferPictureBox();
@@ -83,11 +98,12 @@ public partial class GameForm : Form
         roomImage.Image = Image.FromStream(
             Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images."+ GameLogic.CurrentRoom.Picture));
 
-        roomImage.Width = 16 * widthUnit;//Math.Min(9 * heightUnit, 20 * widthUnit * 9 / 16);//heightUnit * 9;//roomImageHeight;
-        roomImage.Height = 9 * heightUnit;//roomImage.Height * 16 / 9;//widthUnit * 20;//roomImageWidth;
+        roomImage.Width = bookImage.Width - (bookImage.Width / 1728) * (96 + 97);
+        roomImage.Height = bookImage.Height - (bookImage.Width / 1728) * (39 + 69);
         //Oben rechts positionieren
-        roomImage.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + heightUnit);//new Point(boardContainer.X + boardContainer.Width - widthUnit - roomImage.Width, boardContainer.Y + heightUnit);
-
+        roomImage.Location = new Point(bookImage.Location.X + bookImage.Width / 1728 * 96, bookImage.Location.Y + bookImage.Width / 1728 * 39);//new Point(boardContainer.X + boardContainer.Width - widthUnit - roomImage.Width, boardContainer.Y + heightUnit);
+        roomImage.BringToFront();
+        
         if (inventoryContainer == null)
         {
             inventoryContainer = new BufferPanel();
