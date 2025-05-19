@@ -2,120 +2,81 @@
 
 public class DraggableControl
 {
-    public const int SnapRadius = 200; //Radius in dem die Karte an einen Stapel angeheftet wird
+    public Control Control { get; }
 
-    private Control Control { get; }
-    private bool _isDragging;
-    private Point _startLocation;
-    private Control? _highlightTarget; //Der Stapel der farblich hervorgehoben wir da eine Karte in seiner nähe ist
-    private Color _originalColor;
+    private static DraggableControl? selected = null; //Ausgewählte Karte
+    private static bool FormCklickHandler = false; //Verhindert das mehrmals der ClickHandler für die Form hinzugefügt wird
+    private static bool NextClick  = false; //Unterdrückt den clickt auf die ChapterCard nachdem eine EscapeCard an sie gelegt wurde
+    public static DraggableControl? SelectedControl => selected; //Macht die ausgewählte Karte für andere Klassen nutzbar
 
-    public DraggableControl(Control control, List<Control>? snapTargets = null)
+    public DraggableControl(Control control)
     {
         Control = control;
 
-        //Wird ausgeführt wenn die Maustase gedrückt wird
-        Control.MouseDown += (sender, e) =>
+        //Wird ausgeführt wenn eine Karte angecklickt wird
+        Control.MouseClick += (sender, e) =>
         {
-            if (e.Button == MouseButtons.Left)
+            if (NextClick)
             {
-                _isDragging = true;
-                _startLocation = e.Location;
-                Control.BringToFront(); //Karte wird in den Vordergrund gebracht damit sie nicht hinter einem Stable verschwindet
-            }
-        };
-        
-        //Wird ausgeführt wenn die Maustaste losgelassen wird
-        Control.MouseUp += (sender, e) =>
-        {
-            if (!_isDragging)
-            {
-                return; //Wenn die Karte nicht bewegt wird wird nichts gemacht
-            } 
-            _isDragging = false;
-
-            if (snapTargets == null)
+                NextClick = false;
                 return;
-
-            Control? closest = null;
-            double closestDistance = double.MaxValue; //Nutzt die größte mögliche Distanz damit jeder andere Wert immer kleiner ist
-
-            //Überprüft alle möglichen Snapp Ziele
-            foreach (var target in snapTargets)
-            {
-                //Berechnet die Distantz zum Mittelpunkt des Ziels
-                var dx = (target.Left + target.Width / 2) - (Control.Left + Control.Width / 2);
-                var dy = (target.Top + target.Height / 2) - (Control.Top + Control.Height / 2);
-                double distance = dx * dx + dy * dy; //Abstand wird quadriert um die Distanz herauszufinden (Satz des Pythagoras)
-
-                //Überprüft ob die Karte in den Snap Radius ist und ob die Distanz kleiner ist als die vorherige
-                if (distance <= SnapRadius * SnapRadius && distance < closestDistance)
-                {
-                    closestDistance = distance; //Neuer kleinster Wert
-                    closest = target; //Ziel wird gespeichert
-                }
             }
 
-            //Wenn ein Ziel gefunden wurde wird die Karte in die Mitte von dessem gesetzt
-            if (closest != null)
+            if (e.Button != MouseButtons.Left)
             {
-                Control.Location = new Point(
-                    closest.Left + (closest.Width - Control.Width) / 2,
-                    closest.Top + (closest.Height - Control.Height) / 2
-                );
-                Control.BringToFront(); //Karte wird in den Vordergrund gebracht damit sie nicht hinter einem Stable verschwindet
+                return;
+            }
+
+            if (selected == this)
+            {
+                Deselect(); //Wenn die Karte schon ausgewählt ist wird sie abgewählt
+            }
+            else
+            {
+                selected?.Deselect(); //Wenn eine andere Karte ausgewählt ist wird sie abgewählt
+                selected = this; 
+                Control.Invalidate(); //Kartenrahmen zeichnen
             }
         };
         
-        //Wir aufgerufen wen eine Karte bewegt wird
-        Control.MouseMove += (sender, e) =>
+        //Sorgt dafür das die Klick händerl nur einemal hinzugefügt wird und verhindert so Probleme
+        Control.HandleCreated += (sender, e) =>
         {
-            if (_isDragging)
+            var form = Control.FindForm();
+            if (!FormCklickHandler && form != null)
             {
-                //Karte bewegen
-                var location = Control.Location;
-                location.Offset(e.Location.X - _startLocation.X, e.Location.Y - _startLocation.Y);
-                Control.Location = location;
-                
-                if (snapTargets == null)
-                    return;
-                
-                Control? nearestTarget = null;
-                double nearestDistance = double.MaxValue;
-
-                //Suche den nächsten Stapel der im Snapradius ist
-                foreach (var target in snapTargets)
-                {
-                    var dx = (target.Left + target.Width / 2) - (Control.Left + Control.Width / 2);
-                    var dy = (target.Top + target.Height / 2) - (Control.Top + Control.Height / 2);
-                    double distance = Math.Sqrt(dx * dx + dy * dy);
-
-                    if (distance <= SnapRadius && distance < nearestDistance)
-                    {
-                        nearestDistance = distance;
-                        nearestTarget = target;
-                        
-                    }
-                }
-
-                //Wenn sich das Snap Ziel geändert hat
-                if (nearestTarget != _highlightTarget)
-                {
-                    //Der alte Stapel wird zurückgefärbt
-                    if (_highlightTarget != null)
-                    {
-                        _highlightTarget.BackColor = _originalColor;
-                    }
-
-                    //Stapel wird gelb gefärbt
-                    if (nearestTarget != null)
-                    {
-                        _originalColor = nearestTarget.BackColor;  
-                        nearestTarget.BackColor = Color.Yellow; 
-                    }
-                    _highlightTarget = nearestTarget;
-                }
+                FormCklickHandler = true;
+                form.MouseClick += GlobalFormClick;
             }
         };
+    }
+
+    private void Deselect()
+    {
+        Control.Invalidate(); //Alten Rahmen löschen
+        selected = null;
+    }
+    public static void ClearSelection()
+    {
+        selected?.Control.Invalidate();
+        selected = null;
+    }
+    
+    //wird aufgerufen wenn auf die Form gecklickt wird und Teleportiert die Karte an diese Stelle
+    private static void GlobalFormClick(object? sender, MouseEventArgs e)
+    {
+        if (selected == null) return;
+        if (sender is not Form form) return;
+
+        var newLocation = e.Location;
+        newLocation.Offset(-selected.Control.Width / 2, -selected.Control.Height / 2); //Zentriert die Karte auf dem Klick. Ohne dieses wird die linke obere Ecke an den Cursor gesetzt
+
+        selected.Control.Location = newLocation; //Bewegt die Karte an ihre neue Position
+        selected.Deselect();
+    }
+
+    public static void NoNextClick()
+    {
+        NextClick = true;
     }
 }

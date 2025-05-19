@@ -10,9 +10,10 @@ public class GameLogic
     private static Timer _opponentTimer;
     private static GameForm _gameForm;
     
-    public static int PlayerPosition = 0;
+    public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
     public static List<ICard> Inventory = new List<ICard>();
+    public static List<ChapterCard> PlacedChapterCards = new List<ChapterCard>();
     public static Room CurrentRoom => Rooms[_currentRoom];
     
     public static List<Room> Rooms = new List<Room> // Raum-Liste wird erstellt
@@ -24,14 +25,13 @@ public class GameLogic
         new Room(Room.RoomName.SafeHouse),
     };
 
-    private static Stream MusicStream = Assembly.GetExecutingAssembly()
-        .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav");
-
     private static void StartOpponent()
     {
         Task.Run(() =>
         {
-            var sound = new SoundPlayer(MusicStream);
+            var sound = new SoundPlayer(Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav"));
+            sound.Load();
             sound.PlaySync();
             _gameForm.BeginInvoke(() => MoveOpponent(1));
             StartOpponent();
@@ -60,13 +60,17 @@ public class GameLogic
             SwitchRoom();
         }
         
+        if (CurrentRoom.OpponentMoveTriggerFields.Contains(PlayerPosition))
+        {
+            MoveOpponent(1);
+        }
+        
         _gameForm.UpdatePositions();
     }
     
     public static void MoveOpponent(int steps)
     {
         OpponentPosition += steps;
-        // TODO: Check if field is opponent field
         if (OpponentPosition >= PlayerPosition)
         {
             Stop();
@@ -79,7 +83,31 @@ public class GameLogic
     public static void SwitchRoom()
     {
         _currentRoom++;
+
+        //Spieler startet immer an StartField des neuen Raumes
+        PlayerPosition = CurrentRoom.StartField;
+        // Neue Gegner Position berechnen
+        OpponentPosition = Math.Max(0, OpponentPosition - 12);
+
         _gameForm.RenderBoard();
-        // TODO: Set positions of player and opponent
+        _gameForm.UpdatePositions();
+    }
+
+    public static void PlaceChapterCard(ChapterCard card)
+    {
+        Inventory.Remove(card);
+        PlacedChapterCards.Add(card);
+        
+        _gameForm.RenderBoard();
+    }
+    
+    public static void PlaceEscapeCard(EscapeCard card, ChapterCard chapterCard)
+    {
+        Inventory.Remove(card);
+        chapterCard.AddEscapeCard(card);
+        
+        card.Component.Panel.Dispose();
+        chapterCard.Component.Panel.Invalidate();
+        _gameForm.RenderBoard();
     }
 }

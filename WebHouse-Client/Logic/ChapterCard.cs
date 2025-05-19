@@ -33,6 +33,10 @@ public class ChapterCard : ICard
 
         if (Requirements.Count == 0)
         {
+            Component.Pile.Panel.Enabled = true;
+            Component.Pile.Panel.Visible = true;
+            Component.Panel.Dispose();
+            GameLogic.PlacedChapterCards.Remove(this);
             GameLogic.MovePlayer(Steps);
         }
     }
