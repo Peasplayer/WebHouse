@@ -9,6 +9,7 @@ public partial class Lobby : Form
     public Lobby()
     {
         InitializeComponent();
+        this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LobbyFertig.png")); //BackgroundImage
         this.BackgroundImageLayout = ImageLayout.Stretch;
         this.Width = Screen.PrimaryScreen.Bounds.Width / 2; //Startgröße
