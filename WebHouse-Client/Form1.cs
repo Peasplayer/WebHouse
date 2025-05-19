@@ -1,6 +1,6 @@
-using WebHouse_Client.Components;
 using System.Reflection;
-using System.Drawing;
+using WebHouse_Client.Networking;
+
 namespace WebHouse_Client;
 
 public partial class Form1 : Form
@@ -36,9 +36,35 @@ public partial class Form1 : Form
             MessageBox.Show("Bitte gebe eine IP und einen Namen an!", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
+
+        Startbtn.Enabled = false;
         
-        Lobby lobby = new Lobby();
-        lobby.Show();
-        this.Hide();
+        // Der Client verbindet sich mit dem Server und gibt seinen Namen an
+        // Als Task wird so nicht das öffnen der Forms blockiert
+        Task.Run(() =>
+        {
+            var net = new NetworkManager();
+            try
+            {
+                net.Connect("ws://" + textBox2.Text + ":8443", textBox1.Text);
+            }
+            catch (Exception _)
+            {
+                MessageBox.Show("Keine Verbindung zum Server möglich. Ist die IP-Addresse korrekt?", "Fehler",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            finally
+            {
+                Startbtn.Enabled = true;
+            }
+
+            this.BeginInvoke(() =>
+            {
+                Lobby lobby = new Lobby();
+                lobby.Show();
+                this.Hide();
+            });
+        });
     }
 }
