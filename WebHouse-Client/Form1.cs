@@ -41,6 +41,18 @@ public partial class Form1 : Form
             return;
         }
 
+        if (textBox1.Text.Length > 12)
+        {
+            MessageBox.Show("Der Name darf nur 12 Zeichen lang sein!", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
+        if (textBox1.Text.Contains('[') || textBox1.Text.Contains(']') )
+        {
+            MessageBox.Show("Der Name darf weder '[' noch ']' enthalten!", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
         Startbtn.Enabled = false;
         
         // Der Client verbindet sich mit dem Server und gibt seinen Namen an
@@ -60,12 +72,16 @@ public partial class Form1 : Form
             }
             finally
             {
-                Startbtn.Enabled = true;
+                this.BeginInvoke(() =>
+                {
+                    Startbtn.Enabled = true;
+                });
             }
 
             this.BeginInvoke(() =>
             {
                 Lobby lobby = new Lobby();
+                lobby.Location = this.Location;
                 lobby.Show();
                 this.Hide();
             });

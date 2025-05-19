@@ -9,9 +9,9 @@ public class Packet
     public string Sender { get; }
     public string[] Receivers { get; }
 
-    public Packet(object data, PacketDataType dataType, string sender, params string[] receivers)
+    public Packet(object? data, PacketDataType dataType, string sender, params string[] receivers)
     {
-        this.Data = data.GetType() != typeof(string) ? JsonConvert.SerializeObject(data) : (string) data;
+        this.Data = data == null ? "no-data" : data.GetType() != typeof(string) ? JsonConvert.SerializeObject(data) : (string) data;
         this.DataType = dataType;
         this.Sender = sender;
         this.Receivers = receivers;

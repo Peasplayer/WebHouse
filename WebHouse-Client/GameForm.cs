@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+﻿using System.Net.WebSockets;
+using System.Reflection;
 using WebHouse_Client.Components;
 using WebHouse_Client.Logic;
+using WebHouse_Client.Networking;
 using ChapterCard = WebHouse_Client.Logic.ChapterCard;
 using EscapeCard = WebHouse_Client.Logic.EscapeCard;
 
@@ -39,6 +41,11 @@ public partial class GameForm : Form
         this.SizeChanged += (_, _) =>
         {
             RenderBoard();
+        };
+        this.FormClosing += (s, e) =>
+        {
+            NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
+            Application.Exit();
         };
         
         GameLogic.Start(this);
