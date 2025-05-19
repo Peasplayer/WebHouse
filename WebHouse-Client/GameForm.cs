@@ -193,10 +193,12 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                var card = new ChapterCard(GameLogic.CurrentRoom.RoomType.ToString(), 3, new List<CardColor> {CardColor.Red, CardColor.Blue, CardColor.Green});
+                var card = GameLogic.CurrentChapterCards.First();
+                GameLogic.CurrentChapterCards.Remove(card);
+                GameLogic.Inventory.Add(card);
+                
                 Controls.Add(card.Component.Panel);
                 card.Component.Panel.BringToFront();
-                GameLogic.Inventory.Add(card);
                 
                 RenderBoard();
             };

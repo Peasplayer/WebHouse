@@ -2,14 +2,14 @@
 
 public class ChapterCard : ICard
 {
-    public string Chapter { get; }
+    public Room.RoomName Chapter { get; }
     public int Steps { get; }
     public List<CardColor> Requirements { get; }
     public int Counter;
     
     public Components.ChapterCard Component { get; }
 
-    public ChapterCard(string chapter, int steps, List<CardColor> requirements)
+    public ChapterCard(Room.RoomName chapter, int steps, List<CardColor> requirements)
     {
         Chapter = chapter;
         Steps = steps;

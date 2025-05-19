@@ -84,9 +84,9 @@ public class ChapterCard
     private void DrawTitle(Graphics g)
     {
         Font font = new Font("Arial", 12, FontStyle.Bold);
-        SizeF textSize = g.MeasureString(Card.Chapter, font);
+        SizeF textSize = g.MeasureString(Card.Chapter.ToString(), font);
         PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, 30);
-        g.DrawString(Card.Chapter, font, Brushes.White, textPosition);
+        g.DrawString(Card.Chapter.ToString(), font, Brushes.White, textPosition);
     }
 
     private void DrawArrow(Graphics g)
