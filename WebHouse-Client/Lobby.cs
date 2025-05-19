@@ -1,14 +1,18 @@
-using WebHouse_Client.Components;
 using System.Reflection;
-using System.Drawing;
+using WebHouse_Client.Networking;
 
 namespace WebHouse_Client;
 
 public partial class Lobby : Form
 {
+    public static Lobby Instance { get; private set; }
+    
     public Lobby()
     {
+        Instance = this;
+        
         InitializeComponent();
+        this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LobbyFertig.png")); //BackgroundImage
         this.BackgroundImageLayout = ImageLayout.Stretch;
         this.Width = Screen.PrimaryScreen.Bounds.Width / 2; //Startgröße

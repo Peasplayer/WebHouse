@@ -54,7 +54,7 @@ public class NetworkManager
         });
         
         // Wartet bis die Verbindung hergestellt wurde oder fehlschlägt
-        Client.Start().Wait();
+        Client.StartOrFail().Wait();
         
         // Sendet den Handshake mit dem gewünschten Namen
         this.SendPacket(new Packet(new HandshakePacket(null, name), PacketDataType.Handshake, "no-id(ea)", "server"));

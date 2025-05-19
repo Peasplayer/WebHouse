@@ -8,9 +8,9 @@ public class DiscardPile
     
     public DiscardPile()
     {
-        Panel = new Panel
+        Panel = new BufferPanel
         {
-            BackColor = Color.Gray,
+            BackColor = Color.FromArgb(15, Color.Gray),
             BorderStyle = BorderStyle.FixedSingle,
         };
 
