@@ -83,7 +83,7 @@ public class ChapterCard
     
     private void DrawTitle(Graphics g)
     {
-        Font font = new Font("Arial", 12, FontStyle.Bold);
+        Font font = new Font("Arial", Panel.Height / 15f, FontStyle.Bold); // größer (vorher 12)
         SizeF textSize = g.MeasureString(Card.Chapter, font);
         PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, 30);
         g.DrawString(Card.Chapter, font, Brushes.White, textPosition);
@@ -91,26 +91,25 @@ public class ChapterCard
 
     private void DrawArrow(Graphics g)
     {
-        int shaftHeight = 30;
-        int shaftWidth = 80;         //Breite des Schafts
-        int arrowHeight = 50;        //Höhe des gesamten Pfeils
-        int arrowHeadWidth = 30;     //Breite der Spitze
+        int shaftHeight = Panel.Height / 6;
+        int shaftWidth = Panel.Width / 2;
+        int arrowHeight = Panel.Height / 4;
+        int arrowHeadWidth = Panel.Width / 5;
         int startX = 0;
-        int centerY = (Panel.Height - arrowHeight) / 2 + 25;
+        int centerY = (Panel.Height - arrowHeight) / 2 + Panel.Height / 10;
 
         Rectangle shaftRect = new Rectangle(startX, centerY, shaftWidth, shaftHeight);
 
         using var arrowBackground = new SolidBrush(Color.White);
-        using var arrowFrame = new Pen(Color.Black, 2);
-        using var numberFont = new Font("Arial", 14, FontStyle.Bold);
+        using var numberFont = new Font("Arial", Panel.Height / 10f, FontStyle.Bold);
         using var numberColor = new SolidBrush(Color.Black);
 
-        var path = new System.Drawing.Drawing2D.GraphicsPath();
-
+        var path = new GraphicsPath();
         path.StartFigure();
-        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2, shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2); //Diagonale zur Spitze
-        path.AddLine(shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2); //Diagonale zur Spitze
+        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2, shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2);
+        path.AddLine(shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2);
         path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2);
+        path.CloseFigure();
         
         /*path.AddLine(shaftRect.Left, shaftRect.Top, shaftRect.Right, shaftRect.Top); 
         path.AddLine(shaftRect.Right, shaftRect.Top, shaftRect.Right + arrowHeadWidth, shaftRect.Top + arrowHeight / 2); 
@@ -119,11 +118,10 @@ public class ChapterCard
         */path.CloseFigure();
         
         g.FillPath(arrowBackground, path);
-        //g.DrawPath(arrowFrame, path);
         g.FillRectangle(arrowBackground, shaftRect);
 
-        var text = Card.Steps.ToString();
-        var textSize = g.MeasureString(text, numberFont);
+        string text = Card.Steps.ToString();
+        SizeF textSize = g.MeasureString(text, numberFont);
         float textX = shaftRect.Left + (shaftRect.Width - textSize.Width) / 2;
         float textY = shaftRect.Top + (shaftRect.Height - textSize.Height) / 2;
         g.DrawString(text, numberFont, numberColor, textX, textY);
@@ -131,13 +129,13 @@ public class ChapterCard
     
     private void DrawNeededColors(Graphics g)
     {
-        int dotWidth = 20;
-        int dotHeight = 28;
-        int cornerRadius = 6;
-        int space = 5;
+        int dotWidth = Panel.Width / 8;
+        int dotHeight = Panel.Height / 8;
+        int cornerRadius = Math.Min(dotWidth, dotHeight) / 4;
+        int space = Panel.Width / 50; // größerer Abstand zwischen Farbkästen
         int totalWidth = Card.Requirements.Count * dotWidth + (Card.Requirements.Count - 1) * space;
         int startX = (Panel.Width - totalWidth) / 2;
-        int y = Panel.Height - 35;
+        int y = Panel.Height - dotHeight - Panel.Height / 30;
 
         for (int i = 0; i < Card.Requirements.Count; i++)
         {
@@ -148,6 +146,7 @@ public class ChapterCard
             g.FillPath(brush, path);
         }
     }
+
     private GraphicsPath RoundedRectangle(Rectangle rect, int cornerRadius)
     {
         int diameter = cornerRadius * 2;
