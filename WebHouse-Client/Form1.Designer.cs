@@ -54,8 +54,6 @@ partial class Form1
         textBox1.Name = "textBox1";
         textBox1.Size = new System.Drawing.Size(474, 61);
         textBox1.TabIndex = 1;
-        textBox1.Tag = "hallo";
-        textBox1.Text = "Alex";
         // 
         // textBox2
         // 
@@ -66,7 +64,6 @@ partial class Form1
         textBox2.Name = "textBox2";
         textBox2.Size = new System.Drawing.Size(474, 61);
         textBox2.TabIndex = 2;
-        textBox2.Text = "0000000001000001";
         // 
         // Form1
         // 
