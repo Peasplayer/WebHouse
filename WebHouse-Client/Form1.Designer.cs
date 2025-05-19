@@ -52,7 +52,7 @@ partial class Form1
         textBox1.ForeColor = System.Drawing.SystemColors.HighlightText;
         textBox1.Location = new System.Drawing.Point(850, 205);
         textBox1.Name = "textBox1";
-        textBox1.Size = new System.Drawing.Size(474, 61);
+        //textBox1.Size = new System.Drawing.Size(474, 61);
         textBox1.TabIndex = 1;
         // 
         // textBox2
@@ -62,7 +62,7 @@ partial class Form1
         textBox2.ForeColor = System.Drawing.SystemColors.HighlightText;
         textBox2.Location = new System.Drawing.Point(850, 356);
         textBox2.Name = "textBox2";
-        textBox2.Size = new System.Drawing.Size(474, 61);
+        //textBox2.Size = new System.Drawing.Size(474, 61);
         textBox2.TabIndex = 2;
         // 
         // Form1
