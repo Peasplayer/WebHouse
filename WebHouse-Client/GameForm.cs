@@ -181,9 +181,16 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5 || GameLogic.ChapterDeck.Count == 0)
                     return;
 
-                // Karte aus dem Deck ziehen
-                var card = GameLogic.ChapterDeck[0];
-                GameLogic.ChapterDeck.RemoveAt(0);
+                //Karte aus dem Deck ziehen
+                var cardsForCurrentRoom = GameLogic.ChapterDeck
+                    .Where(c => c.Chapter == GameLogic.CurrentRoom.RoomType.ToString())
+                    .ToList();
+
+                if (cardsForCurrentRoom.Count == 0)
+                    return; // Keine passenden Karten da
+
+                var card = cardsForCurrentRoom[0];
+                GameLogic.ChapterDeck.Remove(card);;
 
                 Controls.Add(card.Component.Panel);
                 card.Component.Panel.BringToFront();
@@ -279,21 +286,7 @@ public partial class GameForm : Form
         infoPanel.Size = new Size(widthUnit * 10, heightUnit * 4);
         infoPanel.Location = new Point(boardContainer.X + 1 * widthUnit, boardContainer.Y + 1 * heightUnit);
     }
-    /*private void DrawChapterCard()
-    {
-        if (GameLogic.Inventory.Count >= 5 || GameLogic.ChapterDeck.Count == 0)
-            return;
 
-        var card = GameLogic.ChapterDeck.FirstOrDefault();
-        if (card == null) return;
-
-        GameLogic.ChapterDeck.Remove(card);
-        Controls.Add(card.Component.Panel);
-        card.Component.Panel.BringToFront();
-        GameLogic.Inventory.Add(card);
-
-        RenderBoard();
-    }*/
     public void UpdatePositions()
     {
         var fields = Fields[GameLogic.CurrentRoom.RoomType];

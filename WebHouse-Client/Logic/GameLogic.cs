@@ -133,15 +133,30 @@ public class GameLogic
     public static void SwitchRoom()
     {
         _currentRoom++;
-
-        //Spieler startet immer an StartField des neuen Raumes
         PlayerPosition = CurrentRoom.StartField;
-        // Neue Gegner Position berechnen
-        OpponentPosition = Math.Max(0, OpponentPosition - 12);
+        OpponentPosition = Math.Max(0, OpponentPosition - 12); //  Gegner Position berechnen
+
+        InitializeDeck();
+        ChapterDeck = ChapterDeck
+            .Where(card => card.Chapter == CurrentRoom.RoomType.ToString())
+            .ToList();
+
+        var cardsToRemove = Inventory
+            .OfType<ChapterCard>()
+            .Where(c => c.Chapter != CurrentRoom.RoomType.ToString())
+            .ToList();
+
+        foreach (var card in cardsToRemove)
+        {
+            card.Component.Panel.Dispose();
+            Inventory.Remove(card);
+        }
+        
 
         _gameForm.RenderBoard();
         _gameForm.UpdatePositions();
     }
+
 
     public static void PlaceChapterCard(ChapterCard card)
     {
