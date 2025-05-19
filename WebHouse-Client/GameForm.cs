@@ -188,16 +188,19 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                var escapeCard = new EscapeCard(Random.Shared.Next(15) + 1, "Test", Random.Shared.Next(3) switch
+                
+                var escapeCardIndex = 0;
+                if (escapeCardIndex >= GameLogic.CurrentEscapeCards.Count)
                 {
-                    0 => CardColor.Red,
-                    1 => CardColor.Green,
-                    2 => CardColor.Blue,
-                    _ => CardColor.Red
-                });
+                    return;
+                }
+                var escapeCard = GameLogic.CurrentEscapeCards[escapeCardIndex];
+                escapeCardIndex++;
+                
                 Controls.Add(escapeCard.Component.Panel);
                 escapeCard.Component.Panel.BringToFront();
                 GameLogic.Inventory.Add(escapeCard);
+                GameLogic.CurrentEscapeCards.Remove(escapeCard);
                 
                 RenderBoard();
             };
