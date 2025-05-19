@@ -19,6 +19,7 @@ public partial class Lobby : Form
         aspectRatio = (float)this.Width / this.Height; //Seitenverhältnis berechnen
         this.ResizeEnd += Lobby_ResizeEnd; //Größe ändern Event
         UpdateStartButtonLayout();
+        Startbtn.BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Start.png"));
     }
 
     private void Lobby_ResizeEnd(object sender, EventArgs e)

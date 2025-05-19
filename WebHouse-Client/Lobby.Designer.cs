@@ -31,14 +31,12 @@ partial class Lobby
     /// </summary>
     private void InitializeComponent()
     {
-        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Lobby));
         Startbtn = new System.Windows.Forms.Button();
         SuspendLayout();
         // 
         // Startbtn
         // 
         Startbtn.BackColor = System.Drawing.Color.DimGray;
-        Startbtn.BackgroundImage = ((System.Drawing.Image)resources.GetObject("Startbtn.BackgroundImage"));
         Startbtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
         Startbtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
         Startbtn.Location = new System.Drawing.Point(516, 850);
@@ -52,7 +50,7 @@ partial class Lobby
         // 
         AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        ClientSize = new System.Drawing.Size(1387, 1137);
+        ClientSize = new System.Drawing.Size(1387, 1055);
         Controls.Add(Startbtn);
         Text = "Lobby";
         ResumeLayout(false);

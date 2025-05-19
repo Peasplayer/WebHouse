@@ -29,7 +29,6 @@ partial class Form1
     /// </summary>
     private void InitializeComponent()
     {
-        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
         Startbtn = new System.Windows.Forms.Button();
         textBox1 = new System.Windows.Forms.TextBox();
         textBox2 = new System.Windows.Forms.TextBox();
@@ -37,7 +36,6 @@ partial class Form1
         // 
         // Startbtn
         // 
-        Startbtn.BackgroundImage = ((System.Drawing.Image)resources.GetObject("Startbtn.BackgroundImage"));
         Startbtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
         Startbtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
         Startbtn.Location = new System.Drawing.Point(850, 700);
@@ -75,7 +73,7 @@ partial class Form1
         AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
         AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         BackColor = System.Drawing.SystemColors.Control;
-        ClientSize = new System.Drawing.Size(1627, 1062);
+        ClientSize = new System.Drawing.Size(1627, 1055);
         Controls.Add(textBox2);
         Controls.Add(textBox1);
         Controls.Add(Startbtn);

@@ -15,6 +15,7 @@ public partial class Form1 : Form
         this.MaximizeBox = false;
         this.MinimizeBox = false;
         this.StartPosition = FormStartPosition.CenterScreen;
+        Startbtn.BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Start.png"));
     }
 
     private void Startbtn_Click(object sender, EventArgs e)
