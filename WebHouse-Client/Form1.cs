@@ -7,6 +7,13 @@ public partial class Form1 : Form
 {
     public Form1()
     {
+        
+        var form = new GameForm();
+        form.Show();
+        this.Hide();
+        return;
+        
+        
         InitializeComponent();
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LogIn.png"));
@@ -22,12 +29,12 @@ public partial class Form1 : Form
         Startbtn.Location = new Point((ClientSize.Width - Startbtn.Size.Width) / 2, 800 * ClientSize.Height / 1080);
         Startbtn.BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Start.png"));
 
-        textBox1.Size = new Size(500 * ClientSize.Width / 1920, 125 * ClientSize.Height / 1080); //Höhe wird duch den Font überschrieben
+        textBox1.Size = new Size(500 * ClientSize.Width / 1920, 125 * ClientSize.Height / 1080); //Höhe wird durch den Font überschrieben
         textBox1.Location = new Point(900 * ClientSize.Width / 1920, 194 * ClientSize.Height / 1080);
         textBox1.Font = new System.Drawing.Font("Segoe UI", 75F * ClientSize.Height / 1080, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
 
         
-        textBox2.Size = new Size(500 * ClientSize.Width / 1920, 125 * ClientSize.Height / 1080); //Höhe wird duch den Font überschrieben
+        textBox2.Size = new Size(500 * ClientSize.Width / 1920, 125 * ClientSize.Height / 1080); //Höhe wird durch den Font überschrieben
         textBox2.Location = new Point(900 * ClientSize.Width / 1920, 347 * ClientSize.Height / 1080);
         textBox2.Font = new System.Drawing.Font("Segoe UI", 75F * ClientSize.Height / 1080, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
 

@@ -23,6 +23,9 @@ public partial class GameForm : Form
     private Panel? drawPile4;
     private List<DiscardPile> discardPiles = new List<DiscardPile>();
     private Panel? infoPanel;
+    private int playTime = 30;
+    private Label timerLabel;
+    
     
     private Rectangle boardContainer;
     private int widthUnit;
@@ -33,7 +36,7 @@ public partial class GameForm : Form
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Wood.jpg"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
-        
+        TimerLablelInfo();
         InitializeComponent(); 
         AddTempButtons();
         
@@ -316,6 +319,52 @@ public partial class GameForm : Form
         }
         
         throw new ArgumentException("Either pixels or percentage must be provided.");
+    }
+    
+    public void TimerLablelInfo()
+    {
+        if (timerLabel == null)
+        {
+            timerLabel = new Label()
+            {
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                ForeColor = Color.White,
+                Font = new Font("Arial", 16, FontStyle.Bold),
+            };
+            if (infoPanel == null)
+            {
+                infoPanel = new BufferPanel();
+                infoPanel.BorderStyle = BorderStyle.FixedSingle;
+                infoPanel.BackColor = Color.FromArgb(100, Color.DimGray);
+                Controls.Add(infoPanel);
+            }
+            infoPanel.Controls.Add(timerLabel); 
+            timerLabel.BringToFront();
+        }
+        UpdateTimerLabel();
+    }
+
+    public void UpdateTimerLabel()
+    {
+        if (playTime > 0)
+        {
+            timerLabel.Text = $"Noch {playTime} Minuten bis der Verfolger euch hat!";
+            timerLabel.ForeColor = Color.Red;
+        }
+        else
+        {
+            timerLabel.Text = "Der Verfolger hat euch erwischt!";
+        }
+    }
+
+    public void LowerTimer()
+    {
+        if (playTime > 0)
+        {
+            playTime = playTime - 2;
+            UpdateTimerLabel();
+        }
     }
 
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()

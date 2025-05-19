@@ -33,6 +33,7 @@ public class GameLogic
                 .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav"));
             sound.Load();
             sound.PlaySync();
+            _gameForm.BeginInvoke(() => _gameForm.LowerTimer());
             _gameForm.BeginInvoke(() => MoveOpponent(1));
             StartOpponent();
         });
