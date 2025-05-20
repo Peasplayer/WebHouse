@@ -4,13 +4,14 @@ using WebHouse_Client.Logic;
 
 namespace WebHouse_Client.Components;
 
-public class EscapeCard
+public class EscapeCard : IComponentCard
 {
     public static EscapeCard? SelectedEscapeCard;
     
     public Card CardComponent { get; }
     public Panel Panel => CardComponent.Panel;
     public Logic.EscapeCard Card { get; }
+
     public EscapeCard(Logic.EscapeCard card)
     {
         Card = card;
@@ -63,6 +64,7 @@ public class EscapeCard
         DrawNumber(g);
         DrawRoom(g);
     }
+
     private void SplashBackground(Graphics g) //Splash Hintergrung
     {
         Image SplashBackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.SplashBackground.png"));
@@ -73,6 +75,7 @@ public class EscapeCard
         g.FillRectangle(new SolidBrush(Card.Color.GetColor()), rect);
         g.DrawImage(SplashBackgroundImage, rect);
     }
+
     private void DrawNumber(Graphics g) //Zeichnet die Nummer unter dem Raumnamen
     {
         using (Font font = new Font("Arial", 15, FontStyle.Bold))
@@ -85,6 +88,7 @@ public class EscapeCard
             g.DrawString(text, font, brush, centerPos);
         }
     }
+
     private void DrawRoom(Graphics g) // Zeichnet den Raumnamen in der Kartenmitte
     {
         using (Font font = new Font("Arial", 14, FontStyle.Bold))
@@ -95,7 +99,6 @@ public class EscapeCard
             g.DrawString(Card.Room, font, brush, roomPos);
         }
     }
-    
     /*
      Ordnet die Karten in einer Horizontalen Line an. Nutzbar für das Inventar
     private void PositionCards()
