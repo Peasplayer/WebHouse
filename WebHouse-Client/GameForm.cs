@@ -29,6 +29,9 @@ public partial class GameForm : Form
     private int widthUnit;
     private int heightUnit;
     
+    private bool isFullScreen = false;
+    private Rectangle previousBounds;   
+    
     public GameForm()
     {
         this.DoubleBuffered = true;
@@ -326,6 +329,32 @@ public partial class GameForm : Form
         throw new ArgumentException("Either pixels or percentage must be provided.");
     }
 
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        if (keyData == Keys.F11)
+        {
+            if (!isFullScreen)
+            {
+                previousBounds = Bounds;
+                FormBorderStyle = FormBorderStyle.None;
+                WindowState = FormWindowState.Maximized;
+            }
+            else
+            {
+                FormBorderStyle = FormBorderStyle.Sizable;
+                WindowState = FormWindowState.Normal;
+                Bounds = previousBounds;
+            }
+
+            isFullScreen = !isFullScreen;
+            return true;
+        }
+
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
+
+
+    
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
     {
         { Room.RoomName.HotelZimmer, new ()
