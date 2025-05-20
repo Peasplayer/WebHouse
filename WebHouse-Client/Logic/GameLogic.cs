@@ -16,10 +16,10 @@ public class GameLogic
     public static int OpponentPosition = 0;
     public static List<ICard> Inventory = new List<ICard>();
     public static List<ChapterCard> PlacedChapterCards = new List<ChapterCard>();
-    public static List<EscapeCard> CurrentEscapeCards = new List<EscapeCard>();
+    //public static List<EscapeCard> CurrentEscapeCards = new List<EscapeCard>();
     
     public static Room CurrentRoom => Rooms[_currentRoom];
-    public static List<EscapeCard> EscapeCardList = new List<EscapeCard>(); 
+    //public static List<EscapeCard> EscapeCardList = new List<EscapeCard>(); 
     
     public static List<Room> Rooms = new List<Room> // Raum-Liste wird erstellt
     {
@@ -45,8 +45,8 @@ public class GameLogic
     {
         _gameForm = form;
         
-        CreateEscapeCardList();
-        ShuffleEscapeCardList();
+        Components.EscapeCard.CreateEscapeCardList();
+        Components.EscapeCard.ShuffleEscapeCardList();
         
         StartOpponent();
     }
@@ -94,7 +94,7 @@ public class GameLogic
         _gameForm.RenderBoard();
         _gameForm.UpdatePositions();
     }
-    public static void CreateEscapeCardList()
+    /*public static void CreateEscapeCardList()
     {
         for (int j = 0; j < 5; j++)
         {
@@ -117,10 +117,7 @@ public class GameLogic
                     4 => CardColor.Yellow,
                     _ => CardColor.Red
                 });
-                /*EscapeCardList.Add(escapeCard);
-                Console.Write(i + "\t");
-                Console.Write(escapeCard.Color + "\t");
-                Console.WriteLine(escapeCard.Room);*/
+                EscapeCardList.Add(escapeCard);
             }
         }
     }
@@ -129,11 +126,8 @@ public class GameLogic
     {
         var rnd = new Random();
         CurrentEscapeCards = EscapeCardList.OrderBy(x => rnd.Next()).ToList();
-        /*for (int i = 0; i < CurrentEscapeCards.Count; i++)
-        {
-            Console.WriteLine(CurrentEscapeCards[i].Color + "\t");
-        }*/
-    }
+        
+    }*/
     public static void PlaceChapterCard(ChapterCard card)
     {
         Inventory.Remove(card);

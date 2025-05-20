@@ -8,7 +8,10 @@ public partial class Form1 : Form
     public Form1()
     {
         InitializeComponent();
-        this.DoubleBuffered = true;
+        GameForm gameForm = new GameForm();
+        gameForm.Show();
+        this.Hide();
+        /*this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LogIn.png"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
         this.Width = Screen.PrimaryScreen.Bounds.Width / 2; //Startgröße
@@ -26,7 +29,7 @@ public partial class Form1 : Form
         textBox1.Location = new Point(900 * Width / 1920, 180 * Height / 1080);
         
         textBox2.Size = new Size(500 * Width / 1920, 125 * Height / 1080);
-        textBox2.Location = new Point(900 * Width / 1920, 325 * Height / 1080);
+        textBox2.Location = new Point(900 * Width / 1920, 325 * Height / 1080);*/
     }
 
     private void Startbtn_Click(object sender, EventArgs e)

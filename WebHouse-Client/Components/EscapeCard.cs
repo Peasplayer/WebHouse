@@ -8,6 +8,8 @@ public class EscapeCard
 {
     public static EscapeCard? SelectedEscapeCard;
     
+    public static List<EscapeCard> CurrentEscapeCards = new List<EscapeCard>();
+    public static List<EscapeCard> EscapeCardList = new List<EscapeCard>(); 
     public Card CardComponent { get; }
     public Panel Panel => CardComponent.Panel;
     public Logic.EscapeCard Card { get; }
@@ -95,7 +97,41 @@ public class EscapeCard
             g.DrawString(Card.Room, font, brush, roomPos);
         }
     }
-    
+    public static void CreateEscapeCardList()
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            for (int i = 0; i < 15; i++)
+            {
+                var logicCard = new Logic.EscapeCard(i +1, Random.Shared.Next(5) switch
+                {
+                    0 => "Hotel",
+                    1 => "Hafen",
+                    2 => "Stadt",
+                    3 => "Wald",
+                    4 => "SafeHouse",
+                    _ => "Hotel"
+                }, j switch
+                {
+                    0 => CardColor.Red,
+                    1 => CardColor.Green,
+                    2 => CardColor.Blue,
+                    3 => CardColor.Pink,
+                    4 => CardColor.Yellow,
+                    _ => CardColor.Red
+                });
+                var escapeCard = new EscapeCard(logicCard);
+                EscapeCardList.Add(escapeCard);
+            }
+        }
+    }
+
+    public static void ShuffleEscapeCardList()
+    {
+        var rnd = new Random();
+        CurrentEscapeCards = EscapeCardList.OrderBy(x => rnd.Next()).ToList();
+        
+    }
     /*
      Ordnet die Karten in einer Horizontalen Line an. Nutzbar für das Inventar
     private void PositionCards()
