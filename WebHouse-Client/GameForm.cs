@@ -46,7 +46,8 @@ public partial class GameForm : Form
         };
         this.FormClosing += (s, e) =>
         {
-            NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
+            if (NetworkManager.Instance != null && NetworkManager.Instance.Client != null)
+                NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
             Application.Exit();
         };
         
@@ -98,10 +99,11 @@ public partial class GameForm : Form
         roomImage.Image = Image.FromStream(
             Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images."+ GameLogic.CurrentRoom.Picture));
 
-        roomImage.Width = bookImage.Width - (bookImage.Width / 1728) * (96 + 97);
-        roomImage.Height = bookImage.Height - (bookImage.Width / 1728) * (39 + 69);
+        roomImage.Width = (int)Math.Ceiling(bookImage.Width - (bookImage.Width / 1728f) * (85f + 92f));
+        roomImage.Height = (int)Math.Ceiling(bookImage.Height - (bookImage.Width / 1728f) * (34f + 64f));
         //Oben rechts positionieren
-        roomImage.Location = new Point(bookImage.Location.X + bookImage.Width / 1728 * 96, bookImage.Location.Y + bookImage.Width / 1728 * 39);//new Point(boardContainer.X + boardContainer.Width - widthUnit - roomImage.Width, boardContainer.Y + heightUnit);
+        roomImage.Location = new Point((int)Math.Ceiling(bookImage.Location.X + bookImage.Width / 1728f * 85f),
+            (int)Math.Ceiling(bookImage.Location.Y + bookImage.Width / 1728f * 34f));//new Point(boardContainer.X + boardContainer.Width - widthUnit - roomImage.Width, boardContainer.Y + heightUnit);
         roomImage.BringToFront();
         
         if (inventoryContainer == null)
