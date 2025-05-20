@@ -14,6 +14,7 @@ public partial class GameForm : Form
     private Button opponentMoveButton = new Button();
     
     private PictureBox? roomImage;
+    private PictureBox? bookImage;
     private PictureBox? playerImage;
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
@@ -37,6 +38,7 @@ public partial class GameForm : Form
         InitializeComponent(); 
         AddTempButtons();
         
+        //this.FormBorderStyle = FormBorderStyle.None; //kein Rand
         this.WindowState = FormWindowState.Maximized; //macht Vollbild
         this.SizeChanged += (_, _) =>
         {
@@ -44,7 +46,8 @@ public partial class GameForm : Form
         };
         this.FormClosing += (s, e) =>
         {
-            NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
+            if (NetworkManager.Instance != null && NetworkManager.Instance.Client != null)
+                NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
             Application.Exit();
         };
         
@@ -71,6 +74,19 @@ public partial class GameForm : Form
         widthUnit = boardContainer.Width / 32;
         heightUnit = boardContainer.Height / 18;
         
+        if (bookImage == null)
+        {
+            bookImage = new BufferPictureBox();
+            bookImage.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Book.png"));
+            bookImage.SizeMode = PictureBoxSizeMode.Zoom;
+            bookImage.BackColor = Color.Transparent;
+            Controls.Add(bookImage);
+        }
+        bookImage.Width = 16 * widthUnit;//Math.Min(9 * heightUnit, 20 * widthUnit * 9 / 16);//heightUnit * 9;//roomImageHeight;
+        bookImage.Height = 9 * heightUnit;
+        bookImage.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + heightUnit);
+        
         if (roomImage == null)
         {
             roomImage = new BufferPictureBox();
@@ -83,11 +99,13 @@ public partial class GameForm : Form
         roomImage.Image = Image.FromStream(
             Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images."+ GameLogic.CurrentRoom.Picture));
 
-        roomImage.Width = 16 * widthUnit;//Math.Min(9 * heightUnit, 20 * widthUnit * 9 / 16);//heightUnit * 9;//roomImageHeight;
-        roomImage.Height = 9 * heightUnit;//roomImage.Height * 16 / 9;//widthUnit * 20;//roomImageWidth;
+        roomImage.Width = (int)Math.Ceiling(bookImage.Width - (bookImage.Width / 1728f) * (85f + 92f));
+        roomImage.Height = (int)Math.Ceiling(bookImage.Height - (bookImage.Width / 1728f) * (34f + 64f));
         //Oben rechts positionieren
-        roomImage.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + heightUnit);//new Point(boardContainer.X + boardContainer.Width - widthUnit - roomImage.Width, boardContainer.Y + heightUnit);
-
+        roomImage.Location = new Point((int)Math.Ceiling(bookImage.Location.X + bookImage.Width / 1728f * 85f),
+            (int)Math.Ceiling(bookImage.Location.Y + bookImage.Width / 1728f * 34f));//new Point(boardContainer.X + boardContainer.Width - widthUnit - roomImage.Width, boardContainer.Y + heightUnit);
+        roomImage.BringToFront();
+        
         if (inventoryContainer == null)
         {
             inventoryContainer = new BufferPanel();
@@ -109,19 +127,9 @@ public partial class GameForm : Form
                 inventoryContainer.Location.Y + (inventoryContainer.Height - cardHeight) / 2);
             var size = new Size(cardWidth, cardHeight);
             
-            if (card is EscapeCard escapeCard)
-            {
-                escapeCard.Component.Panel.Size = size;
-                escapeCard.Component.Panel.Location = location;
-                escapeCard.Component.Panel.BringToFront();
-            }
-
-            if (card is ChapterCard chapterCard)
-            {
-                chapterCard.Component.Panel.Size = size;
-                chapterCard.Component.Panel.Location = location;
-                chapterCard.Component.Panel.BringToFront();
-            }
+            card.Component.Panel.Size = size;
+            card.Component.Panel.Location = location;
+            card.Component.Panel.BringToFront();
         }
         
         //Alte PictureBox entfernen
@@ -177,10 +185,13 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                var card = new ChapterCard(GameLogic.CurrentRoom.RoomType.ToString(), 3, new List<CardColor> {CardColor.Red, CardColor.Blue, CardColor.Green});
+                var card = GameLogic.CurrentChapterCards.First();
+                GameLogic.CurrentChapterCards.Remove(card);
+                GameLogic.Inventory.Add(card);
+                
+                card.CreateComponent();
                 Controls.Add(card.Component.Panel);
                 card.Component.Panel.BringToFront();
-                GameLogic.Inventory.Add(card);
                 
                 RenderBoard();
             };
@@ -200,16 +211,13 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                var escapeCard = new EscapeCard(Random.Shared.Next(15) + 1, "Test", Random.Shared.Next(3) switch
-                {
-                    0 => CardColor.Red,
-                    1 => CardColor.Green,
-                    2 => CardColor.Blue,
-                    _ => CardColor.Red
-                });
-                Controls.Add(escapeCard.Component.Panel);
-                escapeCard.Component.Panel.BringToFront();
+                var escapeCard = GameLogic.CurrentEscapeCards[0];
                 GameLogic.Inventory.Add(escapeCard);
+                GameLogic.CurrentEscapeCards.Remove(escapeCard);
+                
+                escapeCard.CreateComponent();
+                Controls.Add(escapeCard.Component?.Panel);
+                escapeCard.Component?.Panel.BringToFront();
                 
                 RenderBoard();
             };
@@ -258,7 +266,7 @@ public partial class GameForm : Form
         foreach (var card in GameLogic.PlacedChapterCards)
         {
             card.Component.Panel.Size = new Size(2 * widthUnit, 3 * heightUnit);
-            card.Component.Panel.Location = new Point(boardContainer.X + (2 + discardPiles.IndexOf(card.Component.Pile) % 3 * 3) * widthUnit, boardContainer.Y + (6 + discardPiles.IndexOf(card.Component.Pile) / 3 * 4) * heightUnit);
+            card.Component.Panel.Location = new Point(boardContainer.X + (2 + discardPiles.IndexOf(((Components.ChapterCard)card.Component).Pile) % 3 * 3) * widthUnit, boardContainer.Y + (6 + discardPiles.IndexOf(((Components.ChapterCard)card.Component).Pile) / 3 * 4) * heightUnit);
             card.Component.Panel.BringToFront();
         }
 

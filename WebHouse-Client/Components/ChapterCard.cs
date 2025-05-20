@@ -3,7 +3,7 @@ using WebHouse_Client.Logic;
 
 namespace WebHouse_Client.Components;
 
-public class ChapterCard
+public class ChapterCard : IComponentCard
 {
     public static ChapterCard? SelectedChapterCard;
     
@@ -83,10 +83,10 @@ public class ChapterCard
     
     private void DrawTitle(Graphics g)
     {
-        Font font = new Font("Arial", Panel.Height / 15f, FontStyle.Bold); // größer (vorher 12)
-        SizeF textSize = g.MeasureString(Card.Chapter, font);
+        Font font = new Font("Arial", Panel.Height / 15f, FontStyle.Bold);
+        SizeF textSize = g.MeasureString(Card.Chapter.ToString(), font);
         PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, 30);
-        g.DrawString(Card.Chapter, font, Brushes.White, textPosition);
+        g.DrawString(Card.Chapter.ToString(), font, Brushes.White, textPosition);
     }
 
     private void DrawArrow(Graphics g)

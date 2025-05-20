@@ -44,7 +44,7 @@ public class Card
                 _additionalPaint(g); //Zusätzliche Zeichnungen
             }
             
-            g.DrawPath(Highlighted ? highlightPen : pen, path); //Rahmen der Karte zeichnen
+            g.DrawPath(Highlighted ? highlightPen : pen, Outline(new Rectangle(0, 0, Panel.Size.Width, Panel.Size.Height), _cornerRadius, _borderWidth)); //Rahmen der Karte zeichnen
         }
     }
 
@@ -56,6 +56,18 @@ public class Card
         path.AddArc(rect.Right - diameter, rect.Top, diameter, diameter, 270, 90);
         path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
         path.AddArc(rect.Left, rect.Bottom - diameter, diameter, diameter, 90, 90);
+        path.CloseFigure();
+        return path;
+    }
+
+    private GraphicsPath Outline(Rectangle rect, int cornerRadius, int outlineWidth)
+    {
+        int diameter = cornerRadius * 2;
+        GraphicsPath path = new GraphicsPath();
+        path.AddArc(rect.Left + outlineWidth / 2, rect.Top + outlineWidth / 2, diameter, diameter, 180, 90);
+        path.AddArc(rect.Right - diameter - outlineWidth / 2, rect.Top + outlineWidth / 2, diameter, diameter, 270, 90);
+        path.AddArc(rect.Right - diameter - outlineWidth / 2, rect.Bottom - diameter - outlineWidth / 2, diameter, diameter, 0, 90);
+        path.AddArc(rect.Left + outlineWidth / 2, rect.Bottom - diameter - outlineWidth / 2, diameter, diameter, 90, 90);
         path.CloseFigure();
         return path;
     }
