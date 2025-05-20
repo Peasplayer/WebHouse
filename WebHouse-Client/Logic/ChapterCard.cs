@@ -26,7 +26,7 @@ public class ChapterCard : ILogicCard
     
     public bool DoesEscapeCardMatch(EscapeCard escapeCard)
     {
-        return Requirements.Contains(escapeCard.Color) && escapeCard.Number >= Counter;
+        return escapeCard.Type == EscapeCard.EscapeCardType.Normal && Requirements.Contains(escapeCard.Color) && escapeCard.Number >= Counter;
     }
     
     public void AddEscapeCard(EscapeCard escapeCard)

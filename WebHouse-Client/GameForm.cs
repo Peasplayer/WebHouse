@@ -20,7 +20,7 @@ public partial class GameForm : Form
     private Panel? inventoryContainer;
     private Panel? drawPile1;
     private Button? drawChapterCardButton;
-    private Button? drawEscapeCardButton;
+    public Button? drawEscapeCardButton;
     private Panel? drawPile4;
     private List<DiscardPile> discardPiles = new List<DiscardPile>();
     private Panel? infoPanel;
@@ -208,17 +208,10 @@ public partial class GameForm : Form
             drawEscapeCardButton.Text = "EscapeCard";
             drawEscapeCardButton.MouseClick += (_, args) =>
             {
-                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
+                if (args.Button != MouseButtons.Left)
                     return;
-                
-                var escapeCard = GameLogic.CurrentEscapeCards[0];
-                GameLogic.Inventory.Add(escapeCard);
-                GameLogic.CurrentEscapeCards.Remove(escapeCard);
-                
-                escapeCard.CreateComponent();
-                Controls.Add(escapeCard.Component?.Panel);
-                escapeCard.Component?.Panel.BringToFront();
-                
+
+                GameLogic.DrawEscapeCard();
                 RenderBoard();
             };
             drawEscapeCardButton.BackColor = Color.LightGoldenrodYellow;

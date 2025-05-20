@@ -17,8 +17,35 @@ public class EscapeCard : IComponentCard
         Card = card;
         
         CardComponent = new Card(5, 10,
-            Color.Black, 2);
-        Panel.Paint += DrawEscapeCards;
+            Color.Black, 2, g =>
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+
+                if (Card.Type == Logic.EscapeCard.EscapeCardType.Normal)
+                {
+                    SplashBackground(g);
+                    DrawNumber(g);
+                    DrawRoom(g);
+                }
+                else
+                {
+                    Image SplashBackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Opponent.png"));
+        
+                    var rect = new Rectangle(Panel.ClientRectangle.Width / 20, Panel.ClientRectangle.Width / 20, 
+                        Panel.ClientRectangle.Width - Panel.ClientRectangle.Width / 20 * 2, 
+                        Panel.ClientRectangle.Height - Panel.ClientRectangle.Width / 20 * 2);
+                    g.FillRectangle(new SolidBrush(Color.Black), rect);
+                    g.DrawImage(SplashBackgroundImage, rect);
+
+                    var text = card.Type == Logic.EscapeCard.EscapeCardType.OpponentSteps
+                        ? card.Number.ToString()
+                        : "[" + GameLogic.PlacedChapterCards.Count + "]" + (card.Number > 0 ? " + " + card.Number : "");
+                    Font font = new Font(Program.Font, Panel.Height / 10f, FontStyle.Bold, GraphicsUnit.Pixel); 
+                    SizeF textSize = g.MeasureString(text, font);
+                    PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, Panel.Height / 20f);
+                    g.DrawString(text, font, Brushes.White, textPosition);
+                }
+            });
         Panel.Tag = this; //Verbindet das Objekt Pannel mit seinem EscapeCard Objekt
         Panel.MouseClick += (_, args) =>
         {
@@ -31,6 +58,9 @@ public class EscapeCard : IComponentCard
 
     private void OnClick()
     {
+        if (Card.Type != Logic.EscapeCard.EscapeCardType.Normal)
+            return;
+        
         if (SelectedEscapeCard != null)
         {
             SelectedEscapeCard.CardComponent.SetHighlighted(false);
@@ -53,16 +83,6 @@ public class EscapeCard : IComponentCard
         //Die neue Karte wird ausgewählt
         SelectedEscapeCard = this;
         CardComponent.SetHighlighted(true);
-    }
-    
-    private void DrawEscapeCards(object? sender, PaintEventArgs e)
-    {
-        Graphics g = e.Graphics;
-        g.SmoothingMode = SmoothingMode.AntiAlias;
-        
-        SplashBackground(g);
-        DrawNumber(g);
-        DrawRoom(g);
     }
 
     private void SplashBackground(Graphics g) //Splash Hintergrung
@@ -94,9 +114,9 @@ public class EscapeCard : IComponentCard
         using (Font font = new Font("Arial", 14, FontStyle.Bold))
         using (var brush = new SolidBrush(Color.Black))
         {
-            SizeF roomSize = g.MeasureString(Card.Room, font);
+            SizeF roomSize = g.MeasureString(Card.Room.ToString(), font);
             var roomPos = new PointF((Panel.Width - roomSize.Width)/2, (Panel.Height - roomSize.Height) / 2);
-            g.DrawString(Card.Room, font, brush, roomPos);
+            g.DrawString(Card.Room.ToString(), font, brush, roomPos);
         }
     }
     /*
