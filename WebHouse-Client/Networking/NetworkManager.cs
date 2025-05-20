@@ -11,12 +11,16 @@ public class NetworkManager
     public static NetworkManager Instance;
 
     public WebsocketClient Client { get; private set; }
+    public RPC Rpc { get; private set; }
     public string Id { get; private set; }
     public string Name { get; private set; }
+    public List<Player> Players { get; private set; } = new ();
+    public Player LocalPlayer => Players.First(p => p.Id == this.Id);
     
     public NetworkManager()
     {
         Instance = this;
+        Rpc = new RPC(this);
     }
 
     // Verbindet den Client mit dem Server und führt den Handshake durch
@@ -85,6 +89,47 @@ public class NetworkManager
                 Console.WriteLine($"Successful handshake: {this.Name} ({this.Id})");
                 break;
             }
+            case PacketDataType.SyncLobby:
+            {
+                var syncLobby = JsonConvert.DeserializeObject<SyncLobbyPacket>(packet.Data);
+                if (syncLobby == null)
+                {
+                    Console.WriteLine("Received malformed packet!");
+                    return;
+                }
+                
+                this.Players = syncLobby.Players;
+                Lobby.Instance?.BeginInvoke(() =>
+                {
+                    Lobby.Instance?.RefreshPlayerList();
+                });
+                break;
+            }
+            case PacketDataType.StartGame:
+            {
+                Lobby.Instance?.BeginInvoke(() =>
+                {
+                    GameForm gameForm = new GameForm();
+                    gameForm.Show();
+                    Lobby.Instance.Hide();
+                });
+                break;
+            }
+        }
+    }
+
+    public class RPC
+    {
+        private NetworkManager _networkManager;
+        
+        public RPC(NetworkManager networkManager)
+        {
+            _networkManager = networkManager;
+        }
+
+        public void StartGame()
+        {
+            _networkManager.SendPacket(new Packet(null, PacketDataType.StartGame, _networkManager.Id, "all"));
         }
     }
 }

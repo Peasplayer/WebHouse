@@ -48,14 +48,22 @@ public class NetworkManager
     private void OnConnect(IWebSocketConnection connection)
     {
         FleckLog.Info("Connect: " + connection.ConnectionInfo.Id);
-        Clients.Add(connection.ConnectionInfo.Id.ToString(), new ClientData(connection));
+        Clients.Add(connection.ConnectionInfo.Id.ToString(), new ClientData(connection, isHost: Clients.Count == 0));
     }
 
     // Disconnection-Listener
     private void OnDisconnect(IWebSocketConnection connection)
     {
-        FleckLog.Info("Disconnect: " + connection.ConnectionInfo.Id);
-        Clients.Remove(connection.ConnectionInfo.Id.ToString());
+        var client = Clients[connection.ConnectionInfo.Id.ToString()];
+        FleckLog.Info("Disconnect: " + client.Id);
+        Clients.Remove(client.Id);
+        if (client.IsHost && Clients.Count > 0)
+        {
+            Clients.First().Value.IsHost = true;
+        }
+        
+        this.SendPacket(new Packet(new SyncLobbyPacket(Clients.Values.ToList().ConvertAll(c => 
+            new SyncLobbyPacket.Player(){Id = c.Id, Name = c.Name, IsHost = c.IsHost})), PacketDataType.SyncLobby, "server", "all"));;
     }
 
     // Message-Listener
@@ -98,7 +106,12 @@ public class NetworkManager
                     name = handshake.Name + " (" + iteration + ")";
                 }
                 
+                Clients[connection.ConnectionInfo.Id.ToString()].Name = name;
+                
                 this.SendPacket(new Packet(new HandshakePacket(connection.ConnectionInfo.Id.ToString(), name), PacketDataType.Handshake, "server", connection.ConnectionInfo.Id.ToString()));
+                
+                this.SendPacket(new Packet(new SyncLobbyPacket(Clients.Values.ToList().ConvertAll(c => 
+                    new SyncLobbyPacket.Player(){Id = c.Id, Name = c.Name, IsHost = c.IsHost})), PacketDataType.SyncLobby, "server", "all"));;
                 break;
             }
             default:

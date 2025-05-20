@@ -15,6 +15,7 @@ public class GameLogic
     public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
     public static List<ICard> Inventory = new List<ICard>();
+    public static List<ChapterCard> CurrentChapterCards = new List<ChapterCard>();
     public static List<ChapterCard> PlacedChapterCards = new List<ChapterCard>();
     public static List<EscapeCard> CurrentEscapeCards = new List<EscapeCard>();
     
@@ -45,6 +46,7 @@ public class GameLogic
     public static void Start(GameForm form)
     {
         _gameForm = form;
+        CurrentChapterCards = CurrentRoom.ChapterCards.OrderBy(_ => Random.Shared.Next()).ToList();
         
         CreateEscapeCardList();
         
@@ -89,6 +91,26 @@ public class GameLogic
     public static void SwitchRoom()
     {
         _currentRoom++;
+        
+        CurrentChapterCards = CurrentRoom.ChapterCards.OrderBy(_ => Random.Shared.Next()).ToList();
+        var cardsToRemove = Inventory
+            .OfType<ChapterCard>()
+            .Where(c => c.Chapter != CurrentRoom.RoomType)
+            .ToList();
+
+        foreach (var card in cardsToRemove)
+        {
+            card.Component.Panel.Dispose();
+            Inventory.Remove(card);
+        }
+
+        for (int i = 0; i < cardsToRemove.Count; i++)
+        {
+            var card = CurrentChapterCards.First();
+            CurrentChapterCards.Remove(card);
+            Inventory.Add(card);
+            _gameForm.Controls.Add(card.Component.Panel);
+        }
 
         //Spieler startet immer an StartField des neuen Raumes
         PlayerPosition = CurrentRoom.StartField;
