@@ -1,12 +1,14 @@
-﻿namespace WebHouse_Client.Logic;
+﻿using WebHouse_Client.Components;
 
-public class EscapeCard : ICard
+namespace WebHouse_Client.Logic;
+
+public class EscapeCard : ILogicCard
 {
     public int Number { get; }
     public string Room { get; }
     public CardColor Color { get; }
     
-    public Components.EscapeCard? Component { get; private set; }
+    public IComponentCard? Component { get; private set; }
 
     public EscapeCard(int number, string room, CardColor color)
     {

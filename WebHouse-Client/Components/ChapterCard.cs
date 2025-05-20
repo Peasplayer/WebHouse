@@ -3,7 +3,7 @@ using WebHouse_Client.Logic;
 
 namespace WebHouse_Client.Components;
 
-public class ChapterCard
+public class ChapterCard : IComponentCard
 {
     public static ChapterCard? SelectedChapterCard;
     

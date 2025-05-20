@@ -125,19 +125,9 @@ public partial class GameForm : Form
                 inventoryContainer.Location.Y + (inventoryContainer.Height - cardHeight) / 2);
             var size = new Size(cardWidth, cardHeight);
             
-            if (card is EscapeCard escapeCard)
-            {
-                escapeCard.Component.Panel.Size = size;
-                escapeCard.Component.Panel.Location = location;
-                escapeCard.Component.Panel.BringToFront();
-            }
-
-            if (card is ChapterCard chapterCard)
-            {
-                chapterCard.Component.Panel.Size = size;
-                chapterCard.Component.Panel.Location = location;
-                chapterCard.Component.Panel.BringToFront();
-            }
+            card.Component.Panel.Size = size;
+            card.Component.Panel.Location = location;
+            card.Component.Panel.BringToFront();
         }
         
         //Alte PictureBox entfernen
@@ -197,6 +187,7 @@ public partial class GameForm : Form
                 GameLogic.CurrentChapterCards.Remove(card);
                 GameLogic.Inventory.Add(card);
                 
+                card.CreateComponent();
                 Controls.Add(card.Component.Panel);
                 card.Component.Panel.BringToFront();
                 
@@ -273,7 +264,7 @@ public partial class GameForm : Form
         foreach (var card in GameLogic.PlacedChapterCards)
         {
             card.Component.Panel.Size = new Size(2 * widthUnit, 3 * heightUnit);
-            card.Component.Panel.Location = new Point(boardContainer.X + (2 + discardPiles.IndexOf(card.Component.Pile) % 3 * 3) * widthUnit, boardContainer.Y + (6 + discardPiles.IndexOf(card.Component.Pile) / 3 * 4) * heightUnit);
+            card.Component.Panel.Location = new Point(boardContainer.X + (2 + discardPiles.IndexOf(((Components.ChapterCard)card.Component).Pile) % 3 * 3) * widthUnit, boardContainer.Y + (6 + discardPiles.IndexOf(((Components.ChapterCard)card.Component).Pile) / 3 * 4) * heightUnit);
             card.Component.Panel.BringToFront();
         }
 

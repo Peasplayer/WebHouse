@@ -14,10 +14,10 @@ public class GameLogic
     
     public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
-    public static List<ICard> Inventory = new List<ICard>();
-    public static List<ChapterCard> CurrentChapterCards = new List<ChapterCard>();
-    public static List<ChapterCard> PlacedChapterCards = new List<ChapterCard>();
-    public static List<EscapeCard> CurrentEscapeCards = new List<EscapeCard>();
+    public static List<ILogicCard> Inventory = new ();
+    public static List<ChapterCard> CurrentChapterCards = new ();
+    public static List<ChapterCard> PlacedChapterCards = new ();
+    public static List<EscapeCard> CurrentEscapeCards = new ();
     
     public static Room CurrentRoom => Rooms[_currentRoom];
     
@@ -109,6 +109,7 @@ public class GameLogic
             var card = CurrentChapterCards.First();
             CurrentChapterCards.Remove(card);
             Inventory.Add(card);
+            card.CreateComponent();
             _gameForm.Controls.Add(card.Component.Panel);
         }
 

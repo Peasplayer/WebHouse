@@ -4,7 +4,7 @@ using WebHouse_Client.Logic;
 
 namespace WebHouse_Client.Components;
 
-public class EscapeCard
+public class EscapeCard : IComponentCard
 {
     public static EscapeCard? SelectedEscapeCard;
     
