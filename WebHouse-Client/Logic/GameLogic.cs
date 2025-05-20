@@ -16,10 +16,9 @@ public class GameLogic
     public static int OpponentPosition = 0;
     public static List<ICard> Inventory = new List<ICard>();
     public static List<ChapterCard> PlacedChapterCards = new List<ChapterCard>();
-    //public static List<EscapeCard> CurrentEscapeCards = new List<EscapeCard>();
+    public static List<EscapeCard> CurrentEscapeCards = new List<EscapeCard>();
     
     public static Room CurrentRoom => Rooms[_currentRoom];
-    //public static List<EscapeCard> EscapeCardList = new List<EscapeCard>(); 
     
     public static List<Room> Rooms = new List<Room> // Raum-Liste wird erstellt
     {
@@ -29,6 +28,7 @@ public class GameLogic
         new Room(Room.RoomName.Wald),
         new Room(Room.RoomName.SafeHouse),
     };
+
     private static void StartOpponent()
     {
         Task.Run(() =>
@@ -41,19 +41,21 @@ public class GameLogic
             StartOpponent();
         });
     }
+
     public static void Start(GameForm form)
     {
         _gameForm = form;
         
-        Components.EscapeCard.CreateEscapeCardList();
-        Components.EscapeCard.ShuffleEscapeCardList();
+        CreateEscapeCardList();
         
         StartOpponent();
     }
+
     public static void Stop()
     {
         // TODO: Game over
     }
+
     public static void MovePlayer(int steps)
     {
         PlayerPosition += steps;
@@ -71,6 +73,7 @@ public class GameLogic
         
         _gameForm.UpdatePositions();
     }
+
     public static void MoveOpponent(int steps)
     {
         OpponentPosition += steps;
@@ -82,6 +85,7 @@ public class GameLogic
         
         _gameForm.UpdatePositions();
     }
+
     public static void SwitchRoom()
     {
         _currentRoom++;
@@ -94,13 +98,15 @@ public class GameLogic
         _gameForm.RenderBoard();
         _gameForm.UpdatePositions();
     }
-    /*public static void CreateEscapeCardList()
+
+    public static void CreateEscapeCardList()
     {
+        var list = new List<EscapeCard>();
         for (int j = 0; j < 5; j++)
         {
             for (int i = 0; i < 15; i++)
             {
-                var escapeCard = new EscapeCard(i +1, Random.Shared.Next(5) switch
+                var escapeCard = new EscapeCard(i +1, ((i + j) % 5) switch
                 {
                     0 => "Hotel",
                     1 => "Hafen",
@@ -117,17 +123,13 @@ public class GameLogic
                     4 => CardColor.Yellow,
                     _ => CardColor.Red
                 });
-                EscapeCardList.Add(escapeCard);
+                list.Add(escapeCard);
             }
         }
+        
+        CurrentEscapeCards = list.OrderBy(x => Random.Shared.Next()).ToList();
     }
 
-    public static void ShuffleEscapeCardList()
-    {
-        var rnd = new Random();
-        CurrentEscapeCards = EscapeCardList.OrderBy(x => rnd.Next()).ToList();
-        
-    }*/
     public static void PlaceChapterCard(ChapterCard card)
     {
         Inventory.Remove(card);

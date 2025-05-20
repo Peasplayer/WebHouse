@@ -8,11 +8,10 @@ public class EscapeCard
 {
     public static EscapeCard? SelectedEscapeCard;
     
-    public static List<EscapeCard> CurrentEscapeCards = new List<EscapeCard>();
-    public static List<EscapeCard> EscapeCardList = new List<EscapeCard>(); 
     public Card CardComponent { get; }
     public Panel Panel => CardComponent.Panel;
     public Logic.EscapeCard Card { get; }
+
     public EscapeCard(Logic.EscapeCard card)
     {
         Card = card;
@@ -65,6 +64,7 @@ public class EscapeCard
         DrawNumber(g);
         DrawRoom(g);
     }
+
     private void SplashBackground(Graphics g) //Splash Hintergrung
     {
         Image SplashBackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.SplashBackground.png"));
@@ -75,6 +75,7 @@ public class EscapeCard
         g.FillRectangle(new SolidBrush(Card.Color.GetColor()), rect);
         g.DrawImage(SplashBackgroundImage, rect);
     }
+
     private void DrawNumber(Graphics g) //Zeichnet die Nummer unter dem Raumnamen
     {
         using (Font font = new Font("Arial", 15, FontStyle.Bold))
@@ -87,6 +88,7 @@ public class EscapeCard
             g.DrawString(text, font, brush, centerPos);
         }
     }
+
     private void DrawRoom(Graphics g) // Zeichnet den Raumnamen in der Kartenmitte
     {
         using (Font font = new Font("Arial", 14, FontStyle.Bold))
@@ -96,41 +98,6 @@ public class EscapeCard
             var roomPos = new PointF((Panel.Width - roomSize.Width)/2, (Panel.Height - roomSize.Height) / 2);
             g.DrawString(Card.Room, font, brush, roomPos);
         }
-    }
-    public static void CreateEscapeCardList()
-    {
-        for (int j = 0; j < 5; j++)
-        {
-            for (int i = 0; i < 15; i++)
-            {
-                var logicCard = new Logic.EscapeCard(i +1, Random.Shared.Next(5) switch
-                {
-                    0 => "Hotel",
-                    1 => "Hafen",
-                    2 => "Stadt",
-                    3 => "Wald",
-                    4 => "SafeHouse",
-                    _ => "Hotel"
-                }, j switch
-                {
-                    0 => CardColor.Red,
-                    1 => CardColor.Green,
-                    2 => CardColor.Blue,
-                    3 => CardColor.Pink,
-                    4 => CardColor.Yellow,
-                    _ => CardColor.Red
-                });
-                var escapeCard = new EscapeCard(logicCard);
-                EscapeCardList.Add(escapeCard);
-            }
-        }
-    }
-
-    public static void ShuffleEscapeCardList()
-    {
-        var rnd = new Random();
-        CurrentEscapeCards = EscapeCardList.OrderBy(x => rnd.Next()).ToList();
-        
     }
     /*
      Ordnet die Karten in einer Horizontalen Line an. Nutzbar für das Inventar

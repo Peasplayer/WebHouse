@@ -193,11 +193,13 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                var escapeCard = Components.EscapeCard.CurrentEscapeCards[0];
-                Controls.Add(escapeCard.CardComponent.Panel);
-                escapeCard.CardComponent.Panel.BringToFront();
-                GameLogic.Inventory.Add(escapeCard.Card);
-                Components.EscapeCard.CurrentEscapeCards.Remove(escapeCard);
+                var escapeCard = GameLogic.CurrentEscapeCards[0];
+                GameLogic.Inventory.Add(escapeCard);
+                GameLogic.CurrentEscapeCards.Remove(escapeCard);
+                
+                escapeCard.CreateComponent();
+                Controls.Add(escapeCard.Component?.Panel);
+                escapeCard.Component?.Panel.BringToFront();
                 
                 RenderBoard();
             };
