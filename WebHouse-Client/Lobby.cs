@@ -54,9 +54,10 @@ public partial class Lobby : Form
         {
             var text = new Label();
             text.BackColor = Color.FromArgb(169, 145, 101);
-            text.ForeColor = player.IsHost ? Color.DarkGray : Color.Black;
+            text.ForeColor = player.IsHost ? Color.DarkRed : Color.Black;
             text.Text = player.Name + (player.IsHost ? " [Host]" : "") + (player.Id == NetworkManager.Instance.Id ? " [Du]" : "");
-            text.Font = new Font("Segoe UI", 20F * ClientSize.Height / 1080, FontStyle.Bold);
+            text.UseCompatibleTextRendering = true;
+            text.Font = new Font(Program.Font, 20F * ClientSize.Height / 1080);
             text.Size = TextRenderer.MeasureText(string.Concat(Enumerable.Repeat("M", 24)), text.Font);
             text.Location = new Point(ClientSize.Width / 4, ClientSize.Height / 3 + 
                 (int)(text.Size.Height * 1.2 * NetworkManager.Instance.Players.IndexOf(player)));

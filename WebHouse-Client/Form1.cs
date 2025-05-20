@@ -11,8 +11,8 @@ public partial class Form1 : Form
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LogIn.png"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
-        this.Width = Screen.PrimaryScreen.Bounds.Width / 2; //Startgröße
-        this.Height = Screen.PrimaryScreen.Bounds.Height / 2;
+        this.Height = Screen.PrimaryScreen.Bounds.Height / 2; //Startgröße
+        this.Width = this.Height * 16 / 9;
         this.FormBorderStyle = FormBorderStyle.FixedSingle;
         this.MaximizeBox = false;
         this.MinimizeBox = false;
@@ -43,7 +43,7 @@ public partial class Form1 : Form
             return;
         }
 
-        if (textBox1.Text == "" || textBox2.Text == "") 
+        if (textBox1.Text.Trim() == "" || textBox2.Text.Trim() == "") 
         {
             MessageBox.Show("Bitte gebe eine IP und einen Namen an!", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
