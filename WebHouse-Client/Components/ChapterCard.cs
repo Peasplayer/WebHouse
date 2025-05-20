@@ -83,7 +83,9 @@ public class ChapterCard : IComponentCard
     
     private void DrawTitle(Graphics g)
     {
-        Font font = new Font("Arial", Panel.Height / 15f, FontStyle.Bold);
+        Font font = new Font("Arial", Panel.Width, FontStyle.Bold, GraphicsUnit.Pixel); // größer (vorher 12)
+        var ratioSize = g.MeasureString(Card.Chapter.ToString(), font);
+        font = new Font("Arial", (int)(Panel.Width * 0.8 * ratioSize.Height / ratioSize.Width), FontStyle.Bold, GraphicsUnit.Pixel);
         SizeF textSize = g.MeasureString(Card.Chapter.ToString(), font);
         PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, 30);
         g.DrawString(Card.Chapter.ToString(), font, Brushes.White, textPosition);
@@ -101,7 +103,7 @@ public class ChapterCard : IComponentCard
         Rectangle shaftRect = new Rectangle(startX, centerY, shaftWidth, shaftHeight);
 
         using var arrowBackground = new SolidBrush(Color.White);
-        using var numberFont = new Font("Arial", Panel.Height / 10f, FontStyle.Bold);
+        using var numberFont = new Font("Arial", shaftHeight, FontStyle.Bold, GraphicsUnit.Pixel);
         using var numberColor = new SolidBrush(Color.Black);
 
         var path = new GraphicsPath();
