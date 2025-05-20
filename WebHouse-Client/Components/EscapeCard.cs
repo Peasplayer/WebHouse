@@ -84,7 +84,7 @@ public class EscapeCard : IComponentCard
             string text = Card.Number.ToString();
             SizeF numberSize = g.MeasureString(text, font);
             
-            var centerPos = new PointF((Panel.Width - numberSize.Width)/2, ((Panel.Height - numberSize.Height) / 2)+ 25);
+            var centerPos = new PointF((Panel.Width - numberSize.Width)/2, ((Panel.Height - numberSize.Height) / 2)+ 40);
             g.DrawString(text, font, brush, centerPos);
         }
     }
