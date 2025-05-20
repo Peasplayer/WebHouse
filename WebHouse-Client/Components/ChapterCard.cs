@@ -87,7 +87,7 @@ public class ChapterCard : IComponentCard
         var ratioSize = g.MeasureString(Card.Chapter.ToString(), font);
         font = new Font("Arial", (int)(Panel.Width * 0.8 * ratioSize.Height / ratioSize.Width), FontStyle.Bold, GraphicsUnit.Pixel);
         SizeF textSize = g.MeasureString(Card.Chapter.ToString(), font);
-        PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, 30);
+        PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, Panel.Height / 20f);
         g.DrawString(Card.Chapter.ToString(), font, Brushes.White, textPosition);
     }
 
@@ -98,9 +98,9 @@ public class ChapterCard : IComponentCard
         int arrowHeight = Panel.Height / 4;
         int arrowHeadWidth = Panel.Width / 5;
         int startX = 0;
-        int centerY = (Panel.Height - arrowHeight) / 2 + Panel.Height / 10;
+        float centerY = (Panel.Height - arrowHeight) / 2f + Panel.Height / 20f;
 
-        Rectangle shaftRect = new Rectangle(startX, centerY, shaftWidth, shaftHeight);
+        RectangleF shaftRect = new RectangleF(startX, centerY, shaftWidth, shaftHeight);
 
         using var arrowBackground = new SolidBrush(Color.White);
         using var numberFont = new Font("Arial", shaftHeight, FontStyle.Bold, GraphicsUnit.Pixel);
@@ -108,9 +108,9 @@ public class ChapterCard : IComponentCard
 
         var path = new GraphicsPath();
         path.StartFigure();
-        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2, shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2);
-        path.AddLine(shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2);
-        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2 - arrowHeight / 2, shaftRect.Right - 1, centerY + shaftHeight / 2 + arrowHeight / 2);
+        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2f + arrowHeight / 2f, shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2f);
+        path.AddLine(shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2f, shaftRect.Right - 1, centerY + shaftHeight / 2f - arrowHeight / 2f);
+        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2f - arrowHeight / 2f, shaftRect.Right - 1, centerY + shaftHeight / 2f + arrowHeight / 2f);
         path.CloseFigure();
         
         /*path.AddLine(shaftRect.Left, shaftRect.Top, shaftRect.Right, shaftRect.Top); 
