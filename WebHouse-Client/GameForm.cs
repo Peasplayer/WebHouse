@@ -24,9 +24,7 @@ public partial class GameForm : Form
     private Panel? drawPile4;
     private List<DiscardPile> discardPiles = new List<DiscardPile>();
     private Panel? infoPanel;
-    private int playTime = 30;
     private Label timerLabel;
-    
     
     private Rectangle boardContainer;
     private int widthUnit;
@@ -38,7 +36,7 @@ public partial class GameForm : Form
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Wood.jpg"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
         TimerLablelInfo(); //Erstellt das Label für den Timer
-        InitializeComponent(); 
+        InitializeComponent();
         AddTempButtons();
         
         //this.FormBorderStyle = FormBorderStyle.None; //kein Rand
@@ -241,12 +239,34 @@ public partial class GameForm : Form
         drawPile4.Size = new Size(widthUnit * 2, heightUnit * 3);
         drawPile4.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
         
+      
         if (infoPanel == null)
         {
             infoPanel = new BufferPanel();
             infoPanel.BorderStyle = BorderStyle.FixedSingle;
             infoPanel.BackColor = Color.FromArgb(100, Color.DimGray);
             Controls.Add(infoPanel);
+        }
+        
+        //infoPanel.Controls.Clear(); //vorherige Einträge löschen
+
+        if (NetworkManager.Instance != null)
+        {
+            int playerY = 50;
+            foreach (var player in NetworkManager.Instance.Players)
+            {
+                Label lbl = new Label();
+                lbl.Text = $"{(player.IsHost ? "[Host] " : "")}{player.Name}";
+                lbl.ForeColor = player.IsTurn ? Color.Green : Color.Blue;
+                lbl.BackColor = Color.Transparent;
+                lbl.Location = new Point(10, playerY);
+                lbl.AutoSize = true;
+                lbl.Font = player.IsTurn 
+                    ? new Font("Arial", 14, FontStyle.Bold) 
+                    : new Font("Arial", 14, FontStyle.Regular);
+                infoPanel.Controls.Add(lbl);
+                playerY += 25;
+            }
         }
         
         if (discardPiles.Count == 0)
@@ -299,36 +319,6 @@ public partial class GameForm : Form
         }
     }
     
-    private void AddTempButtons()
-    {
-        playerMoveButton.Text = "Move Player";
-        playerMoveButton.Size = new Size(100, 50);
-        playerMoveButton.Location = new Point(10, 10);
-        playerMoveButton.Click += (_, _) => GameLogic.MovePlayer(1);
-        Controls.Add(playerMoveButton);
-
-        opponentMoveButton.Text = "Move Opponent";
-        opponentMoveButton.Size = new Size(100, 50);
-        opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) => GameLogic.MoveOpponent(1);
-        Controls.Add(opponentMoveButton);
-    }
-
-    private int GetRelativeSize(Size size, bool width, int? pixels = null, double? percentage = null)
-    {
-        if (pixels != null)
-        {
-            return pixels.Value * (width ? size.Width : size.Height) / (width ? 1920 : 1080);
-        }
-
-        if (percentage != null)
-        {
-            return (int) Math.Round((width ? size.Width : size.Height) * percentage.Value / 100f, MidpointRounding.AwayFromZero);
-        }
-        
-        throw new ArgumentException("Either pixels or percentage must be provided.");
-    }
-    
     public void TimerLablelInfo()
     {
         if (timerLabel == null)
@@ -354,12 +344,12 @@ public partial class GameForm : Form
         UpdateTimerLabel();
     }
 
-    public void UpdateTimerLabel()
+    public  void UpdateTimerLabel()
     {
         //Wenn der Timer noch nicht null ist wird der Text geupdatet
-        if (playTime > 0)
+        if (GameLogic.playTime > 0)
         {
-            timerLabel.Text = $"Noch {playTime} Minuten bis der Verfolger euch hat!";
+            timerLabel.Text = $"Noch {GameLogic.playTime} Minuten bis der Verfolger euch hat!";
             timerLabel.ForeColor = Color.Red;
         }
         else
@@ -367,17 +357,59 @@ public partial class GameForm : Form
             timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird angezeigt das man verloren hat
         }
     }
-
-    //Verringert dem Timer um 2 Minuten
-    public void LowerTimer()
+    
+    private void AddTempButtons()
     {
-        if (playTime > 0)
+        playerMoveButton.Text = "Move Player";
+        playerMoveButton.Size = new Size(100, 50);
+        playerMoveButton.Location = new Point(10, 10);
+        playerMoveButton.Click += (_, _) => GameLogic.MovePlayer(1);
+        Controls.Add(playerMoveButton);
+
+        opponentMoveButton.Text = "Move Opponent";
+        opponentMoveButton.Size = new Size(100, 50);
+        opponentMoveButton.Location = new Point(10, 70);
+        opponentMoveButton.Click += (_, _) =>
         {
-            playTime = playTime - 2;
-            UpdateTimerLabel();
-        }
+            GameLogic.LowerTimer();
+            GameLogic.MoveOpponent(1);
+        };
+        Controls.Add(opponentMoveButton);
     }
 
+    private int GetRelativeSize(Size size, bool width, int? pixels = null, double? percentage = null)
+    {
+        if (pixels != null)
+        {
+            return pixels.Value * (width ? size.Width : size.Height) / (width ? 1920 : 1080);
+        }
+
+        if (percentage != null)
+        {
+            return (int) Math.Round((width ? size.Width : size.Height) * percentage.Value / 100f, MidpointRounding.AwayFromZero);
+        }
+        
+        throw new ArgumentException("Either pixels or percentage must be provided.");
+    }
+
+
+    public void UpdateTimerLabel(int playTime)
+    {
+        if (timerLabel == null)
+        {
+            timerLabel = new Label();
+        }
+
+        if (playTime > 0)
+        {
+            timerLabel.Text = $"Noch {playTime} Minuten bis der Verfolger euch eingeholt hat!";
+            timerLabel.ForeColor = Color.MediumVioletRed;
+        }
+        else
+        {
+            timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird
+        }
+    }
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
     {
         { Room.RoomName.HotelZimmer, new ()

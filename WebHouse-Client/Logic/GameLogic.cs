@@ -14,6 +14,7 @@ public class GameLogic
     
     public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
+    public static int playTime { get; set; }= 30;
     public static List<ILogicCard> Inventory = new ();
     public static List<ChapterCard> CurrentChapterCards = new ();
     public static List<ChapterCard> PlacedChapterCards = new ();
@@ -38,7 +39,7 @@ public class GameLogic
                 .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav"));
             sound.Load();
             sound.PlaySync();
-            _gameForm.BeginInvoke(() => _gameForm.LowerTimer());
+            _gameForm.BeginInvoke(LowerTimer);
             _gameForm.BeginInvoke(() => MoveOpponent(1));
             StartOpponent();
         });
@@ -169,5 +170,16 @@ public class GameLogic
         card.Component.Panel.Dispose();
         chapterCard.Component.Panel.Invalidate();
         _gameForm.RenderBoard();
+    }
+    
+
+    //Verringert den Timer um 2 Minuten
+    public static void LowerTimer()
+    {
+        if (playTime > 0)
+        {
+            playTime -= 2;
+            _gameForm.UpdateTimerLabel();
+        }
     }
 }
