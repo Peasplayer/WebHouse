@@ -19,6 +19,9 @@
       <Compile Update="Rules.cs">
         <SubType>Form</SubType>
       </Compile>
+      <Compile Update="EndScreen.cs">
+        <SubType>Form</SubType>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>
