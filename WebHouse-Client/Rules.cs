@@ -1,5 +1,7 @@
 using System.Reflection;
 using WebHouse_Client.Networking;
+using WebHouse_Client.Logic;
+
 namespace WebHouse_Client;
 
 public partial class Rules : Form
@@ -10,6 +12,8 @@ public partial class Rules : Form
     private Label TitelLabel;
     private PictureBox nextPictureBox;
     private PictureBox backPictureBox;
+    private readonly List<Control> previewControls = new();
+
      public Rules()
     {
         InitializeComponent();
@@ -98,6 +102,61 @@ public partial class Rules : Form
         
         nextPictureBox.Click += NextButton_Click;
         this.Controls.Add(nextPictureBox);
+
+        
+        var card = new EscapeCard(7, Room.RoomName.Wald, CardColor.Red); //Escapekarte
+        card.CreateComponent();
+
+        card.Component.Panel.Location = new Point(
+            (int)(ClientSize.Width / 1920f * 150f),
+            (int)(ClientSize.Height / 1080f * 400f)
+        );
+        card.Component.Panel.Size = new Size(
+            (int)(ClientSize.Width / 1920f * 180f),
+            (int)(ClientSize.Height / 1080f * 270)
+        );
+        card.Component.Panel.Visible = false;
+
+        Controls.Add(card.Component.Panel);
+        card.Component.Panel.BringToFront();
+        previewControls.Add(card.Component.Panel);
+        
+        
+        var chapterCard = new ChapterCard(Room.RoomName.Wald, 2, new List<CardColor> { CardColor.Red, CardColor.Blue, CardColor.Green } //ChapterCard
+        );
+        chapterCard.CreateComponent();
+
+        chapterCard.Component.Panel.Location = new Point(
+            (int)(ClientSize.Width / 1920f * 150f),
+            (int)(ClientSize.Height / 1080f * 400f)
+        );
+        chapterCard.Component.Panel.Size = new Size(
+            (int)(ClientSize.Width / 1920f * 180f),
+            (int)(ClientSize.Height / 1080f * 270)
+        );
+        chapterCard.Component.Panel.Visible = false;
+
+        Controls.Add(chapterCard.Component.Panel);
+        chapterCard.Component.Panel.BringToFront();
+        previewControls.Add(chapterCard.Component.Panel);
+
+        
+        var chaserCard = new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2); //Verfolgerkarte
+        chaserCard.CreateComponent();
+
+        chaserCard.Component.Panel.Location = new Point(
+            (int)(ClientSize.Width / 1920f * 150f),
+            (int)(ClientSize.Height / 1080f * 400f)
+        );
+        chaserCard.Component.Panel.Size = new Size(
+            (int)(ClientSize.Width / 1920f * 180f),
+            (int)(ClientSize.Height / 1080f * 270)
+        );
+        chaserCard.Component.Panel.Visible = false;
+
+        Controls.Add(chaserCard.Component.Panel);
+        chaserCard.Component.Panel.BringToFront();
+        previewControls.Add(chaserCard.Component.Panel);
     }
 
     private void BackButton_CLick(object sender, EventArgs e)
@@ -113,6 +172,8 @@ public partial class Rules : Form
 
     private void ShowChapter(int chapter)
     {
+        foreach (var ctrl in previewControls)
+            ctrl.Visible = false;   
         switch (chapter)
         {
             case 0:
@@ -126,10 +187,12 @@ public partial class Rules : Form
             case 2:
                 contentTitleLabel.Text = "Kapitelkarten";
                 contentLabel.Text = "Kapitelkarten geben euch Bewegungen auf dem Spielfeld. Um sie zu erfüllen, müsst ihr passende Fluchtkarten in den geforderten Farben anlegen. \n\nJe mehr Fluchtkarten nötig sind, desto mehr Schritte erhaltet ihr.";
+                previewControls[1].Visible = true;
                 break;
             case 3:
                 contentTitleLabel.Text = "Fluchtkarten & Aufträge";
                 contentLabel.Text = "Fluchtkarten haben Werte 1–15 in 5 Farben. Zum Erfüllen von Kapitelkarten:\n• Farben müssen passen\n• Zahlen müssen aufsteigend gelegt werden\n\nLegt Fluchtkarten an Kapitelkarten an, um den Zeugen zu bewegen.";
+                previewControls[0].Visible = true;
                 break;
             case 4:
                 contentTitleLabel.Text = "Kommunikation";
@@ -142,6 +205,7 @@ public partial class Rules : Form
             case 6:
                 contentTitleLabel.Text = "Verfolgerkarten";
                 contentLabel.Text = "Diese Karten bringen den Verfolger voran:\n• Karten mit 1, 2 oder 3 Schritten\n• Karten, die auf offene Kapitelkarten reagieren\n\nZieht ihr eine Verfolgerkarte, wird sie sofort ausgespielt!";
+                previewControls[2].Visible = true;
                 break;
             case 7:
                 contentTitleLabel.Text = "Zugreihenfolge";
@@ -161,7 +225,7 @@ public partial class Rules : Form
                 break;
             case 11:
                 contentTitleLabel.Text = "Spielende";
-                contentLabel.Text = "• GEWONNEN: Ihr erreicht das Safehouse vor dem Verfolger\n• VERLOREN: Der Verfolger holt euch ein oder die Zeit von 30 Minuten sind abgelaufen \n\nTipp: Koordination ist der Schlüssel zum Überleben!";
+                contentLabel.Text = "• GEWONNEN: Ihr erreicht das Safehouse vor dem Verfolger\n• VERLOREN: Der Verfolger holt euch ein oder die Zeit von 30 Minuten ist abgelaufen";
                 break;
         }
     }
