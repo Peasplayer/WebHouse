@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Windows.Forms;
+using System.Windows.Forms.Layout;
 
 namespace WebHouse_Client;
 
@@ -30,5 +31,12 @@ public partial class StartScreen : Form
         Regeln.BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Regelnbtn.png"));
         Regeln.BackgroundImageLayout = ImageLayout.Stretch;
 
+    }
+
+    private void Start_Click_1(object sender, EventArgs e)
+    {
+        var form = new Form1();
+        form.Show();
+        this.Hide();
     }
 }

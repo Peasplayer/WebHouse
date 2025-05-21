@@ -42,6 +42,7 @@ partial class StartScreen
         Start.Size = new System.Drawing.Size(83, 41);
         Start.TabIndex = 0;
         Start.UseVisualStyleBackColor = true;
+        Start.Click += Start_Click_1;
         // 
         // Regeln
         // 
