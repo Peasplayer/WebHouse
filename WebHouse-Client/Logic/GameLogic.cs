@@ -2,6 +2,9 @@ using System.Media;
 using System.Reflection;
 using WebHouse_Client.Networking;
 using Timer = System.Timers.Timer;
+using WebHouse_Client.Networking;
+using System.Net.WebSockets;
+
 
 namespace WebHouse_Client.Logic;
 
@@ -55,9 +58,15 @@ public class GameLogic
         StartOpponentTimer();
     }
 
-    public static void Stop()
+    public static void Stop(bool win)
     {
-        // TODO: Game over
+        if (_gameForm != null && !_gameForm.IsDisposed)
+        {
+            NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
+            var form = new EndScreen(win);
+            form.Show();
+            _gameForm.Hide();
+        }
     }
 
     public static void MovePlayer(int steps)
@@ -68,7 +77,7 @@ public class GameLogic
             
             if (CurrentRoom.RoomType == Room.RoomName.SafeHouse && PlayerPosition >= 28)
             {
-                Stop();
+                Stop(true);
                 return;
             }
             
@@ -94,7 +103,7 @@ public class GameLogic
             OpponentPosition += steps;
             if (OpponentPosition >= PlayerPosition || (OpponentPosition >= 16 && CurrentRoom.RoomType == Room.RoomName.SafeHouse))
             {
-                Stop();
+                Stop(false);
                 return;
             }
         
@@ -299,7 +308,7 @@ public class GameLogic
         }
         else
         {
-            Stop();
+            Stop(false);
         }
     }
 }
