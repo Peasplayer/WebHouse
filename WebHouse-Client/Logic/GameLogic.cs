@@ -77,7 +77,7 @@ public class GameLogic
             
             if (CurrentRoom.RoomType == Room.RoomName.SafeHouse && PlayerPosition >= 28)
             {
-                Stop();
+                Stop(true);
                 return;
             }
             
@@ -308,7 +308,7 @@ public class GameLogic
         }
         else
         {
-            Stop();
+            Stop(false);
         }
     }
 }
