@@ -59,7 +59,7 @@ public class EscapeCard : IComponentCard
 
     private void OnClick()
     {
-        if (!NetworkManager.Instance.LocalPlayer.IsTurn)
+        if (!NetworkManager.Instance.LocalPlayer.IsTurn || GameLogic.TurnState == 2)
             return;
         
         if (Card.Type != Logic.EscapeCard.EscapeCardType.Normal)

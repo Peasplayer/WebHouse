@@ -15,6 +15,7 @@ public class GameLogic
     
     public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
+    public static int TurnState { get; private set; }
     public static int PlayTime = 30;
     public static List<ILogicCard> Inventory = new ();
     public static List<ChapterCard> CurrentChapterCards = new ();
@@ -253,11 +254,14 @@ public class GameLogic
             GameForm.Instance.RenderBoard();
         });
     }
-
-    
     
     public static void DrawEscapeCard(EscapeCard escapeCard)
     {
+        if (TurnState == 2 && Inventory.Count >= MaxCards - 1)
+        {
+            SwitchTurnState();
+        }
+        
         GameForm.Instance.BeginInvoke(() =>
         {
             if (escapeCard.Type == EscapeCard.EscapeCardType.Normal)
@@ -306,6 +310,11 @@ public class GameLogic
 
     public static void DrawChapterCard(ChapterCard chapterCard)
     {
+        if (TurnState == 2 && Inventory.Count >= MaxCards - 1)
+        {
+            SwitchTurnState();
+        }
+        
         Inventory.Add(chapterCard);
 
         GameForm.Instance.BeginInvoke(() =>
@@ -315,6 +324,27 @@ public class GameLogic
             chapterCard.Component.Panel.BringToFront();
             GameForm.Instance.RenderBoard();
         });
+    }
+
+    public static void SwitchTurnState()
+    {
+        if (!NetworkManager.Instance.LocalPlayer.IsTurn)
+            return;
+        
+        TurnState++;
+        switch (TurnState)
+        {
+            case 1:
+                GameForm.Instance.drawChapterCardButton.Visible = true;
+                GameForm.Instance.drawEscapeCardButton.Visible = true;
+                break;
+            case 3:
+                GameForm.Instance.drawChapterCardButton.Visible = false;
+                GameForm.Instance.drawEscapeCardButton.Visible = false;
+                TurnState = 0;
+                NetworkManager.Rpc.SwitchTurn();
+                break;
+        }
     }
 
     //Verringert den Timer um 2 Minuten

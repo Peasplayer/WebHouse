@@ -38,7 +38,7 @@ public class ChapterCard : IComponentCard
 
     private void OnClick()
     {
-        if (!NetworkManager.Instance.LocalPlayer.IsTurn)
+        if (!NetworkManager.Instance.LocalPlayer.IsTurn || GameLogic.TurnState == 2)
             return;
         
         //Überprüfen ob eine EscapeCard ausgewählt ist

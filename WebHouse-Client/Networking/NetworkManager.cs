@@ -245,12 +245,6 @@ public class NetworkManager
                         player.IsTurn = false;
                     Players[i] = player;
                 }
-
-                GameForm.Instance.BeginInvoke(() =>
-                {
-                    GameForm.Instance.drawChapterCardButton.Visible = LocalPlayer.IsTurn;
-                    GameForm.Instance.drawEscapeCardButton.Visible = LocalPlayer.IsTurn;
-                });
                 break;
             }
         }
@@ -278,6 +272,9 @@ public class NetworkManager
 
         public static void PlaceEscapeCard(EscapeCard card, int pile)
         {
+            if (GameLogic.TurnState == 0)
+                GameLogic.SwitchTurnState();
+            
             GameLogic.Inventory.Remove(card);
             card.Component?.Panel.Dispose();
             Instance.SendPacket(new Packet(new PlaceEscapeCardPacket(card.Number, card.Room, card.Color, pile), PacketDataType.PlaceEscapeCard, Instance.Id, "all"));
@@ -298,6 +295,9 @@ public class NetworkManager
 
         public static void PlaceChapterCard(ChapterCard card, int pile)
         {
+            if (GameLogic.TurnState == 0)
+                GameLogic.SwitchTurnState();
+            
             card.Component.Panel.Dispose();
             GameLogic.Inventory.Remove(card);
             Instance.SendPacket(new Packet(new PlaceChapterCardPacket(new DrawChapterCardPacket(card.Chapter, card.Steps, card.Requirements), pile), PacketDataType.PlaceChapterCard, Instance.Id, "all"));

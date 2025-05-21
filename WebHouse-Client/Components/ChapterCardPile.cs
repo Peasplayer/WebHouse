@@ -1,4 +1,5 @@
-﻿using WebHouse_Client.Networking;
+﻿using WebHouse_Client.Logic;
+using WebHouse_Client.Networking;
 
 namespace WebHouse_Client.Components;
 
@@ -26,7 +27,7 @@ public class ChapterCardPile
 
     private void OnClick()
     {
-        if (!NetworkManager.Instance.LocalPlayer.IsTurn)
+        if (!NetworkManager.Instance.LocalPlayer.IsTurn || GameLogic.TurnState == 2)
             return;
         
         var selectedChapterCard = ChapterCard.SelectedChapterCard;

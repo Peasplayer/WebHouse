@@ -201,6 +201,9 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= GameLogic.MaxCards)
                     return;
                 
+                if (GameLogic.TurnState == 1)
+                    GameLogic.SwitchTurnState();
+                
                 NetworkManager.Rpc.RequestChapterCard();
                 
                 RenderBoard();
@@ -224,7 +227,11 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= GameLogic.MaxCards || blockDrawingEscapeCard)
                     return;
 
+                if (GameLogic.TurnState == 1)
+                    GameLogic.SwitchTurnState();
+                
                 NetworkManager.Rpc.RequestEscapeCard();
+                
                 RenderBoard();
             };
             drawEscapeCardButton.BackColor = Color.Transparent;
@@ -386,7 +393,7 @@ public partial class GameForm : Form
         opponentMoveButton.Text = "Move Opponent";
         opponentMoveButton.Size = new Size(100, 50);
         opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) => NetworkManager.Rpc.SwitchTurn();//NetworkManager.Rpc.MoveOpponent(1);
+        opponentMoveButton.Click += (_, _) => GameLogic.SwitchTurnState();;//NetworkManager.Rpc.MoveOpponent(1);
         Controls.Add(opponentMoveButton);
     }
 

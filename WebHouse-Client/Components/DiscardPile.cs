@@ -14,7 +14,7 @@ public class DiscardPile
     
     public static void Disposing()
     {
-        if (!NetworkManager.Instance.LocalPlayer.IsTurn)
+        if (!NetworkManager.Instance.LocalPlayer.IsTurn || GameLogic.TurnState == 2)
             return;
         
         var disposeEscapeCard = EscapeCard.SelectedEscapeCard;
