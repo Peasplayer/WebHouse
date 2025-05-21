@@ -7,7 +7,7 @@ namespace WebHouse_Client.Components;
 public class DiscardPile
 {
     public Panel Panel;
-    public IComponentCard? Component { get; set; }
+    
     public DiscardPile()
     {
         Panel = new BufferPanel();
@@ -17,9 +17,6 @@ public class DiscardPile
     {
         var disposeEscapeCard = EscapeCard.SelectedEscapeCard;
         var disposeChapterCard = ChapterCard.SelectedChapterCard;
-        
-        //if (disposeEscapeCard == null && disposeChapterCard == null) //Schaut ob es eine aktuelle Karte gibt
-            //return;
         
         if (disposeChapterCard != null)
         {

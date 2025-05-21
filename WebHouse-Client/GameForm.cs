@@ -3,8 +3,6 @@ using System.Reflection;
 using WebHouse_Client.Components;
 using WebHouse_Client.Logic;
 using WebHouse_Client.Networking;
-using ChapterCard = WebHouse_Client.Logic.ChapterCard;
-using EscapeCard = WebHouse_Client.Logic.EscapeCard;
 
 namespace WebHouse_Client;
 
@@ -21,7 +19,7 @@ public partial class GameForm : Form
     private Panel? drawPile1;
     private PictureBox? drawChapterCardButton;
     public PictureBox? drawEscapeCardButton;
-    private PictureBox? DiscardPile;
+    private PictureBox? discardPile;
     private List<ChapterCardPile> discardPiles = new List<ChapterCardPile>();
     private Panel? infoPanel;
     
@@ -225,10 +223,10 @@ public partial class GameForm : Form
         drawEscapeCardButton.Size = new Size(widthUnit * 2, heightUnit * 3);
         drawEscapeCardButton.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 10 * heightUnit);
         
-        if (DiscardPile == null)
+        if (discardPile == null)
         {
-            DiscardPile = new BufferPictureBox();
-            DiscardPile.MouseClick += (_, args) =>
+            discardPile = new BufferPictureBox();
+            discardPile.MouseClick += (_, args) =>
             {
                 if (args.Button != MouseButtons.Left)
                     return;
@@ -236,15 +234,15 @@ public partial class GameForm : Form
                 Components.DiscardPile.Disposing();
                 RenderBoard();
             };
-            DiscardPile.BackColor = Color.Transparent;
-            DiscardPile.Image = Image.FromStream(
+            discardPile.BackColor = Color.Transparent;
+            discardPile.Image = Image.FromStream(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DiscardPileWithText.png"));
-            DiscardPile.SizeMode = PictureBoxSizeMode.StretchImage;
-            Controls.Add(DiscardPile);
+            discardPile.SizeMode = PictureBoxSizeMode.StretchImage;
+            Controls.Add(discardPile);
         }
 
-        DiscardPile.Size = new Size(widthUnit * 2, heightUnit * 3);
-        DiscardPile.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
+        discardPile.Size = new Size(widthUnit * 2, heightUnit * 3);
+        discardPile.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
         
         if (infoPanel == null)
         {

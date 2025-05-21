@@ -169,8 +169,8 @@ public class GameLogic
         }
         
         list = list.OrderBy(x => Random.Shared.Next()).ToList();
-        CurrentEscapeCards = list;
-        /*for (int i = 0; i < 10; i++)
+        
+        for (int i = 0; i < 10; i++)
         {
             var pos = Random.Shared.Next(15);
             var card = opponentCards[0];
@@ -178,42 +178,42 @@ public class GameLogic
             list.Insert((i / 2) * 15 + i + pos, card);
         }
 
-        CurrentEscapeCards = opponentCards;//list;*/
+        CurrentEscapeCards = list;
     }
 
     public static void PlaceChapterCard(ChapterCard card)
     {
         Inventory.Remove(card);
         PlacedChapterCards.Add(card);
-        
+
         _gameForm.RenderBoard();
     }
     public static void PlaceEscapeCard(EscapeCard card, ChapterCard chapterCard)
     {
         Inventory.Remove(card);
         chapterCard.AddEscapeCard(card);
-        
+
         card.Component.Panel.Dispose();
         chapterCard.Component.Panel.Invalidate();
         _gameForm.RenderBoard();
     }
 
     private static bool _blockDrawingEscapeCard = false;
-    
+
     public static void DrawEscapeCard()
     {
         if (_blockDrawingEscapeCard)
             return;
-        
+
         if (Inventory.Count >= 5)
             return;
-        
+
         var escapeCard = CurrentEscapeCards[0];
         if (escapeCard.Type == EscapeCard.EscapeCardType.Normal)
         {
             Inventory.Add(escapeCard);
             CurrentEscapeCards.Remove(escapeCard);
-                
+
             escapeCard.CreateComponent();
             _gameForm.Controls.Add(escapeCard.Component?.Panel);
             escapeCard.Component?.Panel.BringToFront();
@@ -222,7 +222,7 @@ public class GameLogic
             CurrentEscapeCards.Remove(escapeCard);
             CurrentEscapeCards.Add(escapeCard);
             _blockDrawingEscapeCard = true;
-            
+
             escapeCard.CreateComponent();
             escapeCard.Component.Panel.Location = _gameForm.drawEscapeCardButton.Location;
             escapeCard.Component.Panel.Size = _gameForm.drawEscapeCardButton.Size;
@@ -242,7 +242,7 @@ public class GameLogic
                     escapeCard.Component?.Panel.Dispose();
                     _gameForm.RenderBoard();
                     _gameForm.Invalidate(new Rectangle(escapeCard.Component.Panel.Location, escapeCard.Component.Panel.Size), true);
-                    
+
                     Task.Delay(1000).Wait();
                     _blockDrawingEscapeCard = false;
                     DrawEscapeCard();
