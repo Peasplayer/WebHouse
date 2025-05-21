@@ -29,27 +29,46 @@ public class NetworkManager
                 FleckLog.Error(string.Format("Error with {0}: {1}", clientConnection.ConnectionInfo.Id, error.Message));
                 OnDisconnect(clientConnection);
             };
+
             clientConnection.OnOpen = () =>
             {
+                // Maximal 4 Spieler zulassen
+                if (Clients.Count >= 4)
+                {
+                    clientConnection.Close(); // Optional: Nachricht senden vor Close
+                    return;
+                }
+
                 OnConnect(clientConnection);
             };
+
             clientConnection.OnClose = () =>
             {
                 OnDisconnect(clientConnection);
             };
+
             clientConnection.OnMessage = message =>
             {
                 OnMessage(clientConnection, message);
             };
         });
     }
+
     
     // Connection-Listener
     private void OnConnect(IWebSocketConnection connection)
     {
+        if (Clients.Count >= 4)
+        {
+            connection.Close();
+            return;
+        }
+
         FleckLog.Info("Connect: " + connection.ConnectionInfo.Id);
         Clients.Add(connection.ConnectionInfo.Id.ToString(), new ClientData(connection, isHost: Clients.Count == 0));
     }
+
+
 
     // Disconnection-Listener
     private void OnDisconnect(IWebSocketConnection connection)
