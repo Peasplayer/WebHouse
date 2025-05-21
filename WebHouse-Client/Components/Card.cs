@@ -75,7 +75,6 @@ public class Card
         path.CloseFigure();
         return path;
     }
-
     
     public void SetHighlighted(bool highlighted)
     {

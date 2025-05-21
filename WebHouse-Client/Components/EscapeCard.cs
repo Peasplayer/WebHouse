@@ -113,7 +113,6 @@ public class EscapeCard : IComponentCard
         }
     }
 
-
     private void DrawRoom(Graphics g) // Zeichnet den Raumnamen in der Kartenmitte
     {
         float fontSize = Panel.Height / 12f; // Schriftgröße relativ zur Panel-Höhe
@@ -125,21 +124,4 @@ public class EscapeCard : IComponentCard
             g.DrawString(Card.Room.ToString(), font, brush, roomPos);
         }
     }
-
-    /*
-     Ordnet die Karten in einer Horizontalen Line an. Nutzbar für das Inventar
-    private void PositionCards()
-    {
-        int spacing = 10; //Abstand zwischen den einzelnen Karten
-        int startX = 0; //Startposition für die erste Karte
-
-        //Berechne die Position für jeder Karte
-        for (int i = 0; i < EscapeCardsList.Count; i++)
-        {
-            var card = EscapeCardsList[i];
-            int x = startX + i * (card.Panel.Width + spacing); //Berechne die X-Position
-            card.Panel.Location = new Point(x, card.Panel.Top);
-        }
-    }
-    */
 }

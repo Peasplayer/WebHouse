@@ -125,7 +125,6 @@ public class ChapterCard : IComponentCard
         float textY = shaftRect.Top + (shaftRect.Height - textSize.Height) / 2;
         g.DrawString(text, numberFont, numberColor, textX, textY);
     }
-
     
     private void DrawNeededColors(Graphics g)
     {
