@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using WebHouse_Client.Components;
+using WebHouse_Client.Logic;
 
 namespace WebHouse_Client.Components;
 
