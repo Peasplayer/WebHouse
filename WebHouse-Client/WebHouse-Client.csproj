@@ -27,6 +27,7 @@
         <EmbeddedResource Include="Resources\Sounds\*" />
         <EmbeddedResource Include="Resources\Background_Images\*" />
         <EmbeddedResource Include="Resources\Images\*" />
+        <EmbeddedResource Include="Resources\*" />
     </ItemGroup>
     
 </Project>
