@@ -27,6 +27,7 @@ public partial class GameForm : Form
     public List<ChapterCardPile> discardPiles = new List<ChapterCardPile>();
     private Panel? infoPanel;
     private Label? timerLabel;
+    private List<Label> playerLabels = new List<Label>();
     
     private Rectangle boardContainer;
     private int widthUnit;
@@ -273,15 +274,44 @@ public partial class GameForm : Form
             infoPanel.BackColor = Color.FromArgb(100, Color.DimGray);
             Controls.Add(infoPanel);
         }
+
+        infoPanel.Size = new Size(widthUnit * 10, heightUnit * 4);
+        infoPanel.Location = new Point(boardContainer.X + 1 * widthUnit, boardContainer.Y + 1 * heightUnit);
+        
+        var ratioSize = infoPanel.Size;
+        if (timerLabel == null)
+        {
+            //Erstell ein Lable für den Timer das in der InfoBox angezeigt wird
+            timerLabel = new Label()
+            {
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                ForeColor = Color.White,
+                UseCompatibleTextRendering = true,
+                Font = new Font(Program.Font, Math.Max(12, (int)(ratioSize.Height * 0.15)), FontStyle.Bold, GraphicsUnit.Pixel)
+            };
+            infoPanel.Controls.Add(timerLabel); 
+        }
+
+        timerLabel.Font = new Font(Program.Font, Math.Max(12, (int)(ratioSize.Height * 0.07)), FontStyle.Bold,
+            GraphicsUnit.Pixel);
+        timerLabel.BringToFront();
+        UpdateTimerLabel(GameLogic.PlayTime);
         
         if (NetworkManager.Instance != null)
         {
-            int playerY = 50;
+            int playerY = timerLabel.Height + infoPanel.Height / 8;
+
+            foreach (var lbl in playerLabels)
+            {
+                lbl.Dispose();
+            }
+            playerLabels.Clear();
             foreach (var player in NetworkManager.Instance.Players)
             {
                 Label lbl = new Label();
-                lbl.Text = $"{(player.IsHost ? "[Host] " : "")}{player.Name}";
-                lbl.ForeColor = player.IsTurn ? Color.Green : Color.Blue;
+                lbl.Text = $"{(player.IsHost ? "[Host] " : "")}{player.Name}{(player.Id == NetworkManager.Instance.Id ? " [DU] " : "")}";
+                lbl.ForeColor = player.IsTurn ? Color.LightGreen : Color.White;
                 lbl.BackColor = Color.Transparent;
                 lbl.Location = new Point(10, playerY);
                 lbl.AutoSize = true;
@@ -289,7 +319,9 @@ public partial class GameForm : Form
                     ? new Font("Arial", 14, FontStyle.Bold) 
                     : new Font("Arial", 14, FontStyle.Regular);
                 infoPanel.Controls.Add(lbl);
-                playerY += 25;
+                playerLabels.Add(lbl);
+                
+                playerY += (int)(lbl.Height * 1.2);
             }
         }
         
@@ -316,9 +348,6 @@ public partial class GameForm : Form
             card.Component.Panel.Location = new Point(boardContainer.X + (2 + discardPiles.IndexOf(((Components.ChapterCard)card.Component).Pile) % 3 * 3) * widthUnit, boardContainer.Y + (6 + discardPiles.IndexOf(((Components.ChapterCard)card.Component).Pile) / 3 * 4) * heightUnit);
             card.Component.Panel.BringToFront();
         }
-
-        infoPanel.Size = new Size(widthUnit * 10, heightUnit * 4);
-        infoPanel.Location = new Point(boardContainer.X + 1 * widthUnit, boardContainer.Y + 1 * heightUnit);
     }
     
     public void UpdatePositions()
@@ -345,28 +374,6 @@ public partial class GameForm : Form
     
     public void TimerLablelInfo()
     {
-        var ratioSize = new SizeF(ClientSize.Width, ClientSize.Height);
-        if (timerLabel == null)
-        {
-            //Erstell ein Lable für den Timer das in der InfoBox angezeigt wird
-            timerLabel = new Label()
-            {
-                AutoSize = true,
-                BackColor = Color.Transparent,
-                ForeColor = Color.White,
-                UseCompatibleTextRendering = true,
-                Font = new Font(Program.Font, Math.Max(12, (int)(ratioSize.Height * 0.15)), FontStyle.Bold, GraphicsUnit.Pixel)            };
-            if (infoPanel == null)
-            {
-                infoPanel = new BufferPanel();
-                infoPanel.BorderStyle = BorderStyle.FixedSingle;
-                infoPanel.BackColor = Color.FromArgb(100, Color.DimGray);
-                Controls.Add(infoPanel);
-            }
-            infoPanel.Controls.Add(timerLabel); 
-            timerLabel.BringToFront();
-        }
-        UpdateTimerLabel(GameLogic.PlayTime);
     }
 
     public void UpdateTimerLabel(int playTime)
