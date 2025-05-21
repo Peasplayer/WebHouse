@@ -230,7 +230,11 @@ public partial class GameForm : Form
             DiscardPile = new BufferPictureBox();
             DiscardPile.MouseClick += (_, args) =>
             {
+                if (args.Button != MouseButtons.Left)
+                    return;
                 
+                Components.DiscardPile.Disposing();
+                RenderBoard();
             };
             DiscardPile.BackColor = Color.Transparent;
             DiscardPile.Image = Image.FromStream(

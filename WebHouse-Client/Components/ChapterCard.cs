@@ -59,9 +59,6 @@ public class ChapterCard : IComponentCard
             EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false); 
             EscapeCard.SelectedEscapeCard = null;
         }
-
-        if (Pile != null)
-            return;
         
         //Prüft ob die ChapterCard schon ausgewählt ist
         if (SelectedChapterCard == this)

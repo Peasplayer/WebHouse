@@ -24,7 +24,7 @@ public class ChapterCardPile
     private void OnClick()
     {
         var selectedChapterCard = ChapterCard.SelectedChapterCard;
-        if (selectedChapterCard == null)
+        if (selectedChapterCard == null || selectedChapterCard.Pile != null)
         {
             return;
         }
