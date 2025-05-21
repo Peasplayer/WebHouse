@@ -70,6 +70,6 @@ public partial class Lobby : Form
 
     private void button1_Click(object sender, EventArgs e)
     {
-        NetworkManager.Instance.Rpc.StartGame();
+        NetworkManager.Rpc.StartGame();
     }
 }
