@@ -1,6 +1,7 @@
 ﻿using System.Drawing.Drawing2D;
 using System.Reflection;
 using WebHouse_Client.Logic;
+using WebHouse_Client.Networking;
 
 namespace WebHouse_Client.Components;
 
@@ -58,6 +59,9 @@ public class EscapeCard : IComponentCard
 
     private void OnClick()
     {
+        if (!NetworkManager.Instance.LocalPlayer.IsTurn)
+            return;
+        
         if (Card.Type != Logic.EscapeCard.EscapeCardType.Normal)
             return;
         

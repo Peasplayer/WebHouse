@@ -10,6 +10,8 @@ namespace WebHouse_Client;
 
 public partial class GameForm : Form
 {
+    public static GameForm Instance { get; set; }
+    
     private Button playerMoveButton = new Button();
     private Button opponentMoveButton = new Button();
     
@@ -19,7 +21,7 @@ public partial class GameForm : Form
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
     private Panel? drawPile1;
-    private PictureBox? drawChapterCardButton;
+    public PictureBox? drawChapterCardButton;
     public PictureBox? drawEscapeCardButton;
     private PictureBox? discardPile;
     public List<ChapterCardPile> discardPiles = new List<ChapterCardPile>();
@@ -37,11 +39,14 @@ public partial class GameForm : Form
     
     public GameForm()
     {
+        Instance = this;
+        
+        InitializeComponent();
+        
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Wood.jpg"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
         TimerLablelInfo(); //Erstellt das Label für den Timer
-        InitializeComponent();
         AddTempButtons();
         
         //this.FormBorderStyle = FormBorderStyle.None; //kein Rand
@@ -57,7 +62,7 @@ public partial class GameForm : Form
             Application.Exit();
         };
         
-        GameLogic.Start(this);
+        GameLogic.Start();
 
         RenderBoard();
     }
@@ -204,6 +209,7 @@ public partial class GameForm : Form
             drawChapterCardButton.Image = Image.FromStream(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DrawChapterCard.png"));
             drawChapterCardButton.SizeMode = PictureBoxSizeMode.StretchImage;
+            drawChapterCardButton.Visible = false;
             Controls.Add(drawChapterCardButton);
         }
 
@@ -225,6 +231,7 @@ public partial class GameForm : Form
             drawEscapeCardButton.Image = Image.FromStream(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DrawEscapeCard.png"));
             drawEscapeCardButton.SizeMode = PictureBoxSizeMode.StretchImage;
+            drawEscapeCardButton.Visible = false;
             Controls.Add(drawEscapeCardButton);
         }
 
@@ -379,7 +386,7 @@ public partial class GameForm : Form
         opponentMoveButton.Text = "Move Opponent";
         opponentMoveButton.Size = new Size(100, 50);
         opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) => NetworkManager.Rpc.MoveOpponent(1);
+        opponentMoveButton.Click += (_, _) => NetworkManager.Rpc.SwitchTurn();//NetworkManager.Rpc.MoveOpponent(1);
         Controls.Add(opponentMoveButton);
     }
 

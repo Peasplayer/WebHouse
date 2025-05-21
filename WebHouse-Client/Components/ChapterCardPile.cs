@@ -26,6 +26,9 @@ public class ChapterCardPile
 
     private void OnClick()
     {
+        if (!NetworkManager.Instance.LocalPlayer.IsTurn)
+            return;
+        
         var selectedChapterCard = ChapterCard.SelectedChapterCard;
         if (selectedChapterCard == null)
         {

@@ -38,6 +38,9 @@ public class ChapterCard : IComponentCard
 
     private void OnClick()
     {
+        if (!NetworkManager.Instance.LocalPlayer.IsTurn)
+            return;
+        
         //Überprüfen ob eine EscapeCard ausgewählt ist
         if (EscapeCard.SelectedEscapeCard != null)
         {

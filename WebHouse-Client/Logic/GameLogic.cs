@@ -12,7 +12,6 @@ public class GameLogic
 {
     private static int _currentRoom = 0;
     private static Timer _opponentTimer;
-    private static GameForm _gameForm;
     
     public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
@@ -49,14 +48,13 @@ public class GameLogic
             sound.PlaySync();
             if (NetworkManager.Instance.LocalPlayer.IsHost)
                 NetworkManager.Rpc.MoveOpponent(1);
-            _gameForm.BeginInvoke(LowerTimer);
+            GameForm.Instance.BeginInvoke(LowerTimer);
             StartOpponentTimer();
         });
     }
 
-    public static void Start(GameForm form)
+    public static void Start()
     {
-        _gameForm = form;
         CurrentChapterCards = CurrentRoom.ChapterCards.OrderBy(_ => Random.Shared.Next()).ToList();
         
         CreateEscapeCardList();
@@ -71,7 +69,10 @@ public class GameLogic
             NetworkManager.Rpc.RequestChapterCard();
             
             if (NetworkManager.Instance.LocalPlayer.IsHost)
+            {
+                NetworkManager.Rpc.SwitchTurn(NetworkManager.Instance.Id);
                 ShuffleOpponentCardsIn();
+            }
         });
         
         StartOpponentTimer();
@@ -79,18 +80,18 @@ public class GameLogic
 
     public static void Stop(bool win)
     {
-        if (_gameForm != null && !_gameForm.IsDisposed)
+        if (GameForm.Instance != null && !GameForm.Instance.IsDisposed)
         {
             NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
             var form = new EndScreen(win);
             form.Show();
-            _gameForm.Hide();
+            GameForm.Instance.Hide();
         }
     }
 
     public static void MovePlayer(int steps)
     {
-        _gameForm.BeginInvoke(() =>
+        GameForm.Instance.BeginInvoke(() =>
         {
             PlayerPosition += steps;
             
@@ -111,13 +112,13 @@ public class GameLogic
                 NetworkManager.Rpc.MoveOpponent(1);
             }
         
-            _gameForm.UpdatePositions();
+            GameForm.Instance.UpdatePositions();
         });
     }
 
     public static void MoveOpponent(int steps)
     {
-        _gameForm.BeginInvoke(() =>
+        GameForm.Instance.BeginInvoke(() =>
         {
             OpponentPosition += steps;
             if (OpponentPosition >= PlayerPosition || (OpponentPosition >= 16 && CurrentRoom.RoomType == Room.RoomName.SafeHouse))
@@ -126,7 +127,7 @@ public class GameLogic
                 return;
             }
         
-            _gameForm.UpdatePositions();
+            GameForm.Instance.UpdatePositions();
         });
     }
 
@@ -156,8 +157,8 @@ public class GameLogic
         // Neue Gegner Position berechnen
         OpponentPosition = Math.Max(0, OpponentPosition - 12);
 
-        _gameForm.RenderBoard();
-        _gameForm.UpdatePositions();
+        GameForm.Instance.RenderBoard();
+        GameForm.Instance.UpdatePositions();
     }
 
     private static void CreateEscapeCardList()
@@ -222,14 +223,14 @@ public class GameLogic
 
     public static void PlaceChapterCard(ChapterCard card, int pileIndex)
     {
-        _gameForm.BeginInvoke(() =>
+        GameForm.Instance.BeginInvoke(() =>
         {
-            var pile = _gameForm.discardPiles[pileIndex];
+            var pile = GameForm.Instance.discardPiles[pileIndex];
             pile.Panel.Enabled = false;
             pile.Panel.Visible = false;
         
             card.CreateComponent();
-            _gameForm.Controls.Add(card.Component.Panel);
+            GameForm.Instance.Controls.Add(card.Component.Panel);
             card.Component.Panel.Location = pile.Panel.Location;
             card.Component.Panel.Size = pile.Panel.Size;
             card.Component.Panel.BringToFront();
@@ -237,19 +238,19 @@ public class GameLogic
             Inventory.Remove(card);
             PlacedChapterCards.Add(card);
 
-            _gameForm.RenderBoard();
+            GameForm.Instance.RenderBoard();
         });
     }
 
     public static void PlaceEscapeCard(EscapeCard card, ChapterCard chapterCard)
     {
-        _gameForm.BeginInvoke(() =>
+        GameForm.Instance.BeginInvoke(() =>
         {
             chapterCard.AddEscapeCard(card);
 
             card.Component?.Panel.Dispose();
             chapterCard.Component.Panel.Invalidate();
-            _gameForm.RenderBoard();
+            GameForm.Instance.RenderBoard();
         });
     }
 
@@ -257,29 +258,29 @@ public class GameLogic
     
     public static void DrawEscapeCard(EscapeCard escapeCard)
     {
-        _gameForm.BeginInvoke(() =>
+        GameForm.Instance.BeginInvoke(() =>
         {
             if (escapeCard.Type == EscapeCard.EscapeCardType.Normal)
             {;
                 Inventory.Add(escapeCard);
                 
                 escapeCard.CreateComponent();
-                _gameForm.Controls.Add(escapeCard.Component?.Panel);
+                GameForm.Instance.Controls.Add(escapeCard.Component?.Panel);
                 escapeCard.Component?.Panel.BringToFront();
-                _gameForm.RenderBoard();
+                GameForm.Instance.RenderBoard();
             }
             else {
                 if (NetworkManager.Instance.LocalPlayer.IsHost)
                     CurrentEscapeCards.Add(escapeCard);
-                _gameForm.blockDrawingEscapeCard = true;
+                GameForm.Instance.blockDrawingEscapeCard = true;
             
                 escapeCard.CreateComponent();
-                escapeCard.Component.Panel.Location = _gameForm.drawEscapeCardButton.Location;
-                escapeCard.Component.Panel.Size = _gameForm.drawEscapeCardButton.Size;
-                _gameForm.Controls.Add(escapeCard.Component?.Panel);
+                escapeCard.Component.Panel.Location = GameForm.Instance.drawEscapeCardButton.Location;
+                escapeCard.Component.Panel.Size = GameForm.Instance.drawEscapeCardButton.Size;
+                GameForm.Instance.Controls.Add(escapeCard.Component?.Panel);
                 NetworkManager.Rpc.MoveOpponent((escapeCard.Type == EscapeCard.EscapeCardType.OpponentSteps ? 0 : PlacedChapterCards.Count) + escapeCard.Number);
-                _gameForm.RenderBoard();
-                _gameForm.BeginInvoke(() =>
+                GameForm.Instance.RenderBoard();
+                GameForm.Instance.BeginInvoke(() =>
                 {
                     escapeCard.Component.Panel.BringToFront();
                 });
@@ -287,16 +288,16 @@ public class GameLogic
                 Task.Run(() =>
                 {
                     Task.Delay(2000).Wait();
-                    _gameForm.BeginInvoke(() =>
+                    GameForm.Instance.BeginInvoke(() =>
                     {
                         escapeCard.Component?.Panel.Dispose();
-                        _gameForm.RenderBoard();
-                        _gameForm.Invalidate(new Rectangle(escapeCard.Component.Panel.Location, escapeCard.Component.Panel.Size), true);
+                        GameForm.Instance.RenderBoard();
+                        GameForm.Instance.Invalidate(new Rectangle(escapeCard.Component.Panel.Location, escapeCard.Component.Panel.Size), true);
                     
                         Task.Delay(1000).Wait();
-                        _gameForm.blockDrawingEscapeCard = false;
+                        GameForm.Instance.blockDrawingEscapeCard = false;
                         NetworkManager.Rpc.RequestEscapeCard();
-                        _gameForm.RenderBoard();
+                        GameForm.Instance.RenderBoard();
                     });
                 });
             }
@@ -307,12 +308,12 @@ public class GameLogic
     {
         Inventory.Add(chapterCard);
 
-        _gameForm.BeginInvoke(() =>
+        GameForm.Instance.BeginInvoke(() =>
         {
             chapterCard.CreateComponent();
-            _gameForm.Controls.Add(chapterCard.Component.Panel);
+            GameForm.Instance.Controls.Add(chapterCard.Component.Panel);
             chapterCard.Component.Panel.BringToFront();
-            _gameForm.RenderBoard();
+            GameForm.Instance.RenderBoard();
         });
     }
 
@@ -322,7 +323,7 @@ public class GameLogic
         if (PlayTime > 0)
         {
             PlayTime -= 2;
-            _gameForm.UpdateTimerLabel(PlayTime);
+            GameForm.Instance.UpdateTimerLabel(PlayTime);
         }
         else
         {

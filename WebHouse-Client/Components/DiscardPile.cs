@@ -1,4 +1,5 @@
 using WebHouse_Client.Logic;
+using WebHouse_Client.Networking;
 
 namespace WebHouse_Client.Components;
 
@@ -13,6 +14,9 @@ public class DiscardPile
     
     public static void Disposing()
     {
+        if (!NetworkManager.Instance.LocalPlayer.IsTurn)
+            return;
+        
         var disposeEscapeCard = EscapeCard.SelectedEscapeCard;
         var disposeChapterCard = ChapterCard.SelectedChapterCard;
         

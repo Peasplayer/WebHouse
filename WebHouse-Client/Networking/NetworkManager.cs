@@ -234,6 +234,25 @@ public class NetworkManager
                 GameLogic.MoveOpponent(steps.Value);
                 break;
             }
+            case PacketDataType.SwitchTurn:
+            {
+                for (var i = 0; i < Players.Count; i++)
+                {
+                    var player = Players[i];
+                    if (player.Id == (packet.Data))
+                        player.IsTurn = true;
+                    else
+                        player.IsTurn = false;
+                    Players[i] = player;
+                }
+
+                GameForm.Instance.BeginInvoke(() =>
+                {
+                    GameForm.Instance.drawChapterCardButton.Visible = LocalPlayer.IsTurn;
+                    GameForm.Instance.drawEscapeCardButton.Visible = LocalPlayer.IsTurn;
+                });
+                break;
+            }
         }
     }
 
@@ -292,6 +311,12 @@ public class NetworkManager
         public static void MoveOpponent(int steps)
         {
             Instance.SendPacket(new Packet(steps, PacketDataType.MoveOpponent, Instance.Id, "all"));
+        }
+        
+        public static void SwitchTurn(string? id = null)
+        {
+            var nextPlayer = Instance.Players[(Instance.Players.FindIndex(p => p.IsTurn) + 1) % Instance.Players.Count];
+            Instance.SendPacket(new Packet(id ?? nextPlayer.Id, PacketDataType.SwitchTurn, Instance.Id, "all"));
         }
     }
 }
