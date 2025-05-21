@@ -1,7 +1,6 @@
-using System.Diagnostics;
 using System.Media;
 using System.Reflection;
-using WebHouse_Client.Components;
+using WebHouse_Client.Networking;
 using Timer = System.Timers.Timer;
 
 namespace WebHouse_Client.Logic;
@@ -14,6 +13,7 @@ public class GameLogic
     
     public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
+    public static int PlayTime = 30;
     public static List<ILogicCard> Inventory = new ();
     public static List<ChapterCard> CurrentChapterCards = new ();
     public static List<ChapterCard> PlacedChapterCards = new ();
@@ -30,7 +30,7 @@ public class GameLogic
         new Room(Room.RoomName.SafeHouse),
     };
 
-    private static void StartOpponent()
+    private static void StartOpponentTimer()
     {
         Task.Run(() =>
         {
@@ -38,8 +38,10 @@ public class GameLogic
                 .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav"));
             sound.Load();
             sound.PlaySync();
-            _gameForm.BeginInvoke(() => MoveOpponent(1));
-            StartOpponent();
+            if (NetworkManager.Instance.LocalPlayer.IsHost)
+                NetworkManager.Rpc.MoveOpponent(1);
+            _gameForm.BeginInvoke(LowerTimer);
+            StartOpponentTimer();
         });
     }
 
@@ -50,7 +52,7 @@ public class GameLogic
         
         CreateEscapeCardList();
         
-        StartOpponent();
+        StartOpponentTimer();
     }
 
     public static void Stop()
@@ -60,32 +62,37 @@ public class GameLogic
 
     public static void MovePlayer(int steps)
     {
-        PlayerPosition += steps;
-        // TODO: Check if field is opponent field
-        if (PlayerPosition >= CurrentRoom.Steps)
+        _gameForm.BeginInvoke(() =>
         {
-            PlayerPosition = 0;
-            SwitchRoom();
-        }
+            PlayerPosition += steps;
+            if (PlayerPosition >= CurrentRoom.Steps)
+            {
+                PlayerPosition = 0;
+                SwitchRoom();
+            }
         
-        if (CurrentRoom.OpponentMoveTriggerFields.Contains(PlayerPosition))
-        {
-            MoveOpponent(1);
-        }
+            if (CurrentRoom.OpponentMoveTriggerFields.Contains(PlayerPosition) && NetworkManager.Instance.LocalPlayer.IsHost)
+            {
+                NetworkManager.Rpc.MoveOpponent(1);
+            }
         
-        _gameForm.UpdatePositions();
+            _gameForm.UpdatePositions();
+        });
     }
 
     public static void MoveOpponent(int steps)
     {
-        OpponentPosition += steps;
-        if (OpponentPosition >= PlayerPosition)
+        _gameForm.BeginInvoke(() =>
         {
-            Stop();
-            return;
-        }
+            OpponentPosition += steps;
+            if (OpponentPosition >= PlayerPosition)
+            {
+                Stop();
+                return;
+            }
         
-        _gameForm.UpdatePositions();
+            _gameForm.UpdatePositions();
+        });
     }
 
     public static void SwitchRoom()
@@ -106,11 +113,7 @@ public class GameLogic
 
         for (int i = 0; i < cardsToRemove.Count; i++)
         {
-            var card = CurrentChapterCards.First();
-            CurrentChapterCards.Remove(card);
-            Inventory.Add(card);
-            card.CreateComponent();
-            _gameForm.Controls.Add(card.Component.Panel);
+            NetworkManager.Rpc.RequestChapterCard();
         }
 
         //Spieler startet immer an StartField des neuen Raumes
@@ -148,7 +151,7 @@ public class GameLogic
         {
             for (int i = 0; i < 15; i++)
             {
-                var escapeCard = new EscapeCard(i +1, ((i + j) % 5) switch
+                var escapeCard = new EscapeCard(EscapeCard.EscapeCardType.Normal, i +1, ((i + j) % 5) switch
                 {
                     0 => Room.RoomName.HotelZimmer,
                     1 => Room.RoomName.Hafen,
@@ -169,7 +172,7 @@ public class GameLogic
         }
         
         list = list.OrderBy(x => Random.Shared.Next()).ToList();
-
+        
         for (int i = 0; i < 10; i++)
         {
             var pos = Random.Shared.Next(15);
@@ -181,74 +184,115 @@ public class GameLogic
         CurrentEscapeCards = list;
     }
 
-    public static void PlaceChapterCard(ChapterCard card)
+    public static void PlaceChapterCard(ChapterCard card, int pileIndex)
     {
-        Inventory.Remove(card);
-        PlacedChapterCards.Add(card);
+        _gameForm.BeginInvoke(() =>
+        {
+            var pile = _gameForm.discardPiles[pileIndex];
+            pile.Panel.Enabled = false;
+            pile.Panel.Visible = false;
         
-        _gameForm.RenderBoard();
+            card.CreateComponent();
+            _gameForm.Controls.Add(card.Component.Panel);
+            card.Component.Panel.Location = pile.Panel.Location;
+            card.Component.Panel.Size = pile.Panel.Size;
+            card.Component.Panel.BringToFront();
+            ((Components.ChapterCard)card.Component).Pile = pile;
+            Inventory.Remove(card);
+            PlacedChapterCards.Add(card);
+
+            _gameForm.RenderBoard();
+        });
     }
+
     public static void PlaceEscapeCard(EscapeCard card, ChapterCard chapterCard)
     {
-        Inventory.Remove(card);
-        chapterCard.AddEscapeCard(card);
-        
-        card.Component.Panel.Dispose();
-        chapterCard.Component.Panel.Invalidate();
-        _gameForm.RenderBoard();
+        _gameForm.BeginInvoke(() =>
+        {
+            chapterCard.AddEscapeCard(card);
+
+            card.Component?.Panel.Dispose();
+            chapterCard.Component.Panel.Invalidate();
+            _gameForm.RenderBoard();
+        });
     }
 
     private static bool _blockDrawingEscapeCard = false;
     
-    public static void DrawEscapeCard()
+    public static void DrawEscapeCard(EscapeCard escapeCard)
     {
-        if (_blockDrawingEscapeCard)
-            return;
-        
-        if (Inventory.Count >= 5)
-            return;
-        
-        var escapeCard = CurrentEscapeCards[0];
-        if (escapeCard.Type == EscapeCard.EscapeCardType.Normal)
+        _gameForm.BeginInvoke(() =>
         {
-            Inventory.Add(escapeCard);
-            CurrentEscapeCards.Remove(escapeCard);
+            if (escapeCard.Type == EscapeCard.EscapeCardType.Normal)
+            {
+                Inventory.Add(escapeCard);
+                CurrentEscapeCards.Remove(escapeCard);
                 
-            escapeCard.CreateComponent();
-            _gameForm.Controls.Add(escapeCard.Component?.Panel);
-            escapeCard.Component?.Panel.BringToFront();
-        }
-        else {
-            CurrentEscapeCards.Remove(escapeCard);
-            CurrentEscapeCards.Add(escapeCard);
-            _blockDrawingEscapeCard = true;
+                escapeCard.CreateComponent();
+                _gameForm.Controls.Add(escapeCard.Component?.Panel);
+                escapeCard.Component?.Panel.BringToFront();
+                _gameForm.RenderBoard();
+            }
+            else {
+                CurrentEscapeCards.Remove(escapeCard);
+                CurrentEscapeCards.Add(escapeCard);
+                _blockDrawingEscapeCard = true;
             
-            escapeCard.CreateComponent();
-            escapeCard.Component.Panel.Location = _gameForm.drawEscapeCardButton.Location;
-            escapeCard.Component.Panel.Size = _gameForm.drawEscapeCardButton.Size;
-            _gameForm.Controls.Add(escapeCard.Component?.Panel);
-            MoveOpponent((escapeCard.Type == EscapeCard.EscapeCardType.OpponentSteps ? 0 : PlacedChapterCards.Count) + escapeCard.Number);
-            _gameForm.RenderBoard();
-            _gameForm.BeginInvoke(() =>
-            {
-                escapeCard.Component.Panel.BringToFront();
-            });
-
-            Task.Run(() =>
-            {
-                Task.Delay(2000).Wait();
+                escapeCard.CreateComponent();
+                escapeCard.Component.Panel.Location = _gameForm.drawEscapeCardButton.Location;
+                escapeCard.Component.Panel.Size = _gameForm.drawEscapeCardButton.Size;
+                _gameForm.Controls.Add(escapeCard.Component?.Panel);
+                NetworkManager.Rpc.MoveOpponent((escapeCard.Type == EscapeCard.EscapeCardType.OpponentSteps ? 0 : PlacedChapterCards.Count) + escapeCard.Number);
+                _gameForm.RenderBoard();
                 _gameForm.BeginInvoke(() =>
                 {
-                    escapeCard.Component?.Panel.Dispose();
-                    _gameForm.RenderBoard();
-                    _gameForm.Invalidate(new Rectangle(escapeCard.Component.Panel.Location, escapeCard.Component.Panel.Size), true);
-                    
-                    Task.Delay(1000).Wait();
-                    _blockDrawingEscapeCard = false;
-                    DrawEscapeCard();
-                    _gameForm.RenderBoard();
+                    escapeCard.Component.Panel.BringToFront();
                 });
-            });
+
+                Task.Run(() =>
+                {
+                    Task.Delay(2000).Wait();
+                    _gameForm.BeginInvoke(() =>
+                    {
+                        escapeCard.Component?.Panel.Dispose();
+                        _gameForm.RenderBoard();
+                        _gameForm.Invalidate(new Rectangle(escapeCard.Component.Panel.Location, escapeCard.Component.Panel.Size), true);
+                    
+                        Task.Delay(1000).Wait();
+                        _blockDrawingEscapeCard = false;
+                        //DrawEscapeCard();
+                        NetworkManager.Rpc.RequestEscapeCard();
+                        _gameForm.RenderBoard();
+                    });
+                });
+            }
+        });
+    }
+
+    public static void DrawChapterCard(ChapterCard chapterCard)
+    {
+        Inventory.Add(chapterCard);
+
+        _gameForm.BeginInvoke(() =>
+        {
+            chapterCard.CreateComponent();
+            _gameForm.Controls.Add(chapterCard.Component.Panel);
+            chapterCard.Component.Panel.BringToFront();
+            _gameForm.RenderBoard();
+        });
+    }
+
+    //Verringert den Timer um 2 Minuten
+    public static void LowerTimer()
+    {
+        if (PlayTime > 0)
+        {
+            PlayTime -= 2;
+            _gameForm.UpdateTimerLabel(PlayTime);
+        }
+        else
+        {
+            Stop();
         }
     }
 }

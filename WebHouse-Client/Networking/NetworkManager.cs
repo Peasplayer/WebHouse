@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using Newtonsoft.Json;
+using WebHouse_Client.Logic;
 using WebHouse_Client.Networking.Packets;
 using Websocket.Client;
 
@@ -11,7 +12,6 @@ public class NetworkManager
     public static NetworkManager Instance;
 
     public WebsocketClient Client { get; private set; }
-    public RPC Rpc { get; private set; }
     public string Id { get; private set; }
     public string Name { get; private set; }
     public List<Player> Players { get; private set; } = new ();
@@ -20,7 +20,6 @@ public class NetworkManager
     public NetworkManager()
     {
         Instance = this;
-        Rpc = new RPC(this);
     }
 
     // Verbindet den Client mit dem Server und führt den Handshake durch
@@ -138,21 +137,160 @@ public class NetworkManager
                 });
                 break;
             }
+            case PacketDataType.RequestEscapeCard:
+            {
+                if (!LocalPlayer.IsHost)
+                    return;
+
+                Rpc.DrawEscapeCard(packet.Sender);
+                break;
+            }
+            case PacketDataType.DrawEscapeCard:
+            {
+                var drawEscapeCard = JsonConvert.DeserializeObject<DrawEscapeCardPacket>(packet.Data);
+                if (drawEscapeCard == null)
+                {
+                    Console.WriteLine("Received malformed packet!");
+                    return;
+                }
+
+                var escapeCard = new EscapeCard(drawEscapeCard.Type, drawEscapeCard.Number, drawEscapeCard.Room, drawEscapeCard.Color);
+                GameLogic.DrawEscapeCard(escapeCard);
+                break;
+            }
+            case PacketDataType.PlaceEscapeCard:
+            {
+                var placeEscapeCard = JsonConvert.DeserializeObject<PlaceEscapeCardPacket>(packet.Data);
+                if (placeEscapeCard == null)
+                {
+                    Console.WriteLine("Received malformed packet!");
+                    return;
+                }
+        
+                var card = GameLogic.PlacedChapterCards.Find(c => ((Components.ChapterCard)c.Component).Pile.Index == placeEscapeCard.Pile);
+                if (card != null)
+                {
+                    GameLogic.PlaceEscapeCard(new EscapeCard(EscapeCard.EscapeCardType.Normal, placeEscapeCard.Number, placeEscapeCard.Room, placeEscapeCard.Color), card);
+                }
+                break;
+            }
+            case PacketDataType.RequestChapterCard:
+            {
+                if (!LocalPlayer.IsHost)
+                    return;
+                
+                Rpc.DrawChapterCard(packet.Sender);
+                break;
+            }
+            case PacketDataType.DrawChapterCard:
+            {
+                var drawChapterCard = JsonConvert.DeserializeObject<DrawChapterCardPacket>(packet.Data);
+                if (drawChapterCard == null)
+                {
+                    Console.WriteLine("Received malformed packet!");
+                    return;
+                }
+
+                var chapterCard = new ChapterCard(drawChapterCard.Chapter, drawChapterCard.Steps,
+                    drawChapterCard.Requirements);
+                GameLogic.DrawChapterCard(chapterCard);
+                break;
+            }
+            case PacketDataType.PlaceChapterCard:
+            {
+                var placeChapterCard = JsonConvert.DeserializeObject<PlaceChapterCardPacket>(packet.Data);
+                if (placeChapterCard == null)
+                {
+                    Console.WriteLine("Received malformed packet!");
+                    return;
+                }
+        
+                var card = new ChapterCard(placeChapterCard.ChapterCard.Chapter, placeChapterCard.ChapterCard.Steps, placeChapterCard.ChapterCard.Requirements);
+                GameLogic.PlaceChapterCard(card, placeChapterCard.Pile);
+                break;
+            }
+            case PacketDataType.MovePlayer:
+            {
+                var steps = JsonConvert.DeserializeObject<int?>(packet.Data);
+                if (steps == null)
+                {
+                    Console.WriteLine("Received malformed packet!");
+                    return;
+                }
+                
+                GameLogic.MovePlayer(steps.Value);
+                break;
+            }
+            case PacketDataType.MoveOpponent:
+            {
+                var steps = JsonConvert.DeserializeObject<int?>(packet.Data);
+                if (steps == null)
+                {
+                    Console.WriteLine("Received malformed packet!");
+                    return;
+                }
+                
+                GameLogic.MoveOpponent(steps.Value);
+                break;
+            }
         }
     }
 
-    public class RPC
+    public static class Rpc
     {
-        private NetworkManager _networkManager;
-        
-        public RPC(NetworkManager networkManager)
+        public static void StartGame()
         {
-            _networkManager = networkManager;
+            Instance.SendPacket(new Packet(null, PacketDataType.StartGame, Instance.Id, "all"));
         }
 
-        public void StartGame()
+        public static void RequestEscapeCard()
         {
-            _networkManager.SendPacket(new Packet(null, PacketDataType.StartGame, _networkManager.Id, "all"));
+            Instance.SendPacket(new Packet(null, PacketDataType.RequestEscapeCard, Instance.Id, "all"));
+        }
+
+        public static void DrawEscapeCard(string id)
+        {
+            var escapeCard = GameLogic.CurrentEscapeCards[0];
+            GameLogic.CurrentEscapeCards.Remove(escapeCard);
+            
+            Instance.SendPacket(new Packet(new DrawEscapeCardPacket(escapeCard.Type, escapeCard.Number, escapeCard.Room, escapeCard.Color), PacketDataType.DrawEscapeCard, Instance.Id, id));
+        }
+
+        public static void PlaceEscapeCard(EscapeCard card, int pile)
+        {
+            GameLogic.Inventory.Remove(card);
+            card.Component?.Panel.Dispose();
+            Instance.SendPacket(new Packet(new PlaceEscapeCardPacket(card.Number, card.Room, card.Color, pile), PacketDataType.PlaceEscapeCard, Instance.Id, "all"));
+        }
+        
+        public static void RequestChapterCard()
+        {
+            Instance.SendPacket(new Packet(null, PacketDataType.RequestChapterCard, Instance.Id, "all"));
+        }
+
+        public static void DrawChapterCard(string id)
+        {
+            var card = GameLogic.CurrentChapterCards.First();
+            GameLogic.CurrentChapterCards.Remove(card);
+            
+            Instance.SendPacket(new Packet(new DrawChapterCardPacket(card.Chapter, card.Steps, card.Requirements), PacketDataType.DrawChapterCard, Instance.Id, id));
+        }
+
+        public static void PlaceChapterCard(ChapterCard card, int pile)
+        {
+            card.Component.Panel.Dispose();
+            GameLogic.Inventory.Remove(card);
+            Instance.SendPacket(new Packet(new PlaceChapterCardPacket(new DrawChapterCardPacket(card.Chapter, card.Steps, card.Requirements), pile), PacketDataType.PlaceChapterCard, Instance.Id, "all"));
+        }
+
+        public static void MovePlayer(int steps)
+        {
+            Instance.SendPacket(new Packet(steps, PacketDataType.MovePlayer, Instance.Id, "all"));
+        }
+
+        public static void MoveOpponent(int steps)
+        {
+            Instance.SendPacket(new Packet(steps, PacketDataType.MoveOpponent, Instance.Id, "all"));
         }
     }
 }

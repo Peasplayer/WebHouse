@@ -5,5 +5,13 @@ public enum PacketDataType : uint
     Handshake,
     Disconnect,
     SyncLobby,
-    StartGame
+    StartGame,
+    RequestEscapeCard,
+    DrawEscapeCard,
+    PlaceEscapeCard,
+    RequestChapterCard,
+    DrawChapterCard,
+    PlaceChapterCard,
+    MovePlayer,
+    MoveOpponent
 }
