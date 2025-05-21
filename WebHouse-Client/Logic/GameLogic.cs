@@ -65,6 +65,13 @@ public class GameLogic
         _gameForm.BeginInvoke(() =>
         {
             PlayerPosition += steps;
+            
+            if (CurrentRoom.RoomType == Room.RoomName.SafeHouse && PlayerPosition >= 28)
+            {
+                Stop();
+                return;
+            }
+            
             if (PlayerPosition >= CurrentRoom.Steps)
             {
                 PlayerPosition = 0;
@@ -85,7 +92,7 @@ public class GameLogic
         _gameForm.BeginInvoke(() =>
         {
             OpponentPosition += steps;
-            if (OpponentPosition >= PlayerPosition)
+            if (OpponentPosition >= PlayerPosition || (OpponentPosition >= 16 && CurrentRoom.RoomType == Room.RoomName.SafeHouse))
             {
                 Stop();
                 return;
