@@ -23,7 +23,6 @@ public class DiscardPile
                 disposeChapterCard.Pile.Panel.Enabled = true;
                 disposeChapterCard.Pile.Panel.Visible = true;
                 GameLogic.CurrentEscapeCards.AddRange(disposeChapterCard.Card.PlacedCards);
-
             }
             
             GameLogic.Inventory.Remove(disposeChapterCard.Card);

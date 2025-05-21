@@ -31,6 +31,7 @@ public partial class StartScreen : Form
         Start.MouseClick += (_, _) =>
         {
             var form = new Menu();
+            form.Location = this.Location;
             form.Show();
             this.Hide();
         };
@@ -42,6 +43,7 @@ public partial class StartScreen : Form
         Regeln.MouseClick += (_, _) =>
         {
             var form = new Rules();
+            form.Location = this.Location;
             form.Show();
             this.Hide();
         };

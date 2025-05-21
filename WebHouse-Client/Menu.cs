@@ -16,7 +16,7 @@ public partial class Menu : Form
         this.FormBorderStyle = FormBorderStyle.FixedSingle;
         this.MaximizeBox = false;
         this.MinimizeBox = false;
-        this.StartPosition = FormStartPosition.CenterScreen;
+        this.StartPosition = FormStartPosition.Manual;
         this.Closing += (_, _) =>
         {
             var form = new StartScreen();

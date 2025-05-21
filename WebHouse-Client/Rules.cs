@@ -23,6 +23,8 @@ public partial class Rules : Form
         this.Closing += (_, _) =>
         {
             var form = new StartScreen();
+            form.StartPosition = FormStartPosition.Manual;
+            form.Location = Location;
             form.Show();
         };
         
@@ -50,7 +52,7 @@ public partial class Rules : Form
         this.FormBorderStyle = FormBorderStyle.FixedSingle;
         this.MaximizeBox = false;
         this.MinimizeBox = false;
-        this.StartPosition = FormStartPosition.CenterScreen;
+        this.StartPosition = FormStartPosition.Manual;
         
         contentTitleLabel = new Label
         {

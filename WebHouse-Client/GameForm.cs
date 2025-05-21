@@ -31,7 +31,9 @@ public partial class GameForm : Form
     private int heightUnit;
     
     private bool isFullScreen = false;
-    private Rectangle previousBounds;   
+    private Rectangle previousBounds;
+    
+    public bool blockDrawingEscapeCard = false;
     
     public GameForm()
     {
@@ -121,16 +123,22 @@ public partial class GameForm : Form
         inventoryContainer.Size = new Size(16 * widthUnit, 6 * heightUnit);//(GetRelativeSize(ClientSize, true, percentage: 50), GetRelativeSize(ClientSize, false, percentage: 33.34));
         inventoryContainer.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + 11 * heightUnit);//new Point(boardContainer.X + boardContainer.Width - widthUnit - inventoryContainer.Width, boardContainer.Y + 11 * heightUnit);
 
-        var cardHeight = Math.Min(inventoryContainer.Height,GetRelativeSize(inventoryContainer.Size, true, percentage: 16.67) * 3 / 2);//cardWidth * 3 / 2;
+        var cardHeight = Math.Min(inventoryContainer.Height, GetRelativeSize(inventoryContainer.Size, true, percentage: 100f /
+            (GameLogic.MaxCards + 1f)) * 3 / 2);//cardWidth * 3 / 2;
         var cardWidth = cardHeight * 2 / 3;//GetRelativeSize(inventoryContainer.Size, true, percentage: 16.67);
         for (var i = 0; i < GameLogic.Inventory.Count; i++)
         {
             var card = GameLogic.Inventory[i];
-            var location = new Point(inventoryContainer.Location.X + (cardWidth / 6) 
-                + i * cardWidth + i * (cardWidth / 6),
+            var location = new Point(inventoryContainer.Location.X + (cardWidth / (GameLogic.MaxCards + 1)) 
+                + i * cardWidth + i * (cardWidth / (GameLogic.MaxCards + 1)),
                 inventoryContainer.Location.Y + (inventoryContainer.Height - cardHeight) / 2);
             var size = new Size(cardWidth, cardHeight);
             
+            if (card.Component == null)
+            {
+                card.CreateComponent();
+                Controls.Add(card.Component.Panel);
+            }
             card.Component.Panel.Size = size;
             card.Component.Panel.Location = location;
             card.Component.Panel.BringToFront();
@@ -185,7 +193,7 @@ public partial class GameForm : Form
             drawChapterCardButton = new BufferPictureBox();
             drawChapterCardButton.MouseClick += (_, args) =>
             {
-                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
+                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= GameLogic.MaxCards)
                     return;
                 
                 NetworkManager.Rpc.RequestChapterCard();
@@ -207,7 +215,7 @@ public partial class GameForm : Form
             drawEscapeCardButton = new BufferPictureBox();
             drawEscapeCardButton.MouseClick += (_, args) =>
             {
-                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
+                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= GameLogic.MaxCards || blockDrawingEscapeCard)
                     return;
 
                 NetworkManager.Rpc.RequestEscapeCard();

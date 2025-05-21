@@ -22,6 +22,12 @@ public class GameLogic
     public static List<ChapterCard> PlacedChapterCards = new ();
     public static List<EscapeCard> CurrentEscapeCards = new ();
     
+    public static int MaxCards = NetworkManager.Instance.Players.Count switch 
+    {
+        2 => 8,
+        3 => 6,
+        _ => 5
+    };
     public static Room CurrentRoom => Rooms[_currentRoom];
     
     public static List<Room> Rooms = new List<Room> // Raum-Liste wird erstellt
@@ -54,6 +60,19 @@ public class GameLogic
         CurrentChapterCards = CurrentRoom.ChapterCards.OrderBy(_ => Random.Shared.Next()).ToList();
         
         CreateEscapeCardList();
+
+        Task.Run(() =>
+        {
+            Task.Delay(1000).Wait();
+            for (int i = 0; i < MaxCards - 1; i++)
+            {
+                NetworkManager.Rpc.RequestEscapeCard();
+            }
+            NetworkManager.Rpc.RequestChapterCard();
+            
+            if (NetworkManager.Instance.LocalPlayer.IsHost)
+                ShuffleOpponentCardsIn();
+        });
         
         StartOpponentTimer();
     }
@@ -143,25 +162,6 @@ public class GameLogic
 
     private static void CreateEscapeCardList()
     {
-        var opponentCards = new List<EscapeCard>
-        {
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 3),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 3),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 1),
-            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 1)
-        }.OrderBy(x => Random.Shared.Next()).ToList();
-        
         var list = new List<EscapeCard>();
         for (int j = 0; j < 5; j++)
         {
@@ -187,17 +187,37 @@ public class GameLogic
             }
         }
         
-        list = list.OrderBy(x => Random.Shared.Next()).ToList();
+        CurrentEscapeCards = list.OrderBy(x => Random.Shared.Next()).ToList();
+    }
+
+    public static void ShuffleOpponentCardsIn()
+    {
+        var opponentCards = new List<EscapeCard>
+        {
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 3),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 3),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 1)
+        }.OrderBy(x => Random.Shared.Next()).ToList();
         
         for (int i = 0; i < 10; i++)
         {
-            var pos = Random.Shared.Next(15);
+            var pos = Random.Shared.Next(13);
             var card = opponentCards[0];
             opponentCards.Remove(card);
-            list.Insert((i / 2) * 15 + i + pos, card);
+            CurrentEscapeCards.Insert(Math.Min((i / 2) * 15 + i + pos, CurrentEscapeCards.Count - 1), card);
         }
-
-        CurrentEscapeCards = list;
     }
 
     public static void PlaceChapterCard(ChapterCard card, int pileIndex)
@@ -233,16 +253,15 @@ public class GameLogic
         });
     }
 
-    private static bool _blockDrawingEscapeCard = false;
+    
     
     public static void DrawEscapeCard(EscapeCard escapeCard)
     {
         _gameForm.BeginInvoke(() =>
         {
             if (escapeCard.Type == EscapeCard.EscapeCardType.Normal)
-            {
+            {;
                 Inventory.Add(escapeCard);
-                CurrentEscapeCards.Remove(escapeCard);
                 
                 escapeCard.CreateComponent();
                 _gameForm.Controls.Add(escapeCard.Component?.Panel);
@@ -250,9 +269,9 @@ public class GameLogic
                 _gameForm.RenderBoard();
             }
             else {
-                CurrentEscapeCards.Remove(escapeCard);
-                CurrentEscapeCards.Add(escapeCard);
-                _blockDrawingEscapeCard = true;
+                if (NetworkManager.Instance.LocalPlayer.IsHost)
+                    CurrentEscapeCards.Add(escapeCard);
+                _gameForm.blockDrawingEscapeCard = true;
             
                 escapeCard.CreateComponent();
                 escapeCard.Component.Panel.Location = _gameForm.drawEscapeCardButton.Location;
@@ -275,8 +294,7 @@ public class GameLogic
                         _gameForm.Invalidate(new Rectangle(escapeCard.Component.Panel.Location, escapeCard.Component.Panel.Size), true);
                     
                         Task.Delay(1000).Wait();
-                        _blockDrawingEscapeCard = false;
-                        //DrawEscapeCard();
+                        _gameForm.blockDrawingEscapeCard = false;
                         NetworkManager.Rpc.RequestEscapeCard();
                         _gameForm.RenderBoard();
                     });
