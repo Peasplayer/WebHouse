@@ -16,8 +16,6 @@ public class NetworkManager
     public string Name { get; private set; }
     public List<Player> Players { get; private set; } = new ();
     public Player LocalPlayer => Players.First(p => p.Id == this.Id);
-    public static string currentUrl;
-    public static string nickName;
     
     public NetworkManager()
     {
@@ -28,9 +26,6 @@ public class NetworkManager
     // Verbindet den Client mit dem Server und führt den Handshake durch
     public void Connect(string url, string name)
     {
-        currentUrl = url;
-        nickName = name;
-        
         Client = new WebsocketClient(new Uri(url));
         
         // Client wird konfiguriert

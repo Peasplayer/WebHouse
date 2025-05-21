@@ -5,15 +5,13 @@ using WebHouse_Client.Logic;
 
 public partial class EndScreen : Form
 {
-    static public new Boolean WinOrLose;
     private PictureBox? Close;
-
-
-    public EndScreen()
+    
+    public EndScreen(bool win)
     {
         this.DoubleBuffered = true;
         SetupUI();
-        if (WinOrLose)
+        if (win)
         {
             this.BackgroundImage = Image.FromStream(
                 Assembly.GetExecutingAssembly()

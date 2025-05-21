@@ -56,12 +56,12 @@ public class GameLogic
         StartOpponent();
     }
 
-    public static void Stop()
+    public static void Stop(bool win)
     {
         if (_gameForm != null && !_gameForm.IsDisposed)
         {
             NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
-            var form = new EndScreen();
+            var form = new EndScreen(win);
             form.Show();
             _gameForm.Hide();
         }
@@ -90,8 +90,7 @@ public class GameLogic
         OpponentPosition += steps;
         if (OpponentPosition >= PlayerPosition)
         {
-            EndScreen.WinOrLose = false;
-            Stop();
+            Stop(false);
             return;
         }
         
