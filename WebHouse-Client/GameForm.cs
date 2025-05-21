@@ -3,6 +3,8 @@ using System.Reflection;
 using WebHouse_Client.Components;
 using WebHouse_Client.Logic;
 using WebHouse_Client.Networking;
+using ChapterCard = WebHouse_Client.Logic.ChapterCard;
+using EscapeCard = WebHouse_Client.Logic.EscapeCard;
 
 namespace WebHouse_Client;
 
@@ -20,7 +22,7 @@ public partial class GameForm : Form
     private PictureBox? drawChapterCardButton;
     public PictureBox? drawEscapeCardButton;
     private PictureBox? discardPile;
-    private List<ChapterCardPile> discardPiles = new List<ChapterCardPile>();
+    public List<ChapterCardPile> discardPiles = new List<ChapterCardPile>();
     private Panel? infoPanel;
     
     private Rectangle boardContainer;
@@ -182,13 +184,7 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                var card = GameLogic.CurrentChapterCards.First();
-                GameLogic.CurrentChapterCards.Remove(card);
-                GameLogic.Inventory.Add(card);
-                
-                card.CreateComponent();
-                Controls.Add(card.Component.Panel);
-                card.Component.Panel.BringToFront();
+                NetworkManager.Rpc.RequestChapterCard();
                 
                 RenderBoard();
             };
@@ -207,10 +203,10 @@ public partial class GameForm : Form
             drawEscapeCardButton = new BufferPictureBox();
             drawEscapeCardButton.MouseClick += (_, args) =>
             {
-                if (args.Button != MouseButtons.Left)
+                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
 
-                GameLogic.DrawEscapeCard();
+                NetworkManager.Rpc.RequestEscapeCard();
                 RenderBoard();
             };
             drawEscapeCardButton.BackColor = Color.Transparent;
@@ -256,7 +252,7 @@ public partial class GameForm : Form
         {
             for (int i = 0; i < 9; i++)
             {
-                var pile = new ChapterCardPile();
+                var pile = new ChapterCardPile(i);
                 discardPiles.Add(pile);
                 Controls.Add(pile.Panel);
             }
@@ -307,13 +303,13 @@ public partial class GameForm : Form
         playerMoveButton.Text = "Move Player";
         playerMoveButton.Size = new Size(100, 50);
         playerMoveButton.Location = new Point(10, 10);
-        playerMoveButton.Click += (_, _) => GameLogic.MovePlayer(1);
+        playerMoveButton.Click += (_, _) => NetworkManager.Rpc.MovePlayer(1);
         Controls.Add(playerMoveButton);
 
         opponentMoveButton.Text = "Move Opponent";
         opponentMoveButton.Size = new Size(100, 50);
         opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) => GameLogic.MoveOpponent(1);
+        opponentMoveButton.Click += (_, _) => NetworkManager.Rpc.MoveOpponent(1);
         Controls.Add(opponentMoveButton);
     }
 

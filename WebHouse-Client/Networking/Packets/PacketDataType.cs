@@ -4,5 +4,13 @@ public enum PacketDataType : uint
 {
     Handshake,
     SyncLobby,
-    StartGame
+    StartGame,
+    RequestEscapeCard,
+    DrawEscapeCard,
+    PlaceEscapeCard,
+    RequestChapterCard,
+    DrawChapterCard,
+    PlaceChapterCard,
+    MovePlayer,
+    MoveOpponent
 }
