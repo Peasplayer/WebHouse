@@ -169,8 +169,8 @@ public class GameLogic
         }
         
         list = list.OrderBy(x => Random.Shared.Next()).ToList();
-
-        for (int i = 0; i < 10; i++)
+        CurrentEscapeCards = list;
+        /*for (int i = 0; i < 10; i++)
         {
             var pos = Random.Shared.Next(15);
             var card = opponentCards[0];
@@ -178,7 +178,7 @@ public class GameLogic
             list.Insert((i / 2) * 15 + i + pos, card);
         }
 
-        CurrentEscapeCards = opponentCards;//list;
+        CurrentEscapeCards = opponentCards;//list;*/
     }
 
     public static void PlaceChapterCard(ChapterCard card)

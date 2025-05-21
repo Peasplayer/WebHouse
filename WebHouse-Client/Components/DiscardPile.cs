@@ -1,46 +1,31 @@
-﻿using WebHouse_Client.Logic;
+﻿using System.ComponentModel;
+using WebHouse_Client.Components;
 
 namespace WebHouse_Client.Components;
 
 public class DiscardPile
 {
-    public Panel Panel;
-    
+    /*public Panel Panel;
+    public IComponentCard? Component { get; private set; }
     public DiscardPile()
     {
-        Panel = new BufferPanel
-        {
-            BackColor = Color.FromArgb(15, Color.Gray),
-            BorderStyle = BorderStyle.FixedSingle,
-        };
-
+        Panel = new BufferPanel();
         Panel.MouseClick += (_, args) =>
         {
             if (args.Button == MouseButtons.Left)
                 OnClick();
         };
-    }
-
-    private void OnClick()
-    {
-        var selectedChapterCard = ChapterCard.SelectedChapterCard;
-        if (selectedChapterCard == null)
-        {
-            return;
-        }
-
-        Panel.Enabled = false;
-        Panel.Visible = false;
-        selectedChapterCard.Panel.Location = Panel.Location;
-        selectedChapterCard.Panel.Size = Panel.Size;
-        selectedChapterCard.Panel.BringToFront();
-        selectedChapterCard.Pile = this;
-        
-        GameLogic.PlaceChapterCard(selectedChapterCard.Card);
-
-        //Karte wird abgewählt
-        selectedChapterCard.CardComponent.SetHighlighted(false);
-        ChapterCard.SelectedChapterCard = null;
-    }
-}
+    }*/
     
+    /*public void OnClick()
+    {
+        var selectedCard = ChapterCard.SelectedChapterCard;
+        if (selectedCard != null)
+        {
+            //Logic.ChapterCard.Components.Panel.Dispose();
+            selectedCard.CardComponent.SetHighlighted(false);
+            ChapterCard.SelectedChapterCard = null;
+        }
+        
+    }*/
+}

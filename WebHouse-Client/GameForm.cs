@@ -21,8 +21,8 @@ public partial class GameForm : Form
     private Panel? drawPile1;
     private PictureBox? drawChapterCardButton;
     public PictureBox? drawEscapeCardButton;
-    private PictureBox? drawPile4;
-    private List<DiscardPile> discardPiles = new List<DiscardPile>();
+    private PictureBox? DiscardPile;
+    private List<ChapterCardPile> discardPiles = new List<ChapterCardPile>();
     private Panel? infoPanel;
     
     private Rectangle boardContainer;
@@ -225,18 +225,22 @@ public partial class GameForm : Form
         drawEscapeCardButton.Size = new Size(widthUnit * 2, heightUnit * 3);
         drawEscapeCardButton.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 10 * heightUnit);
         
-        if (drawPile4 == null)
+        if (DiscardPile == null)
         {
-            drawPile4 = new BufferPictureBox();
-            drawPile4.BackColor = Color.Transparent;
-            drawPile4.Image = Image.FromStream(
+            DiscardPile = new BufferPictureBox();
+            DiscardPile.MouseClick += (_, args) =>
+            {
+                
+            };
+            DiscardPile.BackColor = Color.Transparent;
+            DiscardPile.Image = Image.FromStream(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DiscardPileWithText.png"));
-            drawPile4.SizeMode = PictureBoxSizeMode.StretchImage;
-            Controls.Add(drawPile4);
+            DiscardPile.SizeMode = PictureBoxSizeMode.StretchImage;
+            Controls.Add(DiscardPile);
         }
 
-        drawPile4.Size = new Size(widthUnit * 2, heightUnit * 3);
-        drawPile4.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
+        DiscardPile.Size = new Size(widthUnit * 2, heightUnit * 3);
+        DiscardPile.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
         
         if (infoPanel == null)
         {
@@ -250,7 +254,7 @@ public partial class GameForm : Form
         {
             for (int i = 0; i < 9; i++)
             {
-                var pile = new DiscardPile();
+                var pile = new ChapterCardPile();
                 discardPiles.Add(pile);
                 Controls.Add(pile.Panel);
             }
