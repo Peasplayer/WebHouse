@@ -1,5 +1,6 @@
 ﻿using System.Drawing.Drawing2D;
 using WebHouse_Client.Logic;
+using WebHouse_Client.Networking;
 
 namespace WebHouse_Client.Components;
 
@@ -8,7 +9,7 @@ public class ChapterCard : IComponentCard
     public static ChapterCard? SelectedChapterCard;
     
     public Card CardComponent { get; }
-    public DiscardPile? Pile { get; set; }
+    public ChapterCardPile? Pile { get; set; }
     public Panel Panel => CardComponent.Panel;
     public Logic.ChapterCard Card { get; }
 
@@ -45,7 +46,7 @@ public class ChapterCard : IComponentCard
                 //Überprüft ob die EscapeCard an die ChapterCard angelegt werden darf
                 if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
                 {
-                    GameLogic.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Card);
+                    NetworkManager.Rpc.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Pile.Index);
                 }
                 else
                 {
@@ -59,9 +60,6 @@ public class ChapterCard : IComponentCard
             EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false); 
             EscapeCard.SelectedEscapeCard = null;
         }
-
-        if (Pile != null)
-            return;
         
         //Prüft ob die ChapterCard schon ausgewählt ist
         if (SelectedChapterCard == this)

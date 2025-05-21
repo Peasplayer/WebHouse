@@ -19,10 +19,10 @@ public partial class GameForm : Form
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
     private Panel? drawPile1;
-    private Button? drawChapterCardButton;
-    private Button? drawEscapeCardButton;
-    private Panel? drawPile4;
-    private List<DiscardPile> discardPiles = new List<DiscardPile>();
+    private PictureBox? drawChapterCardButton;
+    public PictureBox? drawEscapeCardButton;
+    private PictureBox? discardPile;
+    public List<ChapterCardPile> discardPiles = new List<ChapterCardPile>();
     private Panel? infoPanel;
     private Label? timerLabel;
     
@@ -179,24 +179,20 @@ public partial class GameForm : Form
         
         if (drawChapterCardButton == null)
         {
-            drawChapterCardButton = new Button();
-            drawChapterCardButton.Text = "ChapterCard";
+            drawChapterCardButton = new BufferPictureBox();
             drawChapterCardButton.MouseClick += (_, args) =>
             {
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                var card = GameLogic.CurrentChapterCards.First();
-                GameLogic.CurrentChapterCards.Remove(card);
-                GameLogic.Inventory.Add(card);
-                
-                card.CreateComponent();
-                Controls.Add(card.Component.Panel);
-                card.Component.Panel.BringToFront();
+                NetworkManager.Rpc.RequestChapterCard();
                 
                 RenderBoard();
             };
-            drawChapterCardButton.BackColor = Color.LightGoldenrodYellow;
+            drawChapterCardButton.BackColor = Color.Transparent;
+            drawChapterCardButton.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DrawChapterCard.png"));
+            drawChapterCardButton.SizeMode = PictureBoxSizeMode.StretchImage;
             Controls.Add(drawChapterCardButton);
         }
 
@@ -205,39 +201,45 @@ public partial class GameForm : Form
         
         if (drawEscapeCardButton == null)
         {
-            drawEscapeCardButton = new Button();
-            drawEscapeCardButton.Text = "EscapeCard";
+            drawEscapeCardButton = new BufferPictureBox();
             drawEscapeCardButton.MouseClick += (_, args) =>
             {
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
-                
-                var escapeCard = GameLogic.CurrentEscapeCards[0];
-                GameLogic.Inventory.Add(escapeCard);
-                GameLogic.CurrentEscapeCards.Remove(escapeCard);
-                
-                escapeCard.CreateComponent();
-                Controls.Add(escapeCard.Component?.Panel);
-                escapeCard.Component?.Panel.BringToFront();
-                
+
+                NetworkManager.Rpc.RequestEscapeCard();
                 RenderBoard();
             };
-            drawEscapeCardButton.BackColor = Color.LightGoldenrodYellow;
+            drawEscapeCardButton.BackColor = Color.Transparent;
+            drawEscapeCardButton.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DrawEscapeCard.png"));
+            drawEscapeCardButton.SizeMode = PictureBoxSizeMode.StretchImage;
             Controls.Add(drawEscapeCardButton);
         }
 
         drawEscapeCardButton.Size = new Size(widthUnit * 2, heightUnit * 3);
         drawEscapeCardButton.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 10 * heightUnit);
         
-        if (drawPile4 == null)
+        if (discardPile == null)
         {
-            drawPile4 = new BufferPanel();
-            drawPile4.BackColor = Color.LightGoldenrodYellow;
-            Controls.Add(drawPile4);
+            discardPile = new BufferPictureBox();
+            discardPile.MouseClick += (_, args) =>
+            {
+                if (args.Button != MouseButtons.Left)
+                    return;
+                
+                Components.DiscardPile.Disposing();
+                RenderBoard();
+            };
+            discardPile.BackColor = Color.Transparent;
+            discardPile.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DiscardPileWithText.png"));
+            discardPile.SizeMode = PictureBoxSizeMode.StretchImage;
+            Controls.Add(discardPile);
         }
 
-        drawPile4.Size = new Size(widthUnit * 2, heightUnit * 3);
-        drawPile4.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
+        discardPile.Size = new Size(widthUnit * 2, heightUnit * 3);
+        discardPile.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
         
         if (infoPanel == null)
         {
@@ -270,7 +272,7 @@ public partial class GameForm : Form
         {
             for (int i = 0; i < 9; i++)
             {
-                var pile = new DiscardPile();
+                var pile = new ChapterCardPile(i);
                 discardPiles.Add(pile);
                 Controls.Add(pile.Panel);
             }
@@ -360,17 +362,13 @@ public partial class GameForm : Form
         playerMoveButton.Text = "Move Player";
         playerMoveButton.Size = new Size(100, 50);
         playerMoveButton.Location = new Point(10, 10);
-        playerMoveButton.Click += (_, _) => GameLogic.MovePlayer(1);
+        playerMoveButton.Click += (_, _) => NetworkManager.Rpc.MovePlayer(1);
         Controls.Add(playerMoveButton);
 
         opponentMoveButton.Text = "Move Opponent";
         opponentMoveButton.Size = new Size(100, 50);
         opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) =>
-        {
-            GameLogic.LowerTimer();
-            GameLogic.MoveOpponent(1);
-        };
+        opponentMoveButton.Click += (_, _) => NetworkManager.Rpc.MoveOpponent(1);
         Controls.Add(opponentMoveButton);
     }
 

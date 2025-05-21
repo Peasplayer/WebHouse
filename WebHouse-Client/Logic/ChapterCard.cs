@@ -1,4 +1,5 @@
 ﻿using WebHouse_Client.Components;
+using WebHouse_Client.Networking;
 
 namespace WebHouse_Client.Logic;
 
@@ -26,7 +27,7 @@ public class ChapterCard : ILogicCard
     
     public bool DoesEscapeCardMatch(EscapeCard escapeCard)
     {
-        return Requirements.Contains(escapeCard.Color) && escapeCard.Number >= Counter;
+        return escapeCard.Type == EscapeCard.EscapeCardType.Normal && Requirements.Contains(escapeCard.Color) && escapeCard.Number >= Counter;
     }
     
     public void AddEscapeCard(EscapeCard escapeCard)
@@ -46,8 +47,11 @@ public class ChapterCard : ILogicCard
             ((Components.ChapterCard)Component).Pile.Panel.Visible = true;
             Component.Panel.Dispose();
             GameLogic.PlacedChapterCards.Remove(this);
-            GameLogic.MovePlayer(Steps);
-            GameLogic.CurrentEscapeCards.AddRange(PlacedCards);
+            if (NetworkManager.Instance.LocalPlayer.IsHost)
+            {
+                NetworkManager.Rpc.MovePlayer(Steps);
+                GameLogic.CurrentEscapeCards.AddRange(PlacedCards);
+            }
         }
     }
 }
