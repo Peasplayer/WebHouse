@@ -102,9 +102,8 @@ public partial class Rules : Form
         
         nextPictureBox.Click += NextButton_Click;
         this.Controls.Add(nextPictureBox);
-
         
-        var card = new EscapeCard(7, Room.RoomName.Wald, CardColor.Red); //Escapekarte
+        var card = new EscapeCard(EscapeCard.EscapeCardType.Normal, 7, Room.RoomName.Wald, CardColor.Red); //Escapekarte
         card.CreateComponent();
 
         card.Component.Panel.Location = new Point(
