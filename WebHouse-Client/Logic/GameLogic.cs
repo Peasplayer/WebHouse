@@ -178,7 +178,7 @@ public class GameLogic
             list.Insert((i / 2) * 15 + i + pos, card);
         }
 
-        CurrentEscapeCards = opponentCards;//list;
+        CurrentEscapeCards = list;
     }
 
     public static void PlaceChapterCard(ChapterCard card)

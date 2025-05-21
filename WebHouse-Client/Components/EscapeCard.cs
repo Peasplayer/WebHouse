@@ -96,29 +96,36 @@ public class EscapeCard : IComponentCard
         g.DrawImage(SplashBackgroundImage, rect);
     }
 
-    private void DrawNumber(Graphics g) //Zeichnet die Nummer unter dem Raumnamen
+    private void DrawNumber(Graphics g)
     {
-        using (Font font = new Font("Arial", 15, FontStyle.Bold))
+        float fontSize = Panel.Height / 12f; // Schriftgröße relativ zur Panel-Höhe
+        using (Font font = new Font("Arial", fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
         using (var brush = new SolidBrush(Color.White))
         {
             string text = Card.Number.ToString();
             SizeF numberSize = g.MeasureString(text, font);
-            
-            var centerPos = new PointF((Panel.Width - numberSize.Width)/2, ((Panel.Height - numberSize.Height) / 2)+ 40);
+
+            var centerPos = new PointF(
+                (Panel.Width - numberSize.Width) / 2,
+                (Panel.Height - numberSize.Height) / 2 + Panel.Height / 10f
+            );
             g.DrawString(text, font, brush, centerPos);
         }
     }
 
+
     private void DrawRoom(Graphics g) // Zeichnet den Raumnamen in der Kartenmitte
     {
-        using (Font font = new Font("Arial", 14, FontStyle.Bold))
+        float fontSize = Panel.Height / 12f; // Schriftgröße relativ zur Panel-Höhe
+        using (Font font = new Font("Arial", fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
         using (var brush = new SolidBrush(Color.Black))
         {
             SizeF roomSize = g.MeasureString(Card.Room.ToString(), font);
-            var roomPos = new PointF((Panel.Width - roomSize.Width)/2, (Panel.Height - roomSize.Height) / 2);
+            var roomPos = new PointF((Panel.Width - roomSize.Width) / 2, (Panel.Height - roomSize.Height) / 2);
             g.DrawString(Card.Room.ToString(), font, brush, roomPos);
         }
     }
+
     /*
      Ordnet die Karten in einer Horizontalen Line an. Nutzbar für das Inventar
     private void PositionCards()
