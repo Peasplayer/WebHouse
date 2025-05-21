@@ -1,5 +1,6 @@
 ﻿using System.Drawing.Drawing2D;
 using WebHouse_Client.Logic;
+using WebHouse_Client.Networking;
 
 namespace WebHouse_Client.Components;
 
@@ -8,7 +9,7 @@ public class ChapterCard : IComponentCard
     public static ChapterCard? SelectedChapterCard;
     
     public Card CardComponent { get; }
-    public DiscardPile? Pile { get; set; }
+    public ChapterCardPile? Pile { get; set; }
     public Panel Panel => CardComponent.Panel;
     public Logic.ChapterCard Card { get; }
 
@@ -45,7 +46,7 @@ public class ChapterCard : IComponentCard
                 //Überprüft ob die EscapeCard an die ChapterCard angelegt werden darf
                 if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
                 {
-                    GameLogic.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Card);
+                    NetworkManager.Rpc.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Pile.Index);
                 }
                 else
                 {
@@ -59,9 +60,6 @@ public class ChapterCard : IComponentCard
             EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false); 
             EscapeCard.SelectedEscapeCard = null;
         }
-
-        if (Pile != null)
-            return;
         
         //Prüft ob die ChapterCard schon ausgewählt ist
         if (SelectedChapterCard == this)
@@ -87,16 +85,16 @@ public class ChapterCard : IComponentCard
         var ratioSize = g.MeasureString(Card.Chapter.ToString(), font);
         font = new Font("Arial", (int)(Panel.Width * 0.8 * ratioSize.Height / ratioSize.Width), FontStyle.Bold, GraphicsUnit.Pixel);
         SizeF textSize = g.MeasureString(Card.Chapter.ToString(), font);
-        PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, Panel.Height / 20f);
+        PointF textPosition = new PointF((Panel.Width - textSize.Width) / 2, Panel.Height / 8f);
         g.DrawString(Card.Chapter.ToString(), font, Brushes.White, textPosition);
     }
 
     private void DrawArrow(Graphics g)
     {
         int shaftHeight = Panel.Height / 6;
-        int shaftWidth = Panel.Width / 2;
+        int shaftWidth = (int)(Panel.Width * 0.65f); // Pfeilschaft verlängert
         int arrowHeight = Panel.Height / 4;
-        int arrowHeadWidth = Panel.Width / 5;
+        int arrowHeadWidth = Panel.Width / 4; // größerer Pfeilkopf
         int startX = 0;
         float centerY = (Panel.Height - arrowHeight) / 2f + Panel.Height / 20f;
 
@@ -108,17 +106,14 @@ public class ChapterCard : IComponentCard
 
         var path = new GraphicsPath();
         path.StartFigure();
-        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2f + arrowHeight / 2f, shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2f);
-        path.AddLine(shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2f, shaftRect.Right - 1, centerY + shaftHeight / 2f - arrowHeight / 2f);
-        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2f - arrowHeight / 2f, shaftRect.Right - 1, centerY + shaftHeight / 2f + arrowHeight / 2f);
+        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2f + arrowHeight / 2f,
+            shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2f);
+        path.AddLine(shaftRect.Right + arrowHeadWidth, centerY + shaftHeight / 2f,
+            shaftRect.Right - 1, centerY + shaftHeight / 2f - arrowHeight / 2f);
+        path.AddLine(shaftRect.Right - 1, centerY + shaftHeight / 2f - arrowHeight / 2f,
+            shaftRect.Right - 1, centerY + shaftHeight / 2f + arrowHeight / 2f);
         path.CloseFigure();
-        
-        /*path.AddLine(shaftRect.Left, shaftRect.Top, shaftRect.Right, shaftRect.Top); 
-        path.AddLine(shaftRect.Right, shaftRect.Top, shaftRect.Right + arrowHeadWidth, shaftRect.Top + arrowHeight / 2); 
-        path.AddLine(shaftRect.Right + arrowHeadWidth, shaftRect.Top + arrowHeight / 2, shaftRect.Right, shaftRect.Bottom); 
-        path.AddLine(shaftRect.Right, shaftRect.Bottom, shaftRect.Left, shaftRect.Bottom); 
-        */path.CloseFigure();
-        
+
         g.FillPath(arrowBackground, path);
         g.FillRectangle(arrowBackground, shaftRect);
 

@@ -6,8 +6,9 @@ namespace WebHouse_Client;
 
 public partial class Lobby : Form
 {
-    public static Lobby? Instance { get; private set; }
-    
+    public static Lobby? Instance { get; set; }
+
+    public bool ClosedByGame = false;
     private List<Label> _playerList = new ();
     
     public Lobby()
@@ -18,8 +19,8 @@ public partial class Lobby : Form
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LobbyFertig.png")); //BackgroundImage
         this.BackgroundImageLayout = ImageLayout.Stretch;
-        this.Width = Screen.PrimaryScreen.Bounds.Width / 2; //Startgröße
-        this.Height = Screen.PrimaryScreen.Bounds.Height / 2;
+        this.Height = Screen.PrimaryScreen.Bounds.Height / 2;//Startgröße
+        this.Width = this.Height * 16 / 9; 
         this.FormBorderStyle = FormBorderStyle.FixedSingle;
         this.MaximizeBox = false;
         this.MinimizeBox = false;
@@ -27,8 +28,13 @@ public partial class Lobby : Form
         
         this.FormClosing += (s, e) =>
         {
+            if (ClosedByGame)
+                return;
+            
             NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
-            Application.Exit();
+            
+            var form = new Form1();
+            form.Show();
         };
         
         Startbtn.Size = new Size(this.ClientSize.Width / 3, this.ClientSize.Height / 8); //proportionale Größe
@@ -70,6 +76,6 @@ public partial class Lobby : Form
 
     private void button1_Click(object sender, EventArgs e)
     {
-        NetworkManager.Instance.Rpc.StartGame();
+        NetworkManager.Rpc.StartGame();
     }
 }

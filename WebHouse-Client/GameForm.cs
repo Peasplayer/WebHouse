@@ -21,21 +21,25 @@ public partial class GameForm : Form
     private Panel? drawPile1;
     private PictureBox? drawChapterCardButton;
     public PictureBox? drawEscapeCardButton;
-    private PictureBox? drawPile4;
-    private List<DiscardPile> discardPiles = new List<DiscardPile>();
+    private PictureBox? discardPile;
+    public List<ChapterCardPile> discardPiles = new List<ChapterCardPile>();
     private Panel? infoPanel;
+    private Label? timerLabel;
     
     private Rectangle boardContainer;
     private int widthUnit;
     private int heightUnit;
+    
+    private bool isFullScreen = false;
+    private Rectangle previousBounds;   
     
     public GameForm()
     {
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Wood.jpg"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
-        
-        InitializeComponent(); 
+        TimerLablelInfo(); //Erstellt das Label für den Timer
+        InitializeComponent();
         AddTempButtons();
         
         //this.FormBorderStyle = FormBorderStyle.None; //kein Rand
@@ -184,13 +188,7 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                var card = GameLogic.CurrentChapterCards.First();
-                GameLogic.CurrentChapterCards.Remove(card);
-                GameLogic.Inventory.Add(card);
-                
-                card.CreateComponent();
-                Controls.Add(card.Component.Panel);
-                card.Component.Panel.BringToFront();
+                NetworkManager.Rpc.RequestChapterCard();
                 
                 RenderBoard();
             };
@@ -209,10 +207,10 @@ public partial class GameForm : Form
             drawEscapeCardButton = new BufferPictureBox();
             drawEscapeCardButton.MouseClick += (_, args) =>
             {
-                if (args.Button != MouseButtons.Left)
+                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
 
-                GameLogic.DrawEscapeCard();
+                NetworkManager.Rpc.RequestEscapeCard();
                 RenderBoard();
             };
             drawEscapeCardButton.BackColor = Color.Transparent;
@@ -225,18 +223,26 @@ public partial class GameForm : Form
         drawEscapeCardButton.Size = new Size(widthUnit * 2, heightUnit * 3);
         drawEscapeCardButton.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 10 * heightUnit);
         
-        if (drawPile4 == null)
+        if (discardPile == null)
         {
-            drawPile4 = new BufferPictureBox();
-            drawPile4.BackColor = Color.Transparent;
-            drawPile4.Image = Image.FromStream(
+            discardPile = new BufferPictureBox();
+            discardPile.MouseClick += (_, args) =>
+            {
+                if (args.Button != MouseButtons.Left)
+                    return;
+                
+                Components.DiscardPile.Disposing();
+                RenderBoard();
+            };
+            discardPile.BackColor = Color.Transparent;
+            discardPile.Image = Image.FromStream(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DiscardPileWithText.png"));
-            drawPile4.SizeMode = PictureBoxSizeMode.StretchImage;
-            Controls.Add(drawPile4);
+            discardPile.SizeMode = PictureBoxSizeMode.StretchImage;
+            Controls.Add(discardPile);
         }
 
-        drawPile4.Size = new Size(widthUnit * 2, heightUnit * 3);
-        drawPile4.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
+        discardPile.Size = new Size(widthUnit * 2, heightUnit * 3);
+        discardPile.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
         
         if (infoPanel == null)
         {
@@ -246,11 +252,30 @@ public partial class GameForm : Form
             Controls.Add(infoPanel);
         }
         
+        if (NetworkManager.Instance != null)
+        {
+            int playerY = 50;
+            foreach (var player in NetworkManager.Instance.Players)
+            {
+                Label lbl = new Label();
+                lbl.Text = $"{(player.IsHost ? "[Host] " : "")}{player.Name}";
+                lbl.ForeColor = player.IsTurn ? Color.Green : Color.Blue;
+                lbl.BackColor = Color.Transparent;
+                lbl.Location = new Point(10, playerY);
+                lbl.AutoSize = true;
+                lbl.Font = player.IsTurn 
+                    ? new Font("Arial", 14, FontStyle.Bold) 
+                    : new Font("Arial", 14, FontStyle.Regular);
+                infoPanel.Controls.Add(lbl);
+                playerY += 25;
+            }
+        }
+        
         if (discardPiles.Count == 0)
         {
             for (int i = 0; i < 9; i++)
             {
-                var pile = new DiscardPile();
+                var pile = new ChapterCardPile(i);
                 discardPiles.Add(pile);
                 Controls.Add(pile.Panel);
             }
@@ -296,18 +321,57 @@ public partial class GameForm : Form
         }
     }
     
+    public void TimerLablelInfo()
+    {
+        var ratioSize = new SizeF(ClientSize.Width, ClientSize.Height);
+        if (timerLabel == null)
+        {
+            //Erstell ein Lable für den Timer das in der InfoBox angezeigt wird
+            timerLabel = new Label()
+            {
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                ForeColor = Color.White,
+                UseCompatibleTextRendering = true,
+                Font = new Font(Program.Font, Math.Max(12, (int)(ratioSize.Height * 0.15)), FontStyle.Bold, GraphicsUnit.Pixel)            };
+            if (infoPanel == null)
+            {
+                infoPanel = new BufferPanel();
+                infoPanel.BorderStyle = BorderStyle.FixedSingle;
+                infoPanel.BackColor = Color.FromArgb(100, Color.DimGray);
+                Controls.Add(infoPanel);
+            }
+            infoPanel.Controls.Add(timerLabel); 
+            timerLabel.BringToFront();
+        }
+        UpdateTimerLabel(GameLogic.PlayTime);
+    }
+
+    public void UpdateTimerLabel(int playTime)
+    {
+        if (playTime > 0)
+        {
+            timerLabel.Text = $"Noch {playTime} Minuten bis der Verfolger euch eingeholt hat!";
+            timerLabel.ForeColor = Color.Red;
+        }
+        else
+        {
+            timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird
+        }
+    }
+    
     private void AddTempButtons()
     {
         playerMoveButton.Text = "Move Player";
         playerMoveButton.Size = new Size(100, 50);
         playerMoveButton.Location = new Point(10, 10);
-        playerMoveButton.Click += (_, _) => GameLogic.MovePlayer(1);
+        playerMoveButton.Click += (_, _) => NetworkManager.Rpc.MovePlayer(1);
         Controls.Add(playerMoveButton);
 
         opponentMoveButton.Text = "Move Opponent";
         opponentMoveButton.Size = new Size(100, 50);
         opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) => GameLogic.MoveOpponent(1);
+        opponentMoveButton.Click += (_, _) => NetworkManager.Rpc.MoveOpponent(1);
         Controls.Add(opponentMoveButton);
     }
 
@@ -326,6 +390,32 @@ public partial class GameForm : Form
         throw new ArgumentException("Either pixels or percentage must be provided.");
     }
 
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        if (keyData == Keys.F11)
+        {
+            if (!isFullScreen)
+            {
+                previousBounds = Bounds;
+                FormBorderStyle = FormBorderStyle.None;
+                WindowState = FormWindowState.Maximized;
+            }
+            else
+            {
+                FormBorderStyle = FormBorderStyle.Sizable;
+                WindowState = FormWindowState.Normal;
+                Bounds = previousBounds;
+            }
+
+            isFullScreen = !isFullScreen;
+            return true;
+        }
+
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
+
+
+    
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
     {
         { Room.RoomName.HotelZimmer, new ()
@@ -421,18 +511,6 @@ public partial class GameForm : Form
         } },
         { Room.RoomName.SafeHouse, new ()
         {
-            new (110, 765),
-            new (245, 805),
-            new (385, 825),
-            new (520, 855),
-            new (665, 905),
-            new (795, 880),
-            new (1040, 880),
-            new (1160, 875),
-            new (1280, 835),
-            new (1395, 755),
-            new (1360, 645),
-            new (1365, 510),
             new (20, 25),
             new (130, 40),
             new (160, 140),
@@ -450,6 +528,18 @@ public partial class GameForm : Form
             new (1390, 270),
             new (1360, 370),
             new (1360, 500),
+            new (110, 765),
+            new (245, 805),
+            new (385, 825),
+            new (520, 855),
+            new (665, 905),
+            new (795, 880),
+            new (1040, 880),
+            new (1160, 875),
+            new (1280, 835),
+            new (1395, 755),
+            new (1360, 645),
+            new (1365, 510),
         } },
     };
 }

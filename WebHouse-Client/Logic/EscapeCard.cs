@@ -11,15 +11,9 @@ public class EscapeCard : ILogicCard
     
     public IComponentCard? Component { get; private set; }
 
-    public EscapeCard(EscapeCardType type, int number)
+    public EscapeCard(EscapeCardType type, int number, Room.RoomName room = default, CardColor color = default)
     {
         Type = type;
-        Number = number;
-        Room = Logic.Room.RoomName.HotelZimmer;
-    }
-    
-    public EscapeCard(int number, Room.RoomName room, CardColor color)
-    {
         Number = number;
         Room = room;
         Color = color;

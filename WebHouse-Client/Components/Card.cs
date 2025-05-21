@@ -28,23 +28,27 @@ public class Card
         Panel.Paint += DrawCard;
     }
     
-    private void DrawCard(object? sender, PaintEventArgs e)
+    private void DrawCard(object? sender, PaintEventArgs e) 
     {
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;
 
-        using (GraphicsPath path = RoundedRectangle(new Rectangle(0, 0, Panel.Size.Width, Panel.Size.Height), _cornerRadius))
+        int cornerRadius = Panel.Width / 20;     // z.B. 1/20 der Breite
+        int borderWidth = Panel.Width / 100;     // z.B. 1/100 der Breite
+
+        using (GraphicsPath path = RoundedRectangle(new Rectangle(0, 0, Panel.Size.Width, Panel.Size.Height), cornerRadius))
         using (SolidBrush brush = new SolidBrush(_color))
-        using (Pen pen = new Pen(Color.White, _borderWidth))
-        using (Pen highlightPen = new Pen(Color.HotPink, _borderWidth + 1))
+        using (Pen pen = new Pen(Color.White, borderWidth))
+        using (Pen highlightPen = new Pen(Color.HotPink, borderWidth + 1))
         {
-            g.FillPath(brush, path); //Hintergrund der Karte
-            if (_additionalPaint != null)
+            g.FillPath(brush, path);
+
+            _additionalPaint?.Invoke(g);
+
+            using (GraphicsPath borderPath = Outline(new Rectangle(0, 0, Panel.Size.Width, Panel.Size.Height), cornerRadius, borderWidth))
             {
-                _additionalPaint(g); //Zusätzliche Zeichnungen
+                g.DrawPath(Highlighted ? highlightPen : pen, borderPath);
             }
-            
-            g.DrawPath(Highlighted ? highlightPen : pen, Outline(new Rectangle(0, 0, Panel.Size.Width, Panel.Size.Height), _cornerRadius, _borderWidth)); //Rahmen der Karte zeichnen
         }
     }
 
