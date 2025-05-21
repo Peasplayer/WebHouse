@@ -13,6 +13,7 @@ public class GameLogic
     
     public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
+    public static int PlayTime = 30;
     public static List<ILogicCard> Inventory = new ();
     public static List<ChapterCard> CurrentChapterCards = new ();
     public static List<ChapterCard> PlacedChapterCards = new ();
@@ -39,6 +40,7 @@ public class GameLogic
             sound.PlaySync();
             if (NetworkManager.Instance.LocalPlayer.IsHost)
                 NetworkManager.Rpc.MoveOpponent(1);
+            _gameForm.BeginInvoke(LowerTimer);
             StartOpponentTimer();
         });
     }
@@ -63,7 +65,6 @@ public class GameLogic
         _gameForm.BeginInvoke(() =>
         {
             PlayerPosition += steps;
-            // TODO: Check if field is opponent field
             if (PlayerPosition >= CurrentRoom.Steps)
             {
                 PlayerPosition = 0;
@@ -279,5 +280,19 @@ public class GameLogic
             chapterCard.Component.Panel.BringToFront();
             _gameForm.RenderBoard();
         });
+    }
+
+    //Verringert den Timer um 2 Minuten
+    public static void LowerTimer()
+    {
+        if (PlayTime > 0)
+        {
+            PlayTime -= 2;
+            _gameForm.UpdateTimerLabel(PlayTime);
+        }
+        else
+        {
+            Stop();
+        }
     }
 }
