@@ -18,8 +18,8 @@ public partial class Lobby : Form
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LobbyFertig.png")); //BackgroundImage
         this.BackgroundImageLayout = ImageLayout.Stretch;
-        this.Width = Screen.PrimaryScreen.Bounds.Width / 2; //Startgröße
-        this.Height = Screen.PrimaryScreen.Bounds.Height / 2;
+        this.Height = Screen.PrimaryScreen.Bounds.Height / 2;//Startgröße
+        this.Width = this.Height * 16 / 9; 
         this.FormBorderStyle = FormBorderStyle.FixedSingle;
         this.MaximizeBox = false;
         this.MinimizeBox = false;
