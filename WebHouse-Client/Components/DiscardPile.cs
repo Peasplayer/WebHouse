@@ -1,13 +1,16 @@
-﻿using WebHouse_Client.Logic;
+﻿using WebHouse_Client.Networking;
 
 namespace WebHouse_Client.Components;
 
 public class DiscardPile
 {
     public Panel Panel;
+    public int Index;
     
-    public DiscardPile()
+    public DiscardPile(int index)
     {
+        Index = index;
+        
         Panel = new BufferPanel
         {
             BackColor = Color.FromArgb(15, Color.Gray),
@@ -28,15 +31,8 @@ public class DiscardPile
         {
             return;
         }
-
-        Panel.Enabled = false;
-        Panel.Visible = false;
-        selectedChapterCard.Panel.Location = Panel.Location;
-        selectedChapterCard.Panel.Size = Panel.Size;
-        selectedChapterCard.Panel.BringToFront();
-        selectedChapterCard.Pile = this;
         
-        GameLogic.PlaceChapterCard(selectedChapterCard.Card);
+        NetworkManager.Instance.Rpc.PlaceChapterCard(selectedChapterCard.Card, Index);
 
         //Karte wird abgewählt
         selectedChapterCard.CardComponent.SetHighlighted(false);

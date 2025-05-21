@@ -22,7 +22,7 @@ public partial class GameForm : Form
     private PictureBox? drawChapterCardButton;
     public PictureBox? drawEscapeCardButton;
     private PictureBox? drawPile4;
-    private List<DiscardPile> discardPiles = new List<DiscardPile>();
+    public List<DiscardPile> discardPiles = new List<DiscardPile>();
     private Panel? infoPanel;
     
     private Rectangle boardContainer;
@@ -184,13 +184,7 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                var card = GameLogic.CurrentChapterCards.First();
-                GameLogic.CurrentChapterCards.Remove(card);
-                GameLogic.Inventory.Add(card);
-                
-                card.CreateComponent();
-                Controls.Add(card.Component.Panel);
-                card.Component.Panel.BringToFront();
+                NetworkManager.Instance.Rpc.RequestChapterCard();
                 
                 RenderBoard();
             };
@@ -209,10 +203,10 @@ public partial class GameForm : Form
             drawEscapeCardButton = new BufferPictureBox();
             drawEscapeCardButton.MouseClick += (_, args) =>
             {
-                if (args.Button != MouseButtons.Left)
+                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
 
-                GameLogic.DrawEscapeCard();
+                NetworkManager.Instance.Rpc.RequestEscapeCard();
                 RenderBoard();
             };
             drawEscapeCardButton.BackColor = Color.Transparent;
@@ -250,7 +244,7 @@ public partial class GameForm : Form
         {
             for (int i = 0; i < 9; i++)
             {
-                var pile = new DiscardPile();
+                var pile = new DiscardPile(i);
                 discardPiles.Add(pile);
                 Controls.Add(pile.Panel);
             }
