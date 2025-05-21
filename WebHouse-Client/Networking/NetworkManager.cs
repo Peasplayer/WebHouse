@@ -132,6 +132,7 @@ public class NetworkManager
                 {
                     GameForm gameForm = new GameForm();
                     gameForm.Show();
+                    Lobby.Instance.ClosedByGame = true;
                     Lobby.Instance.Close();
                     Lobby.Instance = null;
                 });

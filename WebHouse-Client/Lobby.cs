@@ -7,7 +7,8 @@ namespace WebHouse_Client;
 public partial class Lobby : Form
 {
     public static Lobby? Instance { get; set; }
-    
+
+    public bool ClosedByGame = false;
     private List<Label> _playerList = new ();
     
     public Lobby()
@@ -27,6 +28,9 @@ public partial class Lobby : Form
         
         this.FormClosing += (s, e) =>
         {
+            if (ClosedByGame)
+                return;
+            
             NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
             
             var form = new Form1();
