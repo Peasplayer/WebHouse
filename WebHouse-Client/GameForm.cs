@@ -184,7 +184,7 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
                 
-                NetworkManager.Instance.Rpc.RequestChapterCard();
+                NetworkManager.Rpc.RequestChapterCard();
                 
                 RenderBoard();
             };
@@ -206,7 +206,7 @@ public partial class GameForm : Form
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
                     return;
 
-                NetworkManager.Instance.Rpc.RequestEscapeCard();
+                NetworkManager.Rpc.RequestEscapeCard();
                 RenderBoard();
             };
             drawEscapeCardButton.BackColor = Color.Transparent;
@@ -295,13 +295,13 @@ public partial class GameForm : Form
         playerMoveButton.Text = "Move Player";
         playerMoveButton.Size = new Size(100, 50);
         playerMoveButton.Location = new Point(10, 10);
-        playerMoveButton.Click += (_, _) => GameLogic.MovePlayer(1);
+        playerMoveButton.Click += (_, _) => NetworkManager.Rpc.MovePlayer(1);
         Controls.Add(playerMoveButton);
 
         opponentMoveButton.Text = "Move Opponent";
         opponentMoveButton.Size = new Size(100, 50);
         opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) => GameLogic.MoveOpponent(1);
+        opponentMoveButton.Click += (_, _) => NetworkManager.Rpc.MoveOpponent(1);
         Controls.Add(opponentMoveButton);
     }
 

@@ -46,7 +46,7 @@ public class ChapterCard : IComponentCard
                 //Überprüft ob die EscapeCard an die ChapterCard angelegt werden darf
                 if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
                 {
-                    NetworkManager.Instance.Rpc.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Pile.Index);
+                    NetworkManager.Rpc.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Pile.Index);
                 }
                 else
                 {

@@ -29,7 +29,7 @@ public class GameLogic
         new Room(Room.RoomName.SafeHouse),
     };
 
-    private static void StartOpponent()
+    private static void StartOpponentTimer()
     {
         Task.Run(() =>
         {
@@ -37,8 +37,9 @@ public class GameLogic
                 .GetManifestResourceStream("WebHouse_Client.Resources.Sounds.Musik.wav"));
             sound.Load();
             sound.PlaySync();
-            _gameForm.BeginInvoke(() => MoveOpponent(1));
-            StartOpponent();
+            if (NetworkManager.Instance.LocalPlayer.IsHost)
+                NetworkManager.Rpc.MoveOpponent(1);
+            StartOpponentTimer();
         });
     }
 
@@ -49,7 +50,7 @@ public class GameLogic
         
         CreateEscapeCardList();
         
-        StartOpponent();
+        StartOpponentTimer();
     }
 
     public static void Stop()
@@ -59,32 +60,38 @@ public class GameLogic
 
     public static void MovePlayer(int steps)
     {
-        PlayerPosition += steps;
-        // TODO: Check if field is opponent field
-        if (PlayerPosition >= CurrentRoom.Steps)
+        _gameForm.BeginInvoke(() =>
         {
-            PlayerPosition = 0;
-            SwitchRoom();
-        }
+            PlayerPosition += steps;
+            // TODO: Check if field is opponent field
+            if (PlayerPosition >= CurrentRoom.Steps)
+            {
+                PlayerPosition = 0;
+                SwitchRoom();
+            }
         
-        if (CurrentRoom.OpponentMoveTriggerFields.Contains(PlayerPosition))
-        {
-            MoveOpponent(1);
-        }
+            if (CurrentRoom.OpponentMoveTriggerFields.Contains(PlayerPosition) && NetworkManager.Instance.LocalPlayer.IsHost)
+            {
+                NetworkManager.Rpc.MoveOpponent(1);
+            }
         
-        _gameForm.UpdatePositions();
+            _gameForm.UpdatePositions();
+        });
     }
 
     public static void MoveOpponent(int steps)
     {
-        OpponentPosition += steps;
-        if (OpponentPosition >= PlayerPosition)
+        _gameForm.BeginInvoke(() =>
         {
-            Stop();
-            return;
-        }
+            OpponentPosition += steps;
+            if (OpponentPosition >= PlayerPosition)
+            {
+                Stop();
+                return;
+            }
         
-        _gameForm.UpdatePositions();
+            _gameForm.UpdatePositions();
+        });
     }
 
     public static void SwitchRoom()
@@ -105,11 +112,7 @@ public class GameLogic
 
         for (int i = 0; i < cardsToRemove.Count; i++)
         {
-            var card = CurrentChapterCards.First();
-            CurrentChapterCards.Remove(card);
-            Inventory.Add(card);
-            card.CreateComponent();
-            _gameForm.Controls.Add(card.Component.Panel);
+            NetworkManager.Rpc.RequestChapterCard();
         }
 
         //Spieler startet immer an StartField des neuen Raumes
@@ -238,7 +241,7 @@ public class GameLogic
                 escapeCard.Component.Panel.Location = _gameForm.drawEscapeCardButton.Location;
                 escapeCard.Component.Panel.Size = _gameForm.drawEscapeCardButton.Size;
                 _gameForm.Controls.Add(escapeCard.Component?.Panel);
-                MoveOpponent((escapeCard.Type == EscapeCard.EscapeCardType.OpponentSteps ? 0 : PlacedChapterCards.Count) + escapeCard.Number);
+                NetworkManager.Rpc.MoveOpponent((escapeCard.Type == EscapeCard.EscapeCardType.OpponentSteps ? 0 : PlacedChapterCards.Count) + escapeCard.Number);
                 _gameForm.RenderBoard();
                 _gameForm.BeginInvoke(() =>
                 {
@@ -257,7 +260,7 @@ public class GameLogic
                         Task.Delay(1000).Wait();
                         _blockDrawingEscapeCard = false;
                         //DrawEscapeCard();
-                        NetworkManager.Instance.Rpc.RequestEscapeCard();
+                        NetworkManager.Rpc.RequestEscapeCard();
                         _gameForm.RenderBoard();
                     });
                 });

@@ -32,7 +32,7 @@ public class DiscardPile
             return;
         }
         
-        NetworkManager.Instance.Rpc.PlaceChapterCard(selectedChapterCard.Card, Index);
+        NetworkManager.Rpc.PlaceChapterCard(selectedChapterCard.Card, Index);
 
         //Karte wird abgewählt
         selectedChapterCard.CardComponent.SetHighlighted(false);
