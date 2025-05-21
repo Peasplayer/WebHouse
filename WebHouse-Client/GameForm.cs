@@ -24,6 +24,7 @@ public partial class GameForm : Form
     private PictureBox? discardPile;
     public List<ChapterCardPile> discardPiles = new List<ChapterCardPile>();
     private Panel? infoPanel;
+    private Label? timerLabel;
     
     private Rectangle boardContainer;
     private int widthUnit;
@@ -34,8 +35,8 @@ public partial class GameForm : Form
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Wood.jpg"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
-        
-        InitializeComponent(); 
+        TimerLablelInfo(); //Erstellt das Label für den Timer
+        InitializeComponent();
         AddTempButtons();
         
         //this.FormBorderStyle = FormBorderStyle.None; //kein Rand
@@ -248,6 +249,25 @@ public partial class GameForm : Form
             Controls.Add(infoPanel);
         }
         
+        if (NetworkManager.Instance != null)
+        {
+            int playerY = 50;
+            foreach (var player in NetworkManager.Instance.Players)
+            {
+                Label lbl = new Label();
+                lbl.Text = $"{(player.IsHost ? "[Host] " : "")}{player.Name}";
+                lbl.ForeColor = player.IsTurn ? Color.Green : Color.Blue;
+                lbl.BackColor = Color.Transparent;
+                lbl.Location = new Point(10, playerY);
+                lbl.AutoSize = true;
+                lbl.Font = player.IsTurn 
+                    ? new Font("Arial", 14, FontStyle.Bold) 
+                    : new Font("Arial", 14, FontStyle.Regular);
+                infoPanel.Controls.Add(lbl);
+                playerY += 25;
+            }
+        }
+        
         if (discardPiles.Count == 0)
         {
             for (int i = 0; i < 9; i++)
@@ -298,6 +318,45 @@ public partial class GameForm : Form
         }
     }
     
+    public void TimerLablelInfo()
+    {
+        var ratioSize = new SizeF(ClientSize.Width, ClientSize.Height);
+        if (timerLabel == null)
+        {
+            //Erstell ein Lable für den Timer das in der InfoBox angezeigt wird
+            timerLabel = new Label()
+            {
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                ForeColor = Color.White,
+                UseCompatibleTextRendering = true,
+                Font = new Font(Program.Font, Math.Max(12, (int)(ratioSize.Height * 0.15)), FontStyle.Bold, GraphicsUnit.Pixel)            };
+            if (infoPanel == null)
+            {
+                infoPanel = new BufferPanel();
+                infoPanel.BorderStyle = BorderStyle.FixedSingle;
+                infoPanel.BackColor = Color.FromArgb(100, Color.DimGray);
+                Controls.Add(infoPanel);
+            }
+            infoPanel.Controls.Add(timerLabel); 
+            timerLabel.BringToFront();
+        }
+        UpdateTimerLabel(GameLogic.PlayTime);
+    }
+
+    public void UpdateTimerLabel(int playTime)
+    {
+        if (playTime > 0)
+        {
+            timerLabel.Text = $"Noch {playTime} Minuten bis der Verfolger euch eingeholt hat!";
+            timerLabel.ForeColor = Color.Red;
+        }
+        else
+        {
+            timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird
+        }
+    }
+    
     private void AddTempButtons()
     {
         playerMoveButton.Text = "Move Player";
@@ -327,7 +386,7 @@ public partial class GameForm : Form
         
         throw new ArgumentException("Either pixels or percentage must be provided.");
     }
-
+    
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
     {
         { Room.RoomName.HotelZimmer, new ()
