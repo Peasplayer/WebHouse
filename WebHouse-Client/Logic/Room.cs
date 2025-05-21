@@ -101,7 +101,7 @@ public class Room
         RoomName.Hafen => new List<int> { 9, 10, 11 },
         RoomName.Stadt => new List<int> { 9, 11, 13 },
         RoomName.Wald => new List<int> { 13 },
-        RoomName.SafeHouse => new List<int> { 9, 19 },
+        RoomName.SafeHouse => new List<int> { 24, 25 },
         _ => new List<int>()
     };
     
@@ -111,9 +111,7 @@ public class Room
         RoomName.Hafen => 8,
         RoomName.Stadt => 7,
         RoomName.Wald => 6,
-        RoomName.SafeHouse => 0,
+        RoomName.SafeHouse => 17,
         _ => 0
     };
-
-
 }
