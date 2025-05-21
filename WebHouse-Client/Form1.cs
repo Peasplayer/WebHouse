@@ -88,7 +88,11 @@ public partial class Form1 : Form
 
             this.BeginInvoke(() =>
             {
+                if (!net.Client.IsRunning)
+                    return;
+                
                 Lobby lobby = new Lobby();
+                Lobby.Instance = lobby;
                 lobby.Location = this.Location;
                 lobby.Show();
                 this.Hide();

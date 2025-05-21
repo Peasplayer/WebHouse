@@ -30,6 +30,9 @@ public partial class GameForm : Form
     private int widthUnit;
     private int heightUnit;
     
+    private bool isFullScreen = false;
+    private Rectangle previousBounds;   
+    
     public GameForm()
     {
         this.DoubleBuffered = true;
@@ -386,6 +389,32 @@ public partial class GameForm : Form
         
         throw new ArgumentException("Either pixels or percentage must be provided.");
     }
+
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        if (keyData == Keys.F11)
+        {
+            if (!isFullScreen)
+            {
+                previousBounds = Bounds;
+                FormBorderStyle = FormBorderStyle.None;
+                WindowState = FormWindowState.Maximized;
+            }
+            else
+            {
+                FormBorderStyle = FormBorderStyle.Sizable;
+                WindowState = FormWindowState.Normal;
+                Bounds = previousBounds;
+            }
+
+            isFullScreen = !isFullScreen;
+            return true;
+        }
+
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
+
+
     
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
     {
@@ -482,18 +511,6 @@ public partial class GameForm : Form
         } },
         { Room.RoomName.SafeHouse, new ()
         {
-            new (110, 765),
-            new (245, 805),
-            new (385, 825),
-            new (520, 855),
-            new (665, 905),
-            new (795, 880),
-            new (1040, 880),
-            new (1160, 875),
-            new (1280, 835),
-            new (1395, 755),
-            new (1360, 645),
-            new (1365, 510),
             new (20, 25),
             new (130, 40),
             new (160, 140),
@@ -511,6 +528,18 @@ public partial class GameForm : Form
             new (1390, 270),
             new (1360, 370),
             new (1360, 500),
+            new (110, 765),
+            new (245, 805),
+            new (385, 825),
+            new (520, 855),
+            new (665, 905),
+            new (795, 880),
+            new (1040, 880),
+            new (1160, 875),
+            new (1280, 835),
+            new (1395, 755),
+            new (1360, 645),
+            new (1365, 510),
         } },
     };
 }

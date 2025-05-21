@@ -29,14 +29,17 @@ public class NetworkManager
                 FleckLog.Error(string.Format("Error with {0}: {1}", clientConnection.ConnectionInfo.Id, error.Message));
                 OnDisconnect(clientConnection);
             };
+
             clientConnection.OnOpen = () =>
             {
                 OnConnect(clientConnection);
             };
+
             clientConnection.OnClose = () =>
             {
                 OnDisconnect(clientConnection);
             };
+
             clientConnection.OnMessage = message =>
             {
                 OnMessage(clientConnection, message);
@@ -47,6 +50,12 @@ public class NetworkManager
     // Connection-Listener
     private void OnConnect(IWebSocketConnection connection)
     {
+        if (Clients.Count >= 4)
+        {
+            connection.Send(JsonConvert.SerializeObject(new Packet("Server ist voll!", PacketDataType.Disconnect, "server", connection.ConnectionInfo.Id.ToString())));
+            return;
+        }
+
         FleckLog.Info("Connect: " + connection.ConnectionInfo.Id);
         Clients.Add(connection.ConnectionInfo.Id.ToString(), new ClientData(connection, isHost: Clients.Count == 0));
     }
@@ -54,8 +63,10 @@ public class NetworkManager
     // Disconnection-Listener
     private void OnDisconnect(IWebSocketConnection connection)
     {
-        var client = Clients[connection.ConnectionInfo.Id.ToString()];
-        FleckLog.Info("Disconnect: " + client.Id);
+        FleckLog.Info("Disconnect: " + connection.ConnectionInfo.Id);
+        if (!Clients.TryGetValue(connection.ConnectionInfo.Id.ToString(), out var client))
+            return;
+        
         Clients.Remove(client.Id);
         if (client.IsHost && Clients.Count > 0)
         {

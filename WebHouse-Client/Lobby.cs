@@ -6,7 +6,7 @@ namespace WebHouse_Client;
 
 public partial class Lobby : Form
 {
-    public static Lobby? Instance { get; private set; }
+    public static Lobby? Instance { get; set; }
     
     private List<Label> _playerList = new ();
     
@@ -28,7 +28,9 @@ public partial class Lobby : Form
         this.FormClosing += (s, e) =>
         {
             NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
-            Application.Exit();
+            
+            var form = new Form1();
+            form.Show();
         };
         
         Startbtn.Size = new Size(this.ClientSize.Width / 3, this.ClientSize.Height / 8); //proportionale Größe

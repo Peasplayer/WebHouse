@@ -88,6 +88,28 @@ public class NetworkManager
                 Console.WriteLine($"Successful handshake: {this.Name} ({this.Id})");
                 break;
             }
+            case PacketDataType.Disconnect:
+            {
+                Client.Stop(WebSocketCloseStatus.NormalClosure, "Server requested closure");
+
+                MessageBox.Show("Die Verbindung wurde geschlossen!\nGrund: " + packet.Data, "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                Task.Run(() =>
+                {
+                    Task.Delay(1000).Wait();
+                    if (Lobby.Instance != null)
+                    {
+                        Lobby.Instance.BeginInvoke(() =>
+                        {
+                            Lobby.Instance.Close();
+                            Lobby.Instance = null;
+                            var form = new Form1();
+                            form.Show();
+                        });
+                    }
+                });
+                break;
+            }
             case PacketDataType.SyncLobby:
             {
                 var syncLobby = JsonConvert.DeserializeObject<SyncLobbyPacket>(packet.Data);
@@ -110,7 +132,8 @@ public class NetworkManager
                 {
                     GameForm gameForm = new GameForm();
                     gameForm.Show();
-                    Lobby.Instance.Hide();
+                    Lobby.Instance.Close();
+                    Lobby.Instance = null;
                 });
                 break;
             }
