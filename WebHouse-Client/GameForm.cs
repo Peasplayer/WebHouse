@@ -19,9 +19,9 @@ public partial class GameForm : Form
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
     private Panel? drawPile1;
-    private Button? drawChapterCardButton;
-    private Button? drawEscapeCardButton;
-    private Panel? drawPile4;
+    private PictureBox? drawChapterCardButton;
+    public PictureBox? drawEscapeCardButton;
+    private PictureBox? drawPile4;
     private List<DiscardPile> discardPiles = new List<DiscardPile>();
     private Panel? infoPanel;
     
@@ -178,8 +178,7 @@ public partial class GameForm : Form
         
         if (drawChapterCardButton == null)
         {
-            drawChapterCardButton = new Button();
-            drawChapterCardButton.Text = "ChapterCard";
+            drawChapterCardButton = new BufferPictureBox();
             drawChapterCardButton.MouseClick += (_, args) =>
             {
                 if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
@@ -195,7 +194,10 @@ public partial class GameForm : Form
                 
                 RenderBoard();
             };
-            drawChapterCardButton.BackColor = Color.LightGoldenrodYellow;
+            drawChapterCardButton.BackColor = Color.Transparent;
+            drawChapterCardButton.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DrawChapterCard.png"));
+            drawChapterCardButton.SizeMode = PictureBoxSizeMode.StretchImage;
             Controls.Add(drawChapterCardButton);
         }
 
@@ -204,24 +206,19 @@ public partial class GameForm : Form
         
         if (drawEscapeCardButton == null)
         {
-            drawEscapeCardButton = new Button();
-            drawEscapeCardButton.Text = "EscapeCard";
+            drawEscapeCardButton = new BufferPictureBox();
             drawEscapeCardButton.MouseClick += (_, args) =>
             {
-                if (args.Button != MouseButtons.Left || GameLogic.Inventory.Count >= 5)
+                if (args.Button != MouseButtons.Left)
                     return;
-                
-                var escapeCard = GameLogic.CurrentEscapeCards[0];
-                GameLogic.Inventory.Add(escapeCard);
-                GameLogic.CurrentEscapeCards.Remove(escapeCard);
-                
-                escapeCard.CreateComponent();
-                Controls.Add(escapeCard.Component?.Panel);
-                escapeCard.Component?.Panel.BringToFront();
-                
+
+                GameLogic.DrawEscapeCard();
                 RenderBoard();
             };
-            drawEscapeCardButton.BackColor = Color.LightGoldenrodYellow;
+            drawEscapeCardButton.BackColor = Color.Transparent;
+            drawEscapeCardButton.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DrawEscapeCard.png"));
+            drawEscapeCardButton.SizeMode = PictureBoxSizeMode.StretchImage;
             Controls.Add(drawEscapeCardButton);
         }
 
@@ -230,8 +227,11 @@ public partial class GameForm : Form
         
         if (drawPile4 == null)
         {
-            drawPile4 = new BufferPanel();
-            drawPile4.BackColor = Color.LightGoldenrodYellow;
+            drawPile4 = new BufferPictureBox();
+            drawPile4.BackColor = Color.Transparent;
+            drawPile4.Image = Image.FromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.DiscardPileWithText.png"));
+            drawPile4.SizeMode = PictureBoxSizeMode.StretchImage;
             Controls.Add(drawPile4);
         }
 

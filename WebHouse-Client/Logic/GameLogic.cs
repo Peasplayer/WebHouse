@@ -122,8 +122,27 @@ public class GameLogic
         _gameForm.UpdatePositions();
     }
 
-    public static void CreateEscapeCardList()
+    private static void CreateEscapeCardList()
     {
+        var opponentCards = new List<EscapeCard>
+        {
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 3),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 3),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 0),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 1),
+            new EscapeCard(EscapeCard.EscapeCardType.OpponentCards, 1)
+        }.OrderBy(x => Random.Shared.Next()).ToList();
+        
         var list = new List<EscapeCard>();
         for (int j = 0; j < 5; j++)
         {
@@ -131,12 +150,11 @@ public class GameLogic
             {
                 var escapeCard = new EscapeCard(i +1, ((i + j) % 5) switch
                 {
-                    0 => "Hotel",
-                    1 => "Hafen",
-                    2 => "Stadt",
-                    3 => "Wald",
-                    4 => "SafeHouse",
-                    _ => "Hotel"
+                    0 => Room.RoomName.HotelZimmer,
+                    1 => Room.RoomName.Hafen,
+                    2 => Room.RoomName.Stadt,
+                    3 => Room.RoomName.Wald,
+                    4 => Room.RoomName.SafeHouse
                 }, j switch
                 {
                     0 => CardColor.Red,
@@ -150,7 +168,17 @@ public class GameLogic
             }
         }
         
-        CurrentEscapeCards = list.OrderBy(x => Random.Shared.Next()).ToList();
+        list = list.OrderBy(x => Random.Shared.Next()).ToList();
+
+        for (int i = 0; i < 10; i++)
+        {
+            var pos = Random.Shared.Next(15);
+            var card = opponentCards[0];
+            opponentCards.Remove(card);
+            list.Insert((i / 2) * 15 + i + pos, card);
+        }
+
+        CurrentEscapeCards = opponentCards;//list;
     }
 
     public static void PlaceChapterCard(ChapterCard card)
@@ -168,5 +196,59 @@ public class GameLogic
         card.Component.Panel.Dispose();
         chapterCard.Component.Panel.Invalidate();
         _gameForm.RenderBoard();
+    }
+
+    private static bool _blockDrawingEscapeCard = false;
+    
+    public static void DrawEscapeCard()
+    {
+        if (_blockDrawingEscapeCard)
+            return;
+        
+        if (Inventory.Count >= 5)
+            return;
+        
+        var escapeCard = CurrentEscapeCards[0];
+        if (escapeCard.Type == EscapeCard.EscapeCardType.Normal)
+        {
+            Inventory.Add(escapeCard);
+            CurrentEscapeCards.Remove(escapeCard);
+                
+            escapeCard.CreateComponent();
+            _gameForm.Controls.Add(escapeCard.Component?.Panel);
+            escapeCard.Component?.Panel.BringToFront();
+        }
+        else {
+            CurrentEscapeCards.Remove(escapeCard);
+            CurrentEscapeCards.Add(escapeCard);
+            _blockDrawingEscapeCard = true;
+            
+            escapeCard.CreateComponent();
+            escapeCard.Component.Panel.Location = _gameForm.drawEscapeCardButton.Location;
+            escapeCard.Component.Panel.Size = _gameForm.drawEscapeCardButton.Size;
+            _gameForm.Controls.Add(escapeCard.Component?.Panel);
+            MoveOpponent((escapeCard.Type == EscapeCard.EscapeCardType.OpponentSteps ? 0 : PlacedChapterCards.Count) + escapeCard.Number);
+            _gameForm.RenderBoard();
+            _gameForm.BeginInvoke(() =>
+            {
+                escapeCard.Component.Panel.BringToFront();
+            });
+
+            Task.Run(() =>
+            {
+                Task.Delay(2000).Wait();
+                _gameForm.BeginInvoke(() =>
+                {
+                    escapeCard.Component?.Panel.Dispose();
+                    _gameForm.RenderBoard();
+                    _gameForm.Invalidate(new Rectangle(escapeCard.Component.Panel.Location, escapeCard.Component.Panel.Size), true);
+                    
+                    Task.Delay(1000).Wait();
+                    _blockDrawingEscapeCard = false;
+                    DrawEscapeCard();
+                    _gameForm.RenderBoard();
+                });
+            });
+        }
     }
 }
