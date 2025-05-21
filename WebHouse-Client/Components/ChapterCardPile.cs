@@ -1,13 +1,16 @@
-﻿using WebHouse_Client.Logic;
+﻿using WebHouse_Client.Networking;
 
 namespace WebHouse_Client.Components;
 
 public class ChapterCardPile
 {
     public Panel Panel;
+    public int Index;
     
-    public ChapterCardPile()
+    public ChapterCardPile(int index)
     {
+        Index = index;
+        
         Panel = new BufferPanel
         {
             BackColor = Color.FromArgb(15, Color.Gray),
@@ -24,23 +27,17 @@ public class ChapterCardPile
     private void OnClick()
     {
         var selectedChapterCard = ChapterCard.SelectedChapterCard;
-        if (selectedChapterCard == null || selectedChapterCard.Pile != null)
+        if (selectedChapterCard == null)
         {
             return;
         }
-
-        Panel.Enabled = false;
-        Panel.Visible = false;
-        selectedChapterCard.Panel.Location = Panel.Location;
-        selectedChapterCard.Panel.Size = Panel.Size;
-        selectedChapterCard.Panel.BringToFront();
-        selectedChapterCard.Pile = this;
         
-        GameLogic.PlaceChapterCard(selectedChapterCard.Card);
+        NetworkManager.Rpc.PlaceChapterCard(selectedChapterCard.Card, Index);
 
         //Karte wird abgewählt
         selectedChapterCard.CardComponent.SetHighlighted(false);
         ChapterCard.SelectedChapterCard = null;
     }
+
 }
     
