@@ -11,6 +11,7 @@ public class NetworkManager
     
     public WebSocketServer Server { get; private set; }
     public Dictionary<string, ClientData> Clients { get; }
+    public bool GameIsStarted;
 
     public NetworkManager()
     {
@@ -68,6 +69,14 @@ public class NetworkManager
             return;
         
         Clients.Remove(client.Id);
+
+        if (GameIsStarted)
+        {
+            GameIsStarted = false;
+            
+            this.SendPacket(new Packet("Das Spiel wurde geschlossen, da ein Spieler den Server verlassen hat!", PacketDataType.Disconnect, "server", "all"));
+        }
+        
         if (client.IsHost && Clients.Count > 0)
         {
             Clients.First().Value.IsHost = true;
@@ -123,6 +132,13 @@ public class NetworkManager
                 
                 this.SendPacket(new Packet(new SyncLobbyPacket(Clients.Values.ToList().ConvertAll(c => 
                     new SyncLobbyPacket.Player(){Id = c.Id, Name = c.Name, IsHost = c.IsHost})), PacketDataType.SyncLobby, "server", "all"));;
+                break;
+            }
+            case PacketDataType.StartGame:
+            {
+                FleckLog.Info("Game has started");
+                GameIsStarted = true;
+                SendPacket(packet);
                 break;
             }
             default:

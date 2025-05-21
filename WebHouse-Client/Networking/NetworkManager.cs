@@ -107,6 +107,12 @@ public class NetworkManager
                             form.Show();
                         });
                     }
+
+                    if (GameForm.Instance != null)
+                    {
+                        Application.Restart();
+                        Environment.Exit(0);
+                    }
                 });
                 break;
             }
