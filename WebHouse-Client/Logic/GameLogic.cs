@@ -14,7 +14,7 @@ public class GameLogic
     
     public static int PlayerPosition = 9;
     public static int OpponentPosition = 0;
-    public static int playTime { get; set; }= 30;
+    public static int PlayTime = 30;
     public static List<ILogicCard> Inventory = new ();
     public static List<ChapterCard> CurrentChapterCards = new ();
     public static List<ChapterCard> PlacedChapterCards = new ();
@@ -56,12 +56,8 @@ public class GameLogic
     }
 
     public static void Stop()
-    { 
-        //Überorüft ob das gameForm noch existiert. Wenn dies der Fall ist wir eine neue FOrm aufgrefen umm den Spielern zu zeigen das sie verloren haben
-        if (_gameForm != null && !_gameForm.IsDisposed)
-        {
-            _gameForm.Close();
-        }
+    {
+        // TODO: Game over
     }
 
     public static void MovePlayer(int steps)
@@ -175,17 +171,16 @@ public class GameLogic
         chapterCard.Component.Panel.Invalidate();
         _gameForm.RenderBoard();
     }
-    
 
     //Verringert den Timer um 2 Minuten
     public static void LowerTimer()
     {
-        if (playTime > 0)
+        if (PlayTime > 0)
         {
-            playTime -= 2;
-            _gameForm.UpdateTimerLabel(playTime);
+            PlayTime -= 2;
+            _gameForm.UpdateTimerLabel(PlayTime);
         }
-        if(playTime <= 0)
+        else
         {
             Stop();
         }

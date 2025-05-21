@@ -24,7 +24,7 @@ public partial class GameForm : Form
     private Panel? drawPile4;
     private List<DiscardPile> discardPiles = new List<DiscardPile>();
     private Panel? infoPanel;
-    private Label timerLabel;
+    private Label? timerLabel;
     
     private Rectangle boardContainer;
     private int widthUnit;
@@ -239,7 +239,6 @@ public partial class GameForm : Form
         drawPile4.Size = new Size(widthUnit * 2, heightUnit * 3);
         drawPile4.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
         
-      
         if (infoPanel == null)
         {
             infoPanel = new BufferPanel();
@@ -248,8 +247,6 @@ public partial class GameForm : Form
             Controls.Add(infoPanel);
         }
         
-        //infoPanel.Controls.Clear(); //vorherige Einträge löschen
-
         if (NetworkManager.Instance != null)
         {
             int playerY = 50;
@@ -330,8 +327,8 @@ public partial class GameForm : Form
                 AutoSize = true,
                 BackColor = Color.Transparent,
                 ForeColor = Color.White,
-                //Font = new Font("Arial", 16, FontStyle.Bold),
-                Font = new Font("Arial", Math.Max(12, (int)(ratioSize.Height * 0.07)), FontStyle.Bold, GraphicsUnit.Pixel)            };
+                UseCompatibleTextRendering = true,
+                Font = new Font(Program.Font, Math.Max(12, (int)(ratioSize.Height * 0.15)), FontStyle.Bold, GraphicsUnit.Pixel)            };
             if (infoPanel == null)
             {
                 infoPanel = new BufferPanel();
@@ -342,7 +339,7 @@ public partial class GameForm : Form
             infoPanel.Controls.Add(timerLabel); 
             timerLabel.BringToFront();
         }
-        UpdateTimerLabel(GameLogic.playTime);
+        UpdateTimerLabel(GameLogic.PlayTime);
     }
 
     public void UpdateTimerLabel(int playTime)
@@ -391,9 +388,7 @@ public partial class GameForm : Form
         
         throw new ArgumentException("Either pixels or percentage must be provided.");
     }
-
-
-   
+    
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
     {
         { Room.RoomName.HotelZimmer, new ()
