@@ -57,6 +57,7 @@ public class GameLogic
 
     public static void Stop()
     { 
+        //Überorüft ob das gameForm noch existiert. Wenn dies der Fall ist wir eine neue FOrm aufgrefen umm den Spielern zu zeigen das sie verloren haben
         if (_gameForm != null && !_gameForm.IsDisposed)
         {
             _gameForm.Close();
