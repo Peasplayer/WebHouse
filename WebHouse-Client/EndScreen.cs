@@ -5,9 +5,8 @@ using WebHouse_Client.Logic;
 
 public partial class EndScreen : Form
 {
-    static public new Boolean WinOrLose = true;
-    private PictureBox? HomeScreen;
-    public PictureBox? LobbyScreen;
+    static public new Boolean WinOrLose;
+    private PictureBox? Close;
 
 
     public EndScreen()
@@ -39,63 +38,26 @@ public partial class EndScreen : Form
 
     private void SetupUI()
     {
-        HomeScreen = new PictureBox()
+        Close = new PictureBox()
         {
             BackColor = Color.Transparent,
             Location = new Point((int)(ClientSize.Width / 1920f * 200f), (int)(ClientSize.Height / 1080f * 1800f)),
         };
-        HomeScreen.Width = (int)(ClientSize.Width / 1920f * 700);
-        HomeScreen.Height = HomeScreen.Width / 23 * 10;
-        HomeScreen.Image = Image.FromStream(
+        Close.Width = (int)(ClientSize.Width / 1920f * 700);
+        Close.Height = Close.Width / 23 * 10;
+        Close.Image = Image.FromStream(
             Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("WebHouse_Client.Resources.Images.Zurück.png")); //bild noch ändern
-        HomeScreen.SizeMode = PictureBoxSizeMode.StretchImage;
-        HomeScreen.BringToFront();
+                .GetManifestResourceStream("WebHouse_Client.Resources.Images.ExitBtn.png"));
+        Close.SizeMode = PictureBoxSizeMode.StretchImage;
+        Close.BringToFront();
 
-        HomeScreen.Click += HomeButton_Click;
-        this.Controls.Add(HomeScreen);
-
-
-        LobbyScreen = new PictureBox()
-        {
-            BackColor = Color.Transparent,
-            Location = new Point((int)(ClientSize.Width / 1920f * 5500f), (int)(ClientSize.Height / 1080f * 1800f)),
-        };
-        LobbyScreen.Width = (int)(ClientSize.Width / 1920f * 700f);
-        LobbyScreen.Height = LobbyScreen.Width / 23 * 10;
-        LobbyScreen.Image = Image.FromStream(
-            Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("WebHouse_Client.Resources.Images.Zurück.png")); //bild noch ändern
-        LobbyScreen.SizeMode = PictureBoxSizeMode.StretchImage;
-        LobbyScreen.BringToFront();
-
-        LobbyScreen.Click += LobbyButton_Click;
-        this.Controls.Add(LobbyScreen);
+        Close.Click += Closebtn_Click;
+        this.Controls.Add(Close);
     }
 
-    private void HomeButton_Click(object sender, EventArgs e)
+    private void Closebtn_Click(object sender, EventArgs e)
     {
-        var form = new Form1();
-        form.Show();
-        this.Close();
-        return;
-    }
-
-    private void LobbyButton_Click(object sender, EventArgs e)
-    {
-
-        var net = new NetworkManager();
-        try
-        {
-            net.Connect(NetworkManager.currentUrl, NetworkManager.nickName);
-
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show("Fehler beim Verbinden: " + ex.Message);
-        }
-        var form = new Lobby();
-        form.Show();
-        this.Close();
+        Application.Restart();
+        Environment.Exit(0);
     }
 }

@@ -3,6 +3,9 @@ using System.Media;
 using System.Reflection;
 using WebHouse_Client.Components;
 using Timer = System.Timers.Timer;
+using WebHouse_Client.Networking;
+using System.Net.WebSockets;
+
 
 namespace WebHouse_Client.Logic;
 
@@ -55,7 +58,13 @@ public class GameLogic
 
     public static void Stop()
     {
-        // TODO: Game over
+        if (_gameForm != null && !_gameForm.IsDisposed)
+        {
+            NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
+            var form = new EndScreen();
+            form.Show();
+            _gameForm.Hide();
+        }
     }
 
     public static void MovePlayer(int steps)
@@ -81,6 +90,7 @@ public class GameLogic
         OpponentPosition += steps;
         if (OpponentPosition >= PlayerPosition)
         {
+            EndScreen.WinOrLose = false;
             Stop();
             return;
         }
