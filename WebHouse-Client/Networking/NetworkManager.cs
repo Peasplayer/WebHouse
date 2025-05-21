@@ -181,6 +181,21 @@ public class NetworkManager
                 }
                 break;
             }
+            case PacketDataType.DiscardEscapeCard:
+            {
+                var drawEscapeCard = JsonConvert.DeserializeObject<DrawEscapeCardPacket>(packet.Data);
+                if (drawEscapeCard == null)
+                {
+                    Console.WriteLine("Received malformed packet!");
+                    return;
+                }
+                
+                if (LocalPlayer.IsHost)
+                {
+                    GameLogic.CurrentEscapeCards.Add(new EscapeCard(drawEscapeCard.Type, drawEscapeCard.Number, drawEscapeCard.Room, drawEscapeCard.Color));
+                }
+                break;
+            }
             case PacketDataType.RequestChapterCard:
             {
                 if (!LocalPlayer.IsHost)
@@ -214,6 +229,20 @@ public class NetworkManager
         
                 var card = new ChapterCard(placeChapterCard.ChapterCard.Chapter, placeChapterCard.ChapterCard.Steps, placeChapterCard.ChapterCard.Requirements);
                 GameLogic.PlaceChapterCard(card, placeChapterCard.Pile);
+                break;
+            }
+            case PacketDataType.DiscardChapterCard:
+            {
+                var card = GameLogic.PlacedChapterCards.Find(c =>
+                    ((Components.ChapterCard)c.Component)?.Pile?.Index == Int32.Parse(packet.Data));
+
+                if (card != null)
+                {
+                    var component = (Components.ChapterCard)card.Component;
+                    component.Pile.Panel.Visible = true;
+                    component.Pile.Panel.Enabled = true;
+                    component.Panel.Dispose();
+                }
                 break;
             }
             case PacketDataType.MovePlayer:
@@ -285,6 +314,16 @@ public class NetworkManager
             card.Component?.Panel.Dispose();
             Instance.SendPacket(new Packet(new PlaceEscapeCardPacket(card.Number, card.Room, card.Color, pile), PacketDataType.PlaceEscapeCard, Instance.Id, "all"));
         }
+
+        public static void DiscardEscapeCard(EscapeCard card)
+        {
+            if (GameLogic.TurnState == 0)
+                GameLogic.SwitchTurnState();
+            
+            card.Component.Panel.Dispose();
+            GameLogic.Inventory.Remove(card);
+            Instance.SendPacket(new Packet(new DrawEscapeCardPacket(card.Type, card.Number, card.Room, card.Color), PacketDataType.DiscardEscapeCard, Instance.Id, "all"));
+        }
         
         public static void RequestChapterCard()
         {
@@ -307,6 +346,19 @@ public class NetworkManager
             card.Component.Panel.Dispose();
             GameLogic.Inventory.Remove(card);
             Instance.SendPacket(new Packet(new PlaceChapterCardPacket(new DrawChapterCardPacket(card.Chapter, card.Steps, card.Requirements), pile), PacketDataType.PlaceChapterCard, Instance.Id, "all"));
+        }
+
+        public static void DiscardChapterCard(ChapterCard card, int pile)
+        {
+            if (GameLogic.TurnState == 0)
+                GameLogic.SwitchTurnState();
+            
+            card.Component.Panel.Dispose();
+            Instance.SendPacket(new Packet(pile, PacketDataType.DiscardChapterCard, Instance.Id, "all"));
+            foreach (var cardPlacedCard in card.PlacedCards)
+            {
+                Instance.SendPacket(new Packet(new DrawEscapeCardPacket(cardPlacedCard.Type, cardPlacedCard.Number, cardPlacedCard.Room, cardPlacedCard.Color), PacketDataType.DiscardEscapeCard, Instance.Id, "all"));
+            }
         }
 
         public static void MovePlayer(int steps)

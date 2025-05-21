@@ -9,9 +9,11 @@ public enum PacketDataType : uint
     RequestEscapeCard,
     DrawEscapeCard,
     PlaceEscapeCard,
+    DiscardEscapeCard,
     RequestChapterCard,
     DrawChapterCard,
     PlaceChapterCard,
+    DiscardChapterCard,
     MovePlayer,
     MoveOpponent,
     SwitchTurn

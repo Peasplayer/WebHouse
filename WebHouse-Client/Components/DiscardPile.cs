@@ -24,13 +24,11 @@ public class DiscardPile
         {
             if (disposeChapterCard.Pile != null)
             {
-                disposeChapterCard.Pile.Panel.Enabled = true;
-                disposeChapterCard.Pile.Panel.Visible = true;
-                GameLogic.CurrentEscapeCards.AddRange(disposeChapterCard.Card.PlacedCards);
+                NetworkManager.Rpc.DiscardChapterCard(disposeChapterCard.Card, disposeChapterCard.Pile.Index);
             }
             
             GameLogic.Inventory.Remove(disposeChapterCard.Card);
-            disposeChapterCard.Panel.Dispose();
+            //disposeChapterCard.Panel.Dispose();
             
             disposeChapterCard.CardComponent.SetHighlighted(false);
             ChapterCard.SelectedChapterCard = null;
@@ -42,7 +40,7 @@ public class DiscardPile
         {
             GameLogic.Inventory.Remove(disposeEscapeCard.Card);
             disposeEscapeCard.Panel.Dispose();
-            GameLogic.CurrentEscapeCards.Add(disposeEscapeCard.Card);
+            NetworkManager.Rpc.DiscardEscapeCard(disposeEscapeCard.Card);
             
             disposeEscapeCard.CardComponent.SetHighlighted(false);
             EscapeCard.SelectedEscapeCard = null;
