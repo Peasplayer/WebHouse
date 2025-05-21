@@ -171,7 +171,7 @@ public class GameLogic
         }
         
         list = list.OrderBy(x => Random.Shared.Next()).ToList();
-
+        
         for (int i = 0; i < 10; i++)
         {
             var pos = Random.Shared.Next(15);

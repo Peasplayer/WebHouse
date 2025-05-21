@@ -9,7 +9,7 @@ public class ChapterCard : IComponentCard
     public static ChapterCard? SelectedChapterCard;
     
     public Card CardComponent { get; }
-    public DiscardPile? Pile { get; set; }
+    public ChapterCardPile? Pile { get; set; }
     public Panel Panel => CardComponent.Panel;
     public Logic.ChapterCard Card { get; }
 
@@ -60,9 +60,6 @@ public class ChapterCard : IComponentCard
             EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false); 
             EscapeCard.SelectedEscapeCard = null;
         }
-
-        if (Pile != null)
-            return;
         
         //Prüft ob die ChapterCard schon ausgewählt ist
         if (SelectedChapterCard == this)

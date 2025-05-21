@@ -1,42 +1,48 @@
-﻿using WebHouse_Client.Networking;
+using WebHouse_Client.Logic;
 
 namespace WebHouse_Client.Components;
 
 public class DiscardPile
 {
     public Panel Panel;
-    public int Index;
     
-    public DiscardPile(int index)
+    public DiscardPile()
     {
-        Index = index;
-        
-        Panel = new BufferPanel
-        {
-            BackColor = Color.FromArgb(15, Color.Gray),
-            BorderStyle = BorderStyle.FixedSingle,
-        };
-
-        Panel.MouseClick += (_, args) =>
-        {
-            if (args.Button == MouseButtons.Left)
-                OnClick();
-        };
+        Panel = new BufferPanel();
     }
-
-    private void OnClick()
+    
+    public static void Disposing()
     {
-        var selectedChapterCard = ChapterCard.SelectedChapterCard;
-        if (selectedChapterCard == null)
+        var disposeEscapeCard = EscapeCard.SelectedEscapeCard;
+        var disposeChapterCard = ChapterCard.SelectedChapterCard;
+        
+        if (disposeChapterCard != null)
         {
+            if (disposeChapterCard.Pile != null)
+            {
+                disposeChapterCard.Pile.Panel.Enabled = true;
+                disposeChapterCard.Pile.Panel.Visible = true;
+                GameLogic.CurrentEscapeCards.AddRange(disposeChapterCard.Card.PlacedCards);
+
+            }
+            
+            GameLogic.Inventory.Remove(disposeChapterCard.Card);
+            disposeChapterCard.Panel.Dispose();
+            
+            disposeChapterCard.CardComponent.SetHighlighted(false);
+            ChapterCard.SelectedChapterCard = null;
+            
             return;
         }
         
-        NetworkManager.Rpc.PlaceChapterCard(selectedChapterCard.Card, Index);
-
-        //Karte wird abgewählt
-        selectedChapterCard.CardComponent.SetHighlighted(false);
-        ChapterCard.SelectedChapterCard = null;
+        if (disposeEscapeCard != null)
+        {
+            GameLogic.Inventory.Remove(disposeEscapeCard.Card);
+            disposeEscapeCard.Panel.Dispose();
+            GameLogic.CurrentEscapeCards.Add(disposeEscapeCard.Card);
+            
+            disposeEscapeCard.CardComponent.SetHighlighted(false);
+            EscapeCard.SelectedEscapeCard = null;
+        }
     }
 }
-    
