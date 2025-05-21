@@ -1,6 +1,6 @@
 ﻿namespace WebHouse_Client;
 
-partial class Form1
+partial class Menu
 {
     /// <summary>
     ///  Required designer variable.

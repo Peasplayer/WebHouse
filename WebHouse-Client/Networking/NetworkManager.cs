@@ -103,7 +103,7 @@ public class NetworkManager
                         {
                             Lobby.Instance.Close();
                             Lobby.Instance = null;
-                            var form = new Form1();
+                            var form = new Menu();
                             form.Show();
                         });
                     }

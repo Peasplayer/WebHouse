@@ -33,7 +33,7 @@ public partial class Lobby : Form
             
             NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
             
-            var form = new Form1();
+            var form = new Menu();
             form.Show();
         };
         

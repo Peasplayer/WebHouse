@@ -3,9 +3,9 @@ using WebHouse_Client.Networking;
 
 namespace WebHouse_Client;
 
-public partial class Form1 : Form
+public partial class Menu : Form
 {
-    public Form1()
+    public Menu()
     {
         InitializeComponent();
         this.DoubleBuffered = true;
@@ -17,6 +17,11 @@ public partial class Form1 : Form
         this.MaximizeBox = false;
         this.MinimizeBox = false;
         this.StartPosition = FormStartPosition.CenterScreen;
+        this.Closing += (_, _) =>
+        {
+            var form = new StartScreen();
+            form.Show();
+        };
         
         Startbtn.Size = new Size(500 * ClientSize.Width / 1920, 125 * ClientSize.Height / 1080);
         Startbtn.Location = new Point((ClientSize.Width - Startbtn.Size.Width) / 2, 800 * ClientSize.Height / 1080);
@@ -25,12 +30,10 @@ public partial class Form1 : Form
         textBox1.Size = new Size(500 * ClientSize.Width / 1920, 125 * ClientSize.Height / 1080); //Höhe wird durch den Font überschrieben
         textBox1.Location = new Point(900 * ClientSize.Width / 1920, 194 * ClientSize.Height / 1080);
         textBox1.Font = new System.Drawing.Font("Segoe UI", 75F * ClientSize.Height / 1080, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-
         
         textBox2.Size = new Size(500 * ClientSize.Width / 1920, 125 * ClientSize.Height / 1080); //Höhe wird durch den Font überschrieben
         textBox2.Location = new Point(900 * ClientSize.Width / 1920, 347 * ClientSize.Height / 1080);
         textBox2.Font = new System.Drawing.Font("Segoe UI", 75F * ClientSize.Height / 1080, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-
     }
 
     private void Startbtn_Click(object sender, EventArgs e)

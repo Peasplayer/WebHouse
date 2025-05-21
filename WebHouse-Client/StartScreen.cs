@@ -19,13 +19,18 @@ public partial class StartScreen : Form
         this.MinimizeBox = false;
         this.StartPosition = FormStartPosition.CenterScreen;
         
+        this.Closing += (_, _) =>
+        {
+            Application.Exit();
+        };
+        
         Start.Size = new Size(300 * ClientSize.Width / 1920, 150 * ClientSize.Height / 1080);
         Start.Location = new Point((ClientSize.Width - Start.Size.Width) / 2, 600 * ClientSize.Height / 1080);
         Start.BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Startbtn.png"));
         Start.BackgroundImageLayout = ImageLayout.Stretch;
         Start.MouseClick += (_, _) =>
         {
-            var form = new Form1();
+            var form = new Menu();
             form.Show();
             this.Hide();
         };
