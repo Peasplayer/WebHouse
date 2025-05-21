@@ -321,6 +321,7 @@ public partial class GameForm : Form
     
     public void TimerLablelInfo()
     {
+        var ratioSize = new SizeF(ClientSize.Width, ClientSize.Height);
         if (timerLabel == null)
         {
             //Erstell ein Lable für den Timer das in der InfoBox angezeigt wird
@@ -329,8 +330,8 @@ public partial class GameForm : Form
                 AutoSize = true,
                 BackColor = Color.Transparent,
                 ForeColor = Color.White,
-                Font = new Font("Arial", 16, FontStyle.Bold),
-            };
+                //Font = new Font("Arial", 16, FontStyle.Bold),
+                Font = new Font("Arial", Math.Max(12, (int)(ratioSize.Height * 0.07)), FontStyle.Bold, GraphicsUnit.Pixel)            };
             if (infoPanel == null)
             {
                 infoPanel = new BufferPanel();
@@ -341,20 +342,19 @@ public partial class GameForm : Form
             infoPanel.Controls.Add(timerLabel); 
             timerLabel.BringToFront();
         }
-        UpdateTimerLabel();
+        UpdateTimerLabel(GameLogic.playTime);
     }
 
-    public  void UpdateTimerLabel()
+    public void UpdateTimerLabel(int playTime)
     {
-        //Wenn der Timer noch nicht null ist wird der Text geupdatet
-        if (GameLogic.playTime > 0)
+        if (playTime > 0)
         {
-            timerLabel.Text = $"Noch {GameLogic.playTime} Minuten bis der Verfolger euch hat!";
+            timerLabel.Text = $"Noch {playTime} Minuten bis der Verfolger euch eingeholt hat!";
             timerLabel.ForeColor = Color.Red;
         }
         else
         {
-            timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird angezeigt das man verloren hat
+            timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird
         }
     }
     
@@ -393,23 +393,7 @@ public partial class GameForm : Form
     }
 
 
-    public void UpdateTimerLabel(int playTime)
-    {
-        if (timerLabel == null)
-        {
-            timerLabel = new Label();
-        }
-
-        if (playTime > 0)
-        {
-            timerLabel.Text = $"Noch {playTime} Minuten bis der Verfolger euch eingeholt hat!";
-            timerLabel.ForeColor = Color.MediumVioletRed;
-        }
-        else
-        {
-            timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird
-        }
-    }
+   
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
     {
         { Room.RoomName.HotelZimmer, new ()

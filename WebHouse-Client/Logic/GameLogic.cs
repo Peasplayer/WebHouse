@@ -56,8 +56,11 @@ public class GameLogic
     }
 
     public static void Stop()
-    {
-        // TODO: Game over
+    { 
+        if (_gameForm != null && !_gameForm.IsDisposed)
+        {
+            _gameForm.Close();
+        }
     }
 
     public static void MovePlayer(int steps)
@@ -179,7 +182,11 @@ public class GameLogic
         if (playTime > 0)
         {
             playTime -= 2;
-            _gameForm.UpdateTimerLabel();
+            _gameForm.UpdateTimerLabel(playTime);
+        }
+        if(playTime <= 0)
+        {
+            Stop();
         }
     }
 }
