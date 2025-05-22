@@ -56,6 +56,12 @@ public class NetworkManager
             connection.Send(JsonConvert.SerializeObject(new Packet("Server ist voll!", PacketDataType.Disconnect, "server", connection.ConnectionInfo.Id.ToString())));
             return;
         }
+        
+        if (GameIsStarted)
+        {
+            connection.Send(JsonConvert.SerializeObject(new Packet("Das Spiel hat bereits gestartet!", PacketDataType.Disconnect, "server", connection.ConnectionInfo.Id.ToString())));
+            return;
+        }
 
         FleckLog.Info("Connect: " + connection.ConnectionInfo.Id);
         Clients.Add(connection.ConnectionInfo.Id.ToString(), new ClientData(connection, isHost: Clients.Count == 0));
