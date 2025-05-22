@@ -344,6 +344,9 @@ public class NetworkManager
 
         public static void DrawChapterCard(string id)
         {
+            if (GameLogic.CurrentChapterCards.Count == 0)
+                return;
+            
             var card = GameLogic.CurrentChapterCards.First();
             GameLogic.CurrentChapterCards.Remove(card);
 

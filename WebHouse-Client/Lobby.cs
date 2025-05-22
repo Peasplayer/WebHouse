@@ -71,7 +71,7 @@ public partial class Lobby : Form
             _playerList.Add(text);
         }
         
-        Startbtn.Visible = NetworkManager.Instance.LocalPlayer.IsHost && NetworkManager.Instance.Players.Count > 1;
+        Startbtn.Visible = NetworkManager.Instance.LocalPlayer == null ? false : NetworkManager.Instance.LocalPlayer.IsHost && NetworkManager.Instance.Players.Count > 1;
     }
 
     private void button1_Click(object sender, EventArgs e)
