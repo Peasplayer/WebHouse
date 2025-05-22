@@ -43,7 +43,6 @@ public partial class GameForm : Form
         this.DoubleBuffered = true;
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Wood.jpg"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
-        TimerLablelInfo(); //Erstellt das Label für den Timer
         
         //this.FormBorderStyle = FormBorderStyle.None; //kein Rand
         this.WindowState = FormWindowState.Maximized; //macht Vollbild
@@ -373,10 +372,6 @@ public partial class GameForm : Form
                 (point.Y - 50) * roomImage.Width / 1920
             );
         }
-    }
-    
-    public void TimerLablelInfo()
-    {
     }
 
     public void UpdateTimerLabel(int playTime)
