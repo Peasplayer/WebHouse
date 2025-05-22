@@ -4,7 +4,6 @@ using WebHouse_Client.Components;
 using WebHouse_Client.Logic;
 using WebHouse_Client.Networking;
 using ChapterCard = WebHouse_Client.Logic.ChapterCard;
-using EscapeCard = WebHouse_Client.Logic.EscapeCard;
 
 namespace WebHouse_Client;
 

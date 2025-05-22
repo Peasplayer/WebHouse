@@ -245,6 +245,12 @@ public class NetworkManager
                 }
                 break;
             }
+            case PacketDataType.SetChapterCardsEmpty:
+            {
+                GameLogic.ChapterCardsEmpty = true;
+                GameForm.Instance.drawChapterCardButton.Visible = false;
+                break;
+            }
             case PacketDataType.MovePlayer:
             {
                 var steps = JsonConvert.DeserializeObject<int?>(packet.Data);
@@ -376,6 +382,11 @@ public class NetworkManager
         {
             var nextPlayer = Instance.Players[(Instance.Players.FindIndex(p => p.IsTurn) + 1) % Instance.Players.Count];
             Instance.SendPacket(new Packet(id ?? nextPlayer.Id, PacketDataType.SwitchTurn, Instance.Id, "all"));
+        }
+        
+        public static void SetChapterCardsEmpty()
+        {
+            Instance.SendPacket(new Packet(null, PacketDataType.SetChapterCardsEmpty, Instance.Id, "all"));
         }
     }
 }

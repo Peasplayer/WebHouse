@@ -17,6 +17,7 @@ public class GameLogic
     public static int OpponentPosition = 0;
     public static int TurnState { get; private set; }
     public static int PlayTime = 30;
+    public static bool ChapterCardsEmpty;
     public static List<ILogicCard> Inventory = new ();
     public static List<ChapterCard> CurrentChapterCards = new ();
     public static List<ChapterCard> PlacedChapterCards = new ();
@@ -157,6 +158,7 @@ public class GameLogic
         PlayerPosition = CurrentRoom.StartField;
         // Neue Gegner Position berechnen
         OpponentPosition = Math.Max(0, OpponentPosition - 12);
+        ChapterCardsEmpty = false;
 
         GameForm.Instance.specialChapterCard.Component.Panel.Dispose();
         GameForm.Instance.specialChapterCard = CurrentRoom.SpecialCard;
@@ -337,7 +339,7 @@ public class GameLogic
         switch (TurnState)
         {
             case 1:
-                GameForm.Instance.drawChapterCardButton.Visible = true;
+                GameForm.Instance.drawChapterCardButton.Visible = ChapterCardsEmpty;
                 GameForm.Instance.drawEscapeCardButton.Visible = true;
                 break;
             case 3:

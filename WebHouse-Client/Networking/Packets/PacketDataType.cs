@@ -14,6 +14,7 @@ public enum PacketDataType : uint
     DrawChapterCard,
     PlaceChapterCard,
     DiscardChapterCard,
+    SetChapterCardsEmpty,
     MovePlayer,
     MoveOpponent,
     SwitchTurn
