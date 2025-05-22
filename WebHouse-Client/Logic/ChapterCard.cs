@@ -9,15 +9,17 @@ public class ChapterCard : ILogicCard
     public int Steps { get; }
     public List<CardColor> Requirements { get; }
     public int Counter;
+    public bool IsSpecial { get; }
     public List<EscapeCard> PlacedCards { get; } = new();
     
     public IComponentCard? Component { get; private set; }
 
-    public ChapterCard(Room.RoomName chapter, int steps, List<CardColor> requirements)
+    public ChapterCard(Room.RoomName chapter, int steps, List<CardColor> requirements, bool isSpecial = false)
     {
         Chapter = chapter;
         Steps = steps;
         Requirements = requirements;
+        IsSpecial = isSpecial;
     }
 
     public void CreateComponent()
@@ -27,7 +29,7 @@ public class ChapterCard : ILogicCard
     
     public bool DoesEscapeCardMatch(EscapeCard escapeCard)
     {
-        return escapeCard.Type == EscapeCard.EscapeCardType.Normal && Requirements.Contains(escapeCard.Color) && escapeCard.Number >= Counter;
+        return escapeCard.Type == EscapeCard.EscapeCardType.Normal && (Requirements.Contains(escapeCard.Color) || (IsSpecial && escapeCard.Room == Chapter)) && escapeCard.Number >= Counter;
     }
     
     public void AddEscapeCard(EscapeCard escapeCard)
@@ -38,15 +40,19 @@ public class ChapterCard : ILogicCard
             return;
         
         Counter = escapeCard.Number;
-        Requirements.Remove(escapeCard.Color);
+        Requirements.Remove(IsSpecial ? CardColor.White : escapeCard.Color);
         PlacedCards.Add(escapeCard);
 
         if (Requirements.Count == 0)
         {
-            ((Components.ChapterCard)Component).Pile.Panel.Enabled = true;
-            ((Components.ChapterCard)Component).Pile.Panel.Visible = true;
-            Component.Panel.Dispose();
-            GameLogic.PlacedChapterCards.Remove(this);
+            if (!IsSpecial)
+            {
+                ((Components.ChapterCard)Component).Pile.Panel.Enabled = true;
+                ((Components.ChapterCard)Component).Pile.Panel.Visible = true;
+                Component.Panel.Dispose();
+                GameLogic.PlacedChapterCards.Remove(this);
+            }
+            
             if (NetworkManager.Instance.LocalPlayer.IsHost)
             {
                 NetworkManager.Rpc.MovePlayer(Steps);

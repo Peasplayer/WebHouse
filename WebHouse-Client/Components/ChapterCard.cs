@@ -44,12 +44,19 @@ public class ChapterCard : IComponentCard
         //Überprüfen ob eine EscapeCard ausgewählt ist
         if (EscapeCard.SelectedEscapeCard != null)
         {
-            if (Pile != null)
+            if (Card.IsSpecial && Card.Requirements.Count == 0)
+            {
+                EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false);
+                EscapeCard.SelectedEscapeCard = null;
+                return;
+            }
+            
+            if (Pile != null || Card.IsSpecial)
             {
                 //Überprüft ob die EscapeCard an die ChapterCard angelegt werden darf
                 if (Card.DoesEscapeCardMatch(EscapeCard.SelectedEscapeCard.Card))
                 {
-                    NetworkManager.Rpc.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Pile.Index);
+                    NetworkManager.Rpc.PlaceEscapeCard(EscapeCard.SelectedEscapeCard.Card, Card.IsSpecial ? -1 : Pile.Index);
                 }
                 else
                 {
@@ -63,6 +70,9 @@ public class ChapterCard : IComponentCard
             EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false); 
             EscapeCard.SelectedEscapeCard = null;
         }
+
+        if (Card.IsSpecial)
+            return;
         
         //Prüft ob die ChapterCard schon ausgewählt ist
         if (SelectedChapterCard == this)

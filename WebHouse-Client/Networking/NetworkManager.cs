@@ -174,7 +174,7 @@ public class NetworkManager
                     return;
                 }
         
-                var card = GameLogic.PlacedChapterCards.Find(c => ((Components.ChapterCard)c.Component).Pile.Index == placeEscapeCard.Pile);
+                var card = placeEscapeCard.Pile == -1 ? GameForm.Instance.specialChapterCard : GameLogic.PlacedChapterCards.Find(c => ((Components.ChapterCard)c.Component).Pile.Index == placeEscapeCard.Pile);
                 if (card != null)
                 {
                     GameLogic.PlaceEscapeCard(new EscapeCard(EscapeCard.EscapeCardType.Normal, placeEscapeCard.Number, placeEscapeCard.Room, placeEscapeCard.Color), card);
@@ -280,6 +280,7 @@ public class NetworkManager
                         player.IsTurn = false;
                     Players[i] = player;
                 }
+                GameForm.Instance.RenderBoard();
                 break;
             }
         }

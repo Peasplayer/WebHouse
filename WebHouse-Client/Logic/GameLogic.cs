@@ -158,6 +158,8 @@ public class GameLogic
         // Neue Gegner Position berechnen
         OpponentPosition = Math.Max(0, OpponentPosition - 12);
 
+        GameForm.Instance.specialChapterCard.Component.Panel.Dispose();
+        GameForm.Instance.specialChapterCard = CurrentRoom.SpecialCard;
         GameForm.Instance.RenderBoard();
         GameForm.Instance.UpdatePositions();
     }

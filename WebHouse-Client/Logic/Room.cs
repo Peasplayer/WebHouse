@@ -90,6 +90,15 @@ public class Room
         }
     };
 
+    public ChapterCard SpecialCard => RoomType switch
+    {
+        RoomName.HotelZimmer => new ChapterCard(RoomType, 3, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White }, true),
+        RoomName.Hafen => new ChapterCard(RoomType, 3, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White }, true),
+        RoomName.Stadt => new ChapterCard(RoomType, 4, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White, CardColor.White }, true),
+        RoomName.Wald => new ChapterCard(RoomType, 4, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White, CardColor.White }, true),
+        RoomName.SafeHouse => new ChapterCard(RoomType, 5, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White, CardColor.White, CardColor.White }, true),
+    };
+    
     public Room(RoomName roomType)
     {
         RoomType = roomType;

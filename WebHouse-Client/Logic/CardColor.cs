@@ -6,7 +6,8 @@ public enum CardColor
     Green,
     Blue,
     Yellow,
-    Pink
+    Pink,
+    White
 }
 
 public static class CardColorConverter
@@ -20,6 +21,7 @@ public static class CardColorConverter
             CardColor.Blue => Color.FromArgb(255, 0, 159, 220),
             CardColor.Yellow => Color.FromArgb(255, 255, 243, 0),
             CardColor.Pink => Color.FromArgb(255, 243, 77, 146),
+            CardColor.White => Color.White,
             _ => throw new ArgumentOutOfRangeException(nameof(cardColor), cardColor, null)
         };
     }

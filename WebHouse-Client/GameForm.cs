@@ -20,7 +20,7 @@ public partial class GameForm : Form
     private PictureBox? playerImage;
     private PictureBox? opponentImage;
     private Panel? inventoryContainer;
-    private Panel? drawPile1;
+    public ChapterCard? specialChapterCard;
     public PictureBox? drawChapterCardButton;
     public PictureBox? drawEscapeCardButton;
     private PictureBox? discardPile;
@@ -184,15 +184,19 @@ public partial class GameForm : Form
 
         UpdatePositions();
         
-        if (drawPile1 == null)
+        if (specialChapterCard == null)
         {
-            drawPile1 = new BufferPanel();
-            drawPile1.BackColor = Color.LightGoldenrodYellow;
-            Controls.Add(drawPile1);
+            specialChapterCard = GameLogic.CurrentRoom.SpecialCard;
+        }
+        
+        if (specialChapterCard.Component == null)
+        {
+            specialChapterCard.CreateComponent();
+            Controls.Add(specialChapterCard.Component.Panel);
         }
 
-        drawPile1.Size = new Size(widthUnit * 2, heightUnit * 3);
-        drawPile1.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 1 * heightUnit);
+        specialChapterCard.Component.Panel.Size = new Size(widthUnit * 2, heightUnit * 3);
+        specialChapterCard.Component.Panel.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 1 * heightUnit);
         
         if (drawChapterCardButton == null)
         {
@@ -300,26 +304,30 @@ public partial class GameForm : Form
         
         if (NetworkManager.Instance != null)
         {
-            int playerY = timerLabel.Height + infoPanel.Height / 8;
+            if (playerLabels.Count == 0)
+            {
+                for (var i = 0; i < NetworkManager.Instance.Players.Count; i++)
+                {
+                    Label lbl = new Label();
+                    lbl.Tag = i;
+                    lbl.BackColor = Color.Transparent;
+                    lbl.AutoSize = true;
+                    infoPanel.Controls.Add(lbl);
+                    playerLabels.Add(lbl);
+                }
+            }
 
+            int playerY = timerLabel.Height + infoPanel.Height / 8;
             foreach (var lbl in playerLabels)
             {
-                lbl.Dispose();
-            }
-            playerLabels.Clear();
-            foreach (var player in NetworkManager.Instance.Players)
-            {
-                Label lbl = new Label();
+                var player = NetworkManager.Instance.Players[lbl.Tag as int? ?? 0];
                 lbl.Text = $"{(player.IsHost ? "[Host] " : "")}{player.Name}{(player.Id == NetworkManager.Instance.Id ? " [DU] " : "")}";
-                lbl.ForeColor = player.IsTurn ? Color.LightGreen : Color.White;
-                lbl.BackColor = Color.Transparent;
-                lbl.Location = new Point(10, playerY);
-                lbl.AutoSize = true;
                 lbl.Font = player.IsTurn 
                     ? new Font("Arial", 14, FontStyle.Bold) 
                     : new Font("Arial", 14, FontStyle.Regular);
-                infoPanel.Controls.Add(lbl);
-                playerLabels.Add(lbl);
+                lbl.ForeColor = player.IsTurn ? Color.LightGreen : Color.White;
+                lbl.Location = new Point(10, playerY);
+                lbl.BringToFront();
                 
                 playerY += (int)(lbl.Height * 1.2);
             }

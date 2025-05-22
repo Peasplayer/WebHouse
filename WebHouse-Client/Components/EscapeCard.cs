@@ -104,7 +104,7 @@ public class EscapeCard : IComponentCard
     {
         float fontSize = Panel.Height / 12f; // Schriftgröße relativ zur Panel-Höhe
         using (Font font = new Font("Arial", fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
-        using (var brush = new SolidBrush(Color.White))
+        using (var brush = new SolidBrush(Color.Gray))
         {
             string text = Card.Number.ToString();
             SizeF numberSize = g.MeasureString(text, font);

@@ -24,6 +24,7 @@ public class DiscardPile
         {
             if (disposeChapterCard.Pile != null)
             {
+                NetworkManager.Rpc.MoveOpponent(1);
                 NetworkManager.Rpc.DiscardChapterCard(disposeChapterCard.Card, disposeChapterCard.Pile.Index);
             }
             
