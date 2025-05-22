@@ -34,6 +34,8 @@ public partial class Lobby : Form
             NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
             
             var form = new Menu();
+            form.StartPosition = FormStartPosition.Manual;
+            form.Location = Location;
             form.Show();
         };
         
