@@ -10,7 +10,6 @@ public partial class EndScreen : Form
     public EndScreen(bool win)
     {
         this.DoubleBuffered = true;
-        SetupUI();
         if (win)
         {
             this.BackgroundImage = Image.FromStream(
@@ -25,13 +24,13 @@ public partial class EndScreen : Form
         }
 
         this.BackgroundImageLayout = ImageLayout.Stretch;
-        this.Width = Screen.PrimaryScreen.Bounds.Width / 2;
-        this.Height = Screen.PrimaryScreen.Bounds.Height / 2;
+        this.Height = Screen.PrimaryScreen.Bounds.Height / 2; //Startgröße
+        this.Width = this.Height * 16 / 9;
         this.FormBorderStyle = FormBorderStyle.FixedSingle;
         this.MaximizeBox = false;
         this.MinimizeBox = false;
         this.StartPosition = FormStartPosition.CenterScreen;
-
+        SetupUI();
     }
 
     private void SetupUI()

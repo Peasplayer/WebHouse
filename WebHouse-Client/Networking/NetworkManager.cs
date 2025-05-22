@@ -346,6 +346,11 @@ public class NetworkManager
         {
             var card = GameLogic.CurrentChapterCards.First();
             GameLogic.CurrentChapterCards.Remove(card);
+
+            if (GameLogic.CurrentChapterCards.Count == 0)
+            {
+                SetChapterCardsEmpty();
+            }
             
             Instance.SendPacket(new Packet(new DrawChapterCardPacket(card.Chapter, card.Steps, card.Requirements), PacketDataType.DrawChapterCard, Instance.Id, id));
         }
