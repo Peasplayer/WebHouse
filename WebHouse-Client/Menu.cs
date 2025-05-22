@@ -38,14 +38,6 @@ public partial class Menu : Form
 
     private void Startbtn_Click(object sender, EventArgs e)
     {
-        if (textBox2.Text == "debug")
-        {
-            var form = new GameForm();
-            form.Show();
-            this.Hide();
-            return;
-        }
-
         if (textBox1.Text.Trim() == "" || textBox2.Text.Trim() == "") 
         {
             MessageBox.Show("Bitte gebe eine IP und einen Namen an!", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);

@@ -4,36 +4,36 @@ public class Room
 {
     public enum RoomName
     {
-        HotelZimmer,
+        Hotelzimmer,
         Hafen,
         Stadt,
         Wald,
-        SafeHouse,
+        Safehouse,
     }
     
     public RoomName RoomType { get; set; }
     public string Picture => RoomType switch
     {
-        RoomName.HotelZimmer => "Hotel.jpg",
+        RoomName.Hotelzimmer => "Hotel.jpg",
         RoomName.Hafen => "Hafen.jpg",
         RoomName.Stadt => "Stadt.jpg",
         RoomName.Wald => "Wald.jpg",
-        RoomName.SafeHouse => "Safehouse.jpg",
+        RoomName.Safehouse => "Safehouse.jpg",
         _ => "Hotel.jpg"
     };
     public int Steps => RoomType switch
     {
-        RoomName.HotelZimmer => 21,
+        RoomName.Hotelzimmer => 21,
         RoomName.Hafen => 20,
         RoomName.Stadt => 19,
         RoomName.Wald => 18,
-        RoomName.SafeHouse => 29,
+        RoomName.Safehouse => 29,
         _ => 0
     };
 
     public List<ChapterCard> ChapterCards => RoomType switch
     {
-        RoomName.HotelZimmer => new ()
+        RoomName.Hotelzimmer => new ()
         {
             new ChapterCard(RoomType, 1, new List<CardColor> { CardColor.Pink, CardColor.Pink }),
             new ChapterCard(RoomType, 1, new List<CardColor> { CardColor.Yellow, CardColor.Yellow }),
@@ -79,7 +79,7 @@ public class Room
             new ChapterCard(RoomType, 4, new List<CardColor> { CardColor.Yellow, CardColor.Yellow, CardColor.Yellow, CardColor.Green, CardColor.Green }),
             new ChapterCard(RoomType, 5, new List<CardColor> { CardColor.Red, CardColor.Red, CardColor.Blue, CardColor.Blue, CardColor.Pink, CardColor.Pink })
         },
-        RoomName.SafeHouse => new ()
+        RoomName.Safehouse => new ()
         {
             new ChapterCard(RoomType, 3, new List<CardColor> { CardColor.Blue, CardColor.Blue, CardColor.Green, CardColor.Green }),
             new ChapterCard(RoomType, 3, new List<CardColor> { CardColor.Yellow, CardColor.Yellow, CardColor.Red, CardColor.Red }),
@@ -92,11 +92,11 @@ public class Room
 
     public ChapterCard SpecialCard => RoomType switch
     {
-        RoomName.HotelZimmer => new ChapterCard(RoomType, 3, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White }, true),
+        RoomName.Hotelzimmer => new ChapterCard(RoomType, 3, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White }, true),
         RoomName.Hafen => new ChapterCard(RoomType, 3, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White }, true),
         RoomName.Stadt => new ChapterCard(RoomType, 4, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White, CardColor.White }, true),
         RoomName.Wald => new ChapterCard(RoomType, 4, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White, CardColor.White }, true),
-        RoomName.SafeHouse => new ChapterCard(RoomType, 5, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White, CardColor.White, CardColor.White }, true),
+        RoomName.Safehouse => new ChapterCard(RoomType, 5, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White, CardColor.White, CardColor.White }, true),
     };
     
     public Room(RoomName roomType)
@@ -106,21 +106,21 @@ public class Room
     
     public List<int> OpponentMoveTriggerFields => RoomType switch
     {
-        RoomName.HotelZimmer => new List<int> { 10, 13, 18 },
+        RoomName.Hotelzimmer => new List<int> { 10, 13, 18 },
         RoomName.Hafen => new List<int> { 9, 10, 11 },
         RoomName.Stadt => new List<int> { 9, 11, 13 },
         RoomName.Wald => new List<int> { 13 },
-        RoomName.SafeHouse => new List<int> { 24, 25 },
+        RoomName.Safehouse => new List<int> { 24, 25 },
         _ => new List<int>()
     };
     
     public int StartField => RoomType switch
     {
-        RoomName.HotelZimmer => 9,
+        RoomName.Hotelzimmer => 9,
         RoomName.Hafen => 8,
         RoomName.Stadt => 7,
         RoomName.Wald => 6,
-        RoomName.SafeHouse => 17,
+        RoomName.Safehouse => 17,
         _ => 0
     };
 }

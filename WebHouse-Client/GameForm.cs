@@ -11,9 +11,6 @@ public partial class GameForm : Form
 {
     public static GameForm Instance { get; set; }
     
-    private Button playerMoveButton = new Button();
-    private Button opponentMoveButton = new Button();
-    
     private PictureBox? roomImage;
     private PictureBox? bookImage;
     private PictureBox? playerImage;
@@ -47,7 +44,6 @@ public partial class GameForm : Form
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Wood.jpg"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
         TimerLablelInfo(); //Erstellt das Label für den Timer
-        AddTempButtons();
         
         //this.FormBorderStyle = FormBorderStyle.None; //kein Rand
         this.WindowState = FormWindowState.Maximized; //macht Vollbild
@@ -395,21 +391,6 @@ public partial class GameForm : Form
             timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird
         }
     }
-    
-    private void AddTempButtons()
-    {
-        playerMoveButton.Text = "Move Player";
-        playerMoveButton.Size = new Size(100, 50);
-        playerMoveButton.Location = new Point(10, 10);
-        playerMoveButton.Click += (_, _) => NetworkManager.Rpc.MovePlayer(1);
-        Controls.Add(playerMoveButton);
-
-        opponentMoveButton.Text = "Move Opponent";
-        opponentMoveButton.Size = new Size(100, 50);
-        opponentMoveButton.Location = new Point(10, 70);
-        opponentMoveButton.Click += (_, _) => GameLogic.SwitchTurnState();;//NetworkManager.Rpc.MoveOpponent(1);
-        Controls.Add(opponentMoveButton);
-    }
 
     private int GetRelativeSize(Size size, bool width, int? pixels = null, double? percentage = null)
     {
@@ -454,7 +435,7 @@ public partial class GameForm : Form
     
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
     {
-        { Room.RoomName.HotelZimmer, new ()
+        { Room.RoomName.Hotelzimmer, new ()
         {
             new (95, 115),
             new (240, 115),
@@ -545,7 +526,7 @@ public partial class GameForm : Form
             new (1720, 215),
             new (1800, 120),
         } },
-        { Room.RoomName.SafeHouse, new ()
+        { Room.RoomName.Safehouse, new ()
         {
             new (20, 25),
             new (130, 40),

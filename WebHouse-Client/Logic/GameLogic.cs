@@ -17,7 +17,7 @@ public class GameLogic
     public static int OpponentPosition = 0;
     public static int TurnState { get; private set; }
     public static int PlayTime = 30;
-    public static bool ChapterCardsEmpty;
+    public static bool ChapterCardsEmpty = false;
     public static List<ILogicCard> Inventory = new ();
     public static List<ChapterCard> CurrentChapterCards = new ();
     public static List<ChapterCard> PlacedChapterCards = new ();
@@ -33,11 +33,11 @@ public class GameLogic
     
     public static List<Room> Rooms = new List<Room> // Raum-Liste wird erstellt
     {
-        new Room(Room.RoomName.HotelZimmer),
+        new Room(Room.RoomName.Hotelzimmer),
         new Room(Room.RoomName.Hafen),
         new Room(Room.RoomName.Stadt),
         new Room(Room.RoomName.Wald),
-        new Room(Room.RoomName.SafeHouse),
+        new Room(Room.RoomName.Safehouse),
     };
 
     private static void StartOpponentTimer()
@@ -97,7 +97,7 @@ public class GameLogic
         {
             PlayerPosition += steps;
             
-            if (CurrentRoom.RoomType == Room.RoomName.SafeHouse && PlayerPosition >= 28)
+            if (CurrentRoom.RoomType == Room.RoomName.Safehouse && PlayerPosition >= 28)
             {
                 Stop(true);
                 return;
@@ -123,7 +123,7 @@ public class GameLogic
         GameForm.Instance.BeginInvoke(() =>
         {
             OpponentPosition += steps;
-            if (OpponentPosition >= PlayerPosition || (OpponentPosition >= 16 && CurrentRoom.RoomType == Room.RoomName.SafeHouse))
+            if (OpponentPosition >= PlayerPosition || (OpponentPosition >= 16 && CurrentRoom.RoomType == Room.RoomName.Safehouse))
             {
                 Stop(false);
                 return;
@@ -175,11 +175,11 @@ public class GameLogic
             {
                 var escapeCard = new EscapeCard(EscapeCard.EscapeCardType.Normal, i +1, ((i + j) % 5) switch
                 {
-                    0 => Room.RoomName.HotelZimmer,
+                    0 => Room.RoomName.Hotelzimmer,
                     1 => Room.RoomName.Hafen,
                     2 => Room.RoomName.Stadt,
                     3 => Room.RoomName.Wald,
-                    4 => Room.RoomName.SafeHouse
+                    4 => Room.RoomName.Safehouse
                 }, j switch
                 {
                     0 => CardColor.Red,
@@ -339,7 +339,7 @@ public class GameLogic
         switch (TurnState)
         {
             case 1:
-                GameForm.Instance.drawChapterCardButton.Visible = ChapterCardsEmpty;
+                GameForm.Instance.drawChapterCardButton.Visible = !ChapterCardsEmpty;
                 GameForm.Instance.drawEscapeCardButton.Visible = true;
                 break;
             case 3:
