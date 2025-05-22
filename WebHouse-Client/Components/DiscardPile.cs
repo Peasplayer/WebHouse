@@ -29,7 +29,7 @@ public class DiscardPile
             }
             
             GameLogic.Inventory.Remove(disposeChapterCard.Card);
-            //disposeChapterCard.Panel.Dispose();
+            disposeChapterCard.Panel.Dispose();
             
             disposeChapterCard.CardComponent.SetHighlighted(false);
             ChapterCard.SelectedChapterCard = null;
