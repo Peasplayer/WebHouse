@@ -152,6 +152,12 @@ public class NetworkManager
             }
             case PacketDataType.DrawEscapeCard:
             {
+                if (packet.Data == "no-data")
+                {
+                    Rpc.IsWaitingForEscapeCard = false;
+                    return;
+                }
+                
                 var drawEscapeCard = JsonConvert.DeserializeObject<DrawEscapeCardPacket>(packet.Data);
                 if (drawEscapeCard == null)
                 {
@@ -204,6 +210,12 @@ public class NetworkManager
             }
             case PacketDataType.DrawChapterCard:
             {
+                if (packet.Data == "no-data")
+                {
+                    Rpc.IsWaitingForChapterCard = false;
+                    return;
+                }
+                
                 var drawChapterCard = JsonConvert.DeserializeObject<DrawChapterCardPacket>(packet.Data);
                 if (drawChapterCard == null)
                 {
@@ -301,14 +313,25 @@ public class NetworkManager
         {
             Instance.SendPacket(new Packet(null, PacketDataType.StopGame, Instance.Id, "all"));
         }
-        
+
+        public static bool IsWaitingForEscapeCard;
         public static void RequestEscapeCard()
         {
+            if (IsWaitingForEscapeCard)
+                return;
+            
+            IsWaitingForEscapeCard = true;
             Instance.SendPacket(new Packet(null, PacketDataType.RequestEscapeCard, Instance.Id, "all"));
         }
 
         public static void DrawEscapeCard(string id)
         {
+            if (GameLogic.CurrentEscapeCards.Count == 0)
+            {
+                Instance.SendPacket(new Packet(null, PacketDataType.DrawEscapeCard, Instance.Id, id));
+                return;
+            }
+            
             var escapeCard = GameLogic.CurrentEscapeCards[0];
             GameLogic.CurrentEscapeCards.Remove(escapeCard);
             
@@ -334,16 +357,24 @@ public class NetworkManager
             GameLogic.Inventory.Remove(card);
             Instance.SendPacket(new Packet(new DrawEscapeCardPacket(card.Type, card.Number, card.Room, card.Color), PacketDataType.DiscardEscapeCard, Instance.Id, "all"));
         }
-        
+
+        public static bool IsWaitingForChapterCard;
         public static void RequestChapterCard()
         {
+            if (IsWaitingForChapterCard)
+                return;
+            
+            IsWaitingForChapterCard = true;
             Instance.SendPacket(new Packet(null, PacketDataType.RequestChapterCard, Instance.Id, "all"));
         }
 
         public static void DrawChapterCard(string id)
         {
             if (GameLogic.CurrentChapterCards.Count == 0)
+            {
+                Instance.SendPacket(new Packet(null, PacketDataType.DrawChapterCard, Instance.Id, id));
                 return;
+            }
             
             var card = GameLogic.CurrentChapterCards.First();
             GameLogic.CurrentChapterCards.Remove(card);
