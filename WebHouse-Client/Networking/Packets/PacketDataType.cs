@@ -6,6 +6,7 @@ public enum PacketDataType : uint
     Disconnect,
     SyncLobby,
     StartGame,
+    StopGame,
     RequestEscapeCard,
     DrawEscapeCard,
     PlaceEscapeCard,

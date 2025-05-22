@@ -141,6 +141,13 @@ public class NetworkManager
                 SendPacket(packet);
                 break;
             }
+            case PacketDataType.StopGame:
+            {
+                FleckLog.Info("Game has stopped");
+                GameIsStarted = false;
+                SendPacket(packet);
+                break;
+            }
             default:
             {
                 SendPacket(packet);

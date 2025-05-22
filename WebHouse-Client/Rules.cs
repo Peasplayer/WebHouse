@@ -239,7 +239,7 @@ public partial class Rules : Form
                 break;
             case 9:
                 contentTitleLabel.Text = "Kapitelwechsel (10/12)";
-                contentLabel.Text = "• Erreicht ihr das Kapitelende, geht es ins nächste Kapitel\n• Der Verfolger behält seinen Abstand gleich\n• \n• Kapitelkarten vom alten Kapitel, welche sich noch auf der Hand befinden, werden Automatisch ausgetauscht mit den Karten des neuen Kapitels";
+                contentLabel.Text = "• Erreicht ihr das Kapitelende, geht es ins nächste Kapitel\n• Der Verfolger behält seinen Abstand gleich\n• Kapitelkarten vom alten Kapitel, welche sich noch auf der Hand befinden, werden Automatisch ausgetauscht mit den Karten des neuen Kapitels";
                 break;
             case 10:
                 contentTitleLabel.Text = "Wann läuft der Verfolger? (11/12)";

@@ -39,10 +39,12 @@ public partial class EndScreen : Form
         Close = new PictureBox()
         {
             BackColor = Color.Transparent,
-            Location = new Point((int)(ClientSize.Width / 1920f * 200f), (int)(ClientSize.Height / 1080f * 1800f)),
         };
-        Close.Width = (int)(ClientSize.Width / 1920f * 700);
+        Close.Width = (int)(ClientSize.Width / 1920f * 200f);
         Close.Height = Close.Width / 23 * 10;
+        Close.Location = new Point(5, ClientSize.Height - Close.Height - 5);
+        /*Close.Width = (int)(ClientSize.Width / 1920f * 700);
+        Close.Height = Close.Width / 23 * 10;*/
         Close.Image = Image.FromStream(
             Assembly.GetExecutingAssembly()
                 .GetManifestResourceStream("WebHouse_Client.Resources.Images.ExitBtn.png"));

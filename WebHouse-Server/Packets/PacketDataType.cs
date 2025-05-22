@@ -6,4 +6,5 @@ public enum PacketDataType : uint
     Disconnect,
     SyncLobby,
     StartGame,
+    StopGame
 }

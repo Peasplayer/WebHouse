@@ -88,7 +88,11 @@ public class GameLogic
     {
         if (GameForm.Instance != null && !GameForm.Instance.IsDisposed)
         {
-            NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
+            if (NetworkManager.Instance.LocalPlayer.IsHost)
+            {
+                NetworkManager.Rpc.StopGame();
+            }
+            //NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
             var form = new EndScreen(win);
             form.Show();
             GameForm.Instance.Hide();

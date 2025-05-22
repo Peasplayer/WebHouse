@@ -24,6 +24,8 @@ public class ChapterCard : ILogicCard
 
     public void CreateComponent()
     {
+        if (Component != null)
+            Component.Panel.Dispose();
         Component = new Components.ChapterCard(this);
     }
     

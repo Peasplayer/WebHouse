@@ -299,6 +299,11 @@ public class NetworkManager
             Instance.SendPacket(new Packet(null, PacketDataType.StartGame, Instance.Id, "all"));
         }
 
+        public static void StopGame()
+        {
+            Instance.SendPacket(new Packet(null, PacketDataType.StopGame, Instance.Id, "all"));
+        }
+        
         public static void RequestEscapeCard()
         {
             Instance.SendPacket(new Packet(null, PacketDataType.RequestEscapeCard, Instance.Id, "all"));
