@@ -64,14 +64,18 @@ public class GameLogic
         Task.Run(() =>
         {
             Task.Delay(1000).Wait();
-            for (int i = 0; i < MaxCards - 1; i++)
-            {
-                NetworkManager.Rpc.RequestEscapeCard();
-            }
-            NetworkManager.Rpc.RequestChapterCard();
             
             if (NetworkManager.Instance.LocalPlayer.IsHost)
             {
+                foreach (var player in NetworkManager.Instance.Players)
+                {
+                    for (int i = 0; i < MaxCards - 1; i++)
+                    {
+                        NetworkManager.Rpc.DrawEscapeCard(player.Id);
+                    }
+                    NetworkManager.Rpc.DrawChapterCard(player.Id);
+                }
+                
                 NetworkManager.Rpc.SwitchTurn(NetworkManager.Instance.Id);
                 ShuffleOpponentCardsIn();
             }
