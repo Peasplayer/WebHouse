@@ -73,6 +73,8 @@ public partial class GameForm : Form
             boardWidth = ClientSize.Height * 16 / 9;
             boardHeight = ClientSize.Height;
         }
+        
+        // Setze Größe und Position des Boards zentriert im Fenster
         boardContainer.Width = boardWidth;
         boardContainer.Height = boardHeight;
         boardContainer.Location = new Point((ClientSize.Width - boardContainer.Width) / 2, (ClientSize.Height - boardContainer.Height) / 2);
@@ -80,6 +82,7 @@ public partial class GameForm : Form
         widthUnit = boardContainer.Width / 32;
         heightUnit = boardContainer.Height / 18;
         
+        // Buch-Hintergrundbild initialisieren
         if (bookImage == null)
         {
             bookImage = new BufferPictureBox();
@@ -89,6 +92,8 @@ public partial class GameForm : Form
             bookImage.BackColor = Color.Transparent;
             Controls.Add(bookImage);
         }
+        
+        // Größe und Position des Buchs anpassen
         bookImage.Width = 16 * widthUnit;//Math.Min(9 * heightUnit, 20 * widthUnit * 9 / 16);//heightUnit * 9;//roomImageHeight;
         bookImage.Height = 9 * heightUnit;
         bookImage.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + heightUnit);
@@ -112,6 +117,7 @@ public partial class GameForm : Form
             (int)Math.Ceiling(bookImage.Location.Y + bookImage.Width / 1728f * 34f));//new Point(boardContainer.X + boardContainer.Width - widthUnit - roomImage.Width, boardContainer.Y + heightUnit);
         roomImage.BringToFront();
         
+        //Inventory Container erstellen (Für Handkarten)
         if (inventoryContainer == null)
         {
             inventoryContainer = new BufferPanel();
@@ -120,9 +126,11 @@ public partial class GameForm : Form
             Controls.Add(inventoryContainer);
         }
         
+        //setzt die Größe und Position des Inventory Containers
         inventoryContainer.Size = new Size(16 * widthUnit, 6 * heightUnit);//(GetRelativeSize(ClientSize, true, percentage: 50), GetRelativeSize(ClientSize, false, percentage: 33.34));
         inventoryContainer.Location = new Point(boardContainer.X + 15 * widthUnit, boardContainer.Y + 11 * heightUnit);//new Point(boardContainer.X + boardContainer.Width - widthUnit - inventoryContainer.Width, boardContainer.Y + 11 * heightUnit);
 
+        //Berechnet die Größe der Karten im Inventory Container
         var cardHeight = Math.Min(inventoryContainer.Height, GetRelativeSize(inventoryContainer.Size, true, percentage: 100f /
             (GameLogic.MaxCards + 1f)) * 3 / 2);//cardWidth * 3 / 2;
         var cardWidth = cardHeight * 2 / 3;//GetRelativeSize(inventoryContainer.Size, true, percentage: 16.67);
@@ -143,8 +151,8 @@ public partial class GameForm : Form
             card.Component.Panel.Location = location;
             card.Component.Panel.BringToFront();
         }
-        
-        //Alte PictureBox entfernen
+
+        //Spielfigur initialisieren
         if (playerImage == null)
         {
             // Neue PictureBox erzeugen
@@ -160,10 +168,9 @@ public partial class GameForm : Form
         
         playerImage.Size = new Size(GetRelativeSize(roomImage.Size, true, 80), GetRelativeSize(roomImage.Size, false, 120));
         
-        //Alte PictureBox entfernen
+        //Gegner Figur initialisieren
         if (opponentImage == null)
         {
-            //Neue PictureBox erzeugen
             opponentImage = new BufferPictureBox();
             opponentImage.BackColor = Color.Transparent;
             opponentImage.SizeMode = PictureBoxSizeMode.Zoom;
@@ -176,8 +183,10 @@ public partial class GameForm : Form
         
         opponentImage.Size = new Size(GetRelativeSize(roomImage.Size, true, 80), GetRelativeSize(roomImage.Size, false, 120));
 
+        //Positioniere Spieler- und Gegnerfigur im Raum
         UpdatePositions();
         
+        // Spezialkarte im Raum darstellen
         if (specialChapterCard == null)
         {
             specialChapterCard = GameLogic.CurrentRoom.SpecialCard;
@@ -192,6 +201,7 @@ public partial class GameForm : Form
         specialChapterCard.Component.Panel.Size = new Size(widthUnit * 2, heightUnit * 3);
         specialChapterCard.Component.Panel.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 1 * heightUnit);
         
+        //button zum Ziehen von Karten erstellen
         if (drawChapterCardButton == null)
         {
             drawChapterCardButton = new BufferPictureBox();
@@ -218,6 +228,7 @@ public partial class GameForm : Form
         drawChapterCardButton.Size = new Size(widthUnit * 2, heightUnit * 3);
         drawChapterCardButton.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 6 * heightUnit);
         
+        //button zum Ziehen von EscapeCards erstellen
         if (drawEscapeCardButton == null)
         {
             drawEscapeCardButton = new BufferPictureBox();
@@ -244,6 +255,7 @@ public partial class GameForm : Form
         drawEscapeCardButton.Size = new Size(widthUnit * 2, heightUnit * 3);
         drawEscapeCardButton.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 10 * heightUnit);
         
+        //Ablagestapel für Karten erstellen
         if (discardPile == null)
         {
             discardPile = new BufferPictureBox();
@@ -265,6 +277,7 @@ public partial class GameForm : Form
         discardPile.Size = new Size(widthUnit * 2, heightUnit * 3);
         discardPile.Location = new Point(boardContainer.X + 12 * widthUnit, boardContainer.Y + 14 * heightUnit);
         
+        //InfoPanel erstellen, das den Timer und die Spieler anzeigt
         if (infoPanel == null)
         {
             infoPanel = new BufferPanel();
@@ -277,9 +290,10 @@ public partial class GameForm : Form
         infoPanel.Location = new Point(boardContainer.X + 1 * widthUnit, boardContainer.Y + 1 * heightUnit);
         
         var ratioSize = infoPanel.Size;
+        
+        //Timerlabel erstellen, das die verbleibende Zeit anzeigt
         if (timerLabel == null)
         {
-            //Erstell ein Lable für den Timer das in der InfoBox angezeigt wird
             timerLabel = new Label()
             {
                 AutoSize = true,
@@ -296,6 +310,7 @@ public partial class GameForm : Form
         timerLabel.BringToFront();
         UpdateTimerLabel(GameLogic.PlayTime);
         
+        //Spielerlabels initialisieren und anzeigen
         if (NetworkManager.Instance != null)
         {
             if (playerLabels.Count == 0)
@@ -327,6 +342,7 @@ public partial class GameForm : Form
             }
         }
         
+        //Ablagestapel für ChapterCards erstellen
         if (discardPiles.Count == 0)
         {
             for (int i = 0; i < 9; i++)
@@ -337,6 +353,7 @@ public partial class GameForm : Form
             }
         }
 
+        //Positioniere die Ablagestapel für ChapterCards
         foreach (var pile in discardPiles)
         {
             pile.Panel.Size = new Size(2 * widthUnit, 3 * heightUnit);
@@ -344,6 +361,7 @@ public partial class GameForm : Form
             pile.Panel.BringToFront();
         }
 
+        //Positioniere die ChapterCards auf dem Spielfeld
         foreach (var card in GameLogic.PlacedChapterCards)
         {
             card.Component.Panel.Size = new Size(2 * widthUnit, 3 * heightUnit);
@@ -354,16 +372,23 @@ public partial class GameForm : Form
     
     public void UpdatePositions()
     {
+        //Hole die Spielfelder für den aktuellen Raumtyp aus dem Dictionary "Fields"
         var fields = Fields[GameLogic.CurrentRoom.RoomType];
+        
+        //Spielerposition aktualisieren, wenn sie gültig ist
         if (GameLogic.PlayerPosition >= 0 && GameLogic.PlayerPosition < fields.Count)
         {
+            //Hole den Punkt (Koordinaten) aus der Liste der Felder
             var point = fields[GameLogic.PlayerPosition];
+            
+            //Setze die Position des Spielerbildes relativ zur Raumgrafik
             playerImage.Location = new Point(
                 point.X * roomImage.Width / 1920,
                 (point.Y - 50) * roomImage.Width / 1920
             );
         }
         
+        //Gegnerposition aktualisieren, wenn sie gültig ist
         if (GameLogic.OpponentPosition >= 0 && GameLogic.OpponentPosition < fields.Count)
         {
             var point = fields[GameLogic.OpponentPosition];
@@ -374,6 +399,7 @@ public partial class GameForm : Form
         }
     }
 
+    //Aktualisiert das Label für den Timer für die Zeitanzeige im InfoPanel
     public void UpdateTimerLabel(int playTime)
     {
         if (playTime > 0)
@@ -383,25 +409,32 @@ public partial class GameForm : Form
         }
         else
         {
-            timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird
+            timerLabel.Text = "Der Verfolger hat euch erwischt!"; //Wenn der Timer abgelaufen ist wird der Text geändert
         }
     }
-
+    
+    
     private int GetRelativeSize(Size size, bool width, int? pixels = null, double? percentage = null)
     {
+        // Wenn ein Pixelwert übergeben wurde:
         if (pixels != null)
         {
+            // Skaliere den Pixelwert relativ zur aktuellen Breite oder Höhe
+            // (1920x1080 ist die Referenzauflösung)
             return pixels.Value * (width ? size.Width : size.Height) / (width ? 1920 : 1080);
         }
-
+        
+        // Wenn ein Prozentwert übergeben wurde:
         if (percentage != null)
         {
+            // Berechne den Prozentwert der aktuellen Breite oder Höhe
             return (int) Math.Round((width ? size.Width : size.Height) * percentage.Value / 100f, MidpointRounding.AwayFromZero);
         }
-        
+        // Falls weder Pixel noch Prozent angegeben sind: Fehler
         throw new ArgumentException("Either pixels or percentage must be provided.");
     }
 
+    //macht Vollbild wenn F11 gedrückt wird
     protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
     {
         if (keyData == Keys.F11)
@@ -427,7 +460,7 @@ public partial class GameForm : Form
     }
 
 
-    
+    //Das und folgende bis ende des codes sind die koordinaten der Felder in den jeweiligen Räumen für den Verfolger und Spieler
     private static Dictionary<Room.RoomName, List<Point>> Fields = new Dictionary<Room.RoomName, List<Point>>()
     {
         { Room.RoomName.Hotelzimmer, new ()

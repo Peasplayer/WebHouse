@@ -1,10 +1,10 @@
 using Newtonsoft.Json;
 
 namespace WebHouse_Server.Packets;
-
+//Ein Darenpacket das zwischen dem Server und dem Clieent übertragen wird
 public class Packet
 {
-    public string Data { get; }
+    public string Data { get; } 
     public PacketDataType DataType { get; }
     public string Sender { get; }
     public string[] Receivers { get; }

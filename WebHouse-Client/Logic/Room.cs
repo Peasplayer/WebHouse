@@ -2,6 +2,7 @@
 
 public class Room
 {
+    //Die Namen der Räume
     public enum RoomName
     {
         Hotelzimmer,
@@ -12,6 +13,7 @@ public class Room
     }
     
     public RoomName RoomType { get; set; }
+    //Das Bild des Raumes und der Name des Raumes werden verbunden
     public string Picture => RoomType switch
     {
         RoomName.Hotelzimmer => "Hotel.jpg",
@@ -21,6 +23,7 @@ public class Room
         RoomName.Safehouse => "Safehouse.jpg",
         _ => "Hotel.jpg"
     };
+    //Gibt die Anzahl an Schritten der Röume an
     public int Steps => RoomType switch
     {
         RoomName.Hotelzimmer => 21,
@@ -31,6 +34,7 @@ public class Room
         _ => 0
     };
 
+    //List der ChapterCard für jeden einzelnen Raum getreu zum Originalspiel
     public List<ChapterCard> ChapterCards => RoomType switch
     {
         RoomName.Hotelzimmer => new ()
@@ -90,6 +94,7 @@ public class Room
         }
     };
 
+    //Die SpecialCard die jeder Raum hat
     public ChapterCard SpecialCard => RoomType switch
     {
         RoomName.Hotelzimmer => new ChapterCard(RoomType, 3, new List<CardColor> { CardColor.White, CardColor.White, CardColor.White }, true),
@@ -104,6 +109,7 @@ public class Room
         RoomType = roomType;
     }
     
+    //Die Felder bei denen der Verfolger um ein Feld bewegt wird wenn der Spieler drauf kommt
     public List<int> OpponentMoveTriggerFields => RoomType switch
     {
         RoomName.Hotelzimmer => new List<int> { 10, 13, 18 },
@@ -114,6 +120,7 @@ public class Room
         _ => new List<int>()
     };
     
+    //Die Felder auf denen der Spieler in jedem Raum startet
     public int StartField => RoomType switch
     {
         RoomName.Hotelzimmer => 9,

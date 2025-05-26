@@ -4,10 +4,10 @@ namespace WebHouse_Server;
 
 public class ClientData
 {
-    public IWebSocketConnection Connection { get; }
-    public string Id => Connection.ConnectionInfo.Id.ToString();
-    public string? Name;
-    public bool IsHost;
+    public IWebSocketConnection Connection { get; } //Websocket Verbindung des Clients
+    public string Id => Connection.ConnectionInfo.Id.ToString(); //Eindeutige ID des Clients
+    public string? Name; //Der Name des Clients
+    public bool IsHost; //Gibt an ob der Client auch der Host ist
 
     public ClientData(IWebSocketConnection connection, string? name = null, bool isHost = false)
     {

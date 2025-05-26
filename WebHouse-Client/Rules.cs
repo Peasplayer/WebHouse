@@ -6,20 +6,21 @@ namespace WebHouse_Client;
 
 public partial class Rules : Form
 {
-    private int currentRuleChapter = 0;
-    private Label contentTitleLabel;
-    private Label contentLabel;
-    private PictureBox nextPictureBox;
-    private PictureBox backPictureBox;
-    private PictureBox mainMenuButton;
-    private readonly List<Control> previewControls = new();
+    private int currentRuleChapter = 0; //Aktuelle Seite der Regeln
+    private Label contentTitleLabel; //Label für den Titel 
+    private Label contentLabel; //Label für den Regeltext
+    private PictureBox nextPictureBox; //Button für die nächste Seite der Regeln
+    private PictureBox backPictureBox; //Button für die vorherige Seite der Regeln
+    private PictureBox mainMenuButton; //Button für das Hauptmenü
+    private readonly List<Control> previewControls = new(); //Liste der Karten die als Beispiel angezeigt werden sollen
 
      public Rules()
     {
         InitializeComponent();
         SetupUI();
-        ShowChapter(currentRuleChapter);
+        ShowChapter(currentRuleChapter); //Zeigt die erste Seite der Regeln an
         
+        //Wenn das Fenster geschlossen wird, wird das Startmenü wieder geöffnet
         this.Closing += (_, _) =>
         {
             var form = new StartScreen();
@@ -28,6 +29,7 @@ public partial class Rules : Form
             form.Show();
         };
         
+        //Titel Label in dem ""Spielregeln" steht
         var titleLabel = new Label()
         {
             Text = "Spielregeln",
@@ -41,12 +43,15 @@ public partial class Rules : Form
         this.Controls.Add(titleLabel);
     }
 
+     //Stellt die Benutzeroberfläche da
     private void SetupUI()
     {
         this.DoubleBuffered = true;
         this.BackgroundImage = Image.FromStream(
             Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Regeln.png"));
         this.BackgroundImageLayout = ImageLayout.Stretch;
+        
+        //Fenstergröße 
         this.Height = Screen.PrimaryScreen.Bounds.Height / 2; //Startgröße
         this.Width = this.Height * 16 / 9;
         this.FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -54,6 +59,7 @@ public partial class Rules : Form
         this.MinimizeBox = false;
         this.StartPosition = FormStartPosition.Manual;
         
+        //Titel Label für die Regeln
         contentTitleLabel = new Label
         {
             UseCompatibleTextRendering = true,
@@ -80,6 +86,7 @@ public partial class Rules : Form
         contentLabel.AutoSize = true;
         this.Controls.Add(contentLabel);
 
+        //Buttons für die Navigation durch die Regeln
         backPictureBox = new PictureBox()
         {
             BackColor = Color.Transparent,
@@ -110,6 +117,7 @@ public partial class Rules : Form
         nextPictureBox.Click += NextButton_Click;
         this.Controls.Add(nextPictureBox);
         
+        //Karten die als Beispiel angezeigt werden sollen
         var card = new EscapeCard(EscapeCard.EscapeCardType.Normal, 7, Room.RoomName.Wald, CardColor.Red); //Escapekarte
         card.CreateComponent();
 
@@ -127,7 +135,7 @@ public partial class Rules : Form
         card.Component.Panel.BringToFront();
         previewControls.Add(card.Component.Panel);
         
-        
+        //Kapitelkarte die als Beispiel angezeigt wird
         var chapterCard = new ChapterCard(Room.RoomName.Wald, 2, new List<CardColor> { CardColor.Red, CardColor.Blue, CardColor.Green } //ChapterCard
         );
         chapterCard.CreateComponent();
@@ -146,7 +154,7 @@ public partial class Rules : Form
         chapterCard.Component.Panel.BringToFront();
         previewControls.Add(chapterCard.Component.Panel);
 
-        
+        //Verfolgerkarte die als Beispiel angezeigt wird
         var chaserCard = new EscapeCard(EscapeCard.EscapeCardType.OpponentSteps, 2); //Verfolgerkarte
         chaserCard.CreateComponent();
 
@@ -164,6 +172,7 @@ public partial class Rules : Form
         chaserCard.Component.Panel.BringToFront();
         previewControls.Add(chaserCard.Component.Panel);
 
+        //Button für das Hauptmenü
         mainMenuButton = new PictureBox();
         mainMenuButton.BackColor = Color.Transparent;
         mainMenuButton.Width = (int)(ClientSize.Width / 1920f * 200f);
@@ -176,7 +185,7 @@ public partial class Rules : Form
         
         mainMenuButton.Click += (_, _) =>
         {
-            this.Close();
+            this.Close(); //Schließt die Regeln-Seite
         };
         this.Controls.Add(mainMenuButton);
     }
@@ -192,6 +201,7 @@ public partial class Rules : Form
         ShowChapter(currentRuleChapter);
     }
 
+    // Zeigt den Inhalt des aktuellen Kapitels an (halt die Regeln)
     private void ShowChapter(int chapter)
     {
         foreach (var ctrl in previewControls)

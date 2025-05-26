@@ -1,5 +1,6 @@
 ﻿namespace WebHouse_Client.Networking;
 
+//Information die der Spieler dem Server übermittelt
 public record struct Player
 {
     public string Id;

@@ -19,6 +19,7 @@ public partial class StartScreen : Form
         this.MinimizeBox = false;
         this.StartPosition = FormStartPosition.CenterScreen;
         
+        //beendet das Programm wenn das Fenster geschlossen wird
         this.Closing += (_, _) =>
         {
             Application.Exit();
@@ -28,6 +29,8 @@ public partial class StartScreen : Form
         Start.Location = new Point((ClientSize.Width - Start.Size.Width) / 2, 600 * ClientSize.Height / 1080);
         Start.BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Startbtn.png"));
         Start.BackgroundImageLayout = ImageLayout.Stretch;
+        
+        // Wenn auf den Start Button geklickt wird, wird das Menü geöffnet
         Start.MouseClick += (_, _) =>
         {
             var form = new Menu();
@@ -40,6 +43,8 @@ public partial class StartScreen : Form
         Regeln.Location = new Point((ClientSize.Width - Regeln.Size.Width) / 2 , 750 * ClientSize.Height / 1080);
         Regeln.BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Regelnbtn.png"));
         Regeln.BackgroundImageLayout = ImageLayout.Stretch;
+        
+        //Beim klicken wird die Regelform geöffnet
         Regeln.MouseClick += (_, _) =>
         {
             var form = new Rules();
@@ -48,6 +53,7 @@ public partial class StartScreen : Form
             this.Hide();
         };
 
+        //infobutton hinzufügen
         var infoButton = new Button();
         Controls.Add(infoButton);
 
@@ -57,6 +63,8 @@ public partial class StartScreen : Form
         infoButton.FlatStyle = FlatStyle.Popup;
         infoButton.Size = new Size(Start.Width, Start.Height);
         infoButton.Location = new Point((ClientSize.Width - Regeln.Size.Width) / 2 , 900 * ClientSize.Height / 1080);
+        
+        //Copyright-Hinweis
         infoButton.MouseClick += (_, _) => 
             MessageBox.Show("Das Spiel \"Sebastian Fitzek - Safehouse\" ist Eigentum des moses. Verlag. Dieses Programm ist ein Schulprojekt ohne jeglichen kommerziellen Nutzen." + 
                             "\n\nDanke an moses. für das bereitstellen der originalen Bilder! (Rechte gehören dem Verlag)." +

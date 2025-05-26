@@ -8,15 +8,16 @@ public partial class Lobby : Form
 {
     public static Lobby? Instance { get; set; }
 
-    public bool ClosedByGame = false;
-    private List<Label> _playerList = new ();
+    public bool ClosedByGame = false; 
+    private List<Label> _playerList = new (); //List aller Spieler in der Lobby
     
     public Lobby()
     {
         Instance = this;
         
-        InitializeComponent();
+        InitializeComponent(); 
         this.DoubleBuffered = true;
+        //Setzt die Hintergrundfarbe der Lobby
         BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.LobbyFertig.png")); //BackgroundImage
         this.BackgroundImageLayout = ImageLayout.Stretch;
         this.Height = Screen.PrimaryScreen.Bounds.Height / 2;//Startgröße
@@ -26,13 +27,15 @@ public partial class Lobby : Form
         this.MinimizeBox = false;
         this.StartPosition = FormStartPosition.Manual;//CenterScreen;
         
+        //Wird aufgerufen wenn das Fenster geschlossen wird
         this.FormClosing += (s, e) =>
         {
             if (ClosedByGame)
                 return;
             
-            NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed");
+            NetworkManager.Instance.Client.Stop(WebSocketCloseStatus.NormalClosure, "Client closed"); //Stoppt den Client und schließt die Verbindung zum Server
             
+            //Zeigt das Menü wirder an
             var form = new Menu();
             form.StartPosition = FormStartPosition.Manual;
             form.Location = Location;
@@ -40,15 +43,18 @@ public partial class Lobby : Form
         };
         
         Startbtn.Size = new Size(this.ClientSize.Width / 3, this.ClientSize.Height / 8); //proportionale Größe
+        
         //Button-Position zentriert, 80% Höhe
         Startbtn.Location = new Point((this.ClientSize.Width - Startbtn.Width) / 2, (int)(this.ClientSize.Height * 0.8));
         Startbtn.BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Start.png"));
         
-        RefreshPlayerList();
+        RefreshPlayerList(); //Spieleranzeige aktualisieren
     }
 
+    //Aktualisiert die Spieleranzeige in der Lobby
     public void RefreshPlayerList()
     {
+        //Wenn keine Spieler in der Lobby sind wird nichts gemacht
         if (NetworkManager.Instance.Players.Count == 0)
             return;
         
@@ -58,6 +64,7 @@ public partial class Lobby : Form
         }
         _playerList.Clear();
 
+        //Für jeden Spieler in der Lobby wir ein label erstellt. In diesem Label wird der Name des Spielers angezeigt und ob er Host ist.
         foreach (var player in NetworkManager.Instance.Players)
         {
             var text = new Label();
@@ -76,6 +83,7 @@ public partial class Lobby : Form
         Startbtn.Visible = NetworkManager.Instance.LocalPlayer == null ? false : NetworkManager.Instance.LocalPlayer.IsHost && NetworkManager.Instance.Players.Count > 1;
     }
 
+    //Button zum Starten des Spiels
     private void button1_Click(object sender, EventArgs e)
     {
         NetworkManager.Rpc.StartGame();
