@@ -152,11 +152,10 @@ public class NetworkManager
             }
             case PacketDataType.DrawEscapeCard:
             {
+                Rpc.IsWaitingForEscapeCard = false;
+                
                 if (packet.Data == "no-data")
-                {
-                    Rpc.IsWaitingForEscapeCard = false;
                     return;
-                }
                 
                 var drawEscapeCard = JsonConvert.DeserializeObject<DrawEscapeCardPacket>(packet.Data);
                 if (drawEscapeCard == null)
@@ -210,11 +209,10 @@ public class NetworkManager
             }
             case PacketDataType.DrawChapterCard:
             {
+                Rpc.IsWaitingForChapterCard = false;
+                
                 if (packet.Data == "no-data")
-                {
-                    Rpc.IsWaitingForChapterCard = false;
                     return;
-                }
                 
                 var drawChapterCard = JsonConvert.DeserializeObject<DrawChapterCardPacket>(packet.Data);
                 if (drawChapterCard == null)
