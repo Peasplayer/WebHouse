@@ -47,5 +47,19 @@ public partial class StartScreen : Form
             form.Show();
             this.Hide();
         };
+
+        var infoButton = new Button();
+        Controls.Add(infoButton);
+
+        infoButton.BackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Moses.png"));
+        infoButton.BackgroundImageLayout = ImageLayout.Stretch;
+        infoButton.BackColor = Color.Transparent;
+        infoButton.FlatStyle = FlatStyle.Popup;
+        infoButton.Size = new Size(Start.Width, Start.Height);
+        infoButton.Location = new Point((ClientSize.Width - Regeln.Size.Width) / 2 , 900 * ClientSize.Height / 1080);
+        infoButton.MouseClick += (_, _) => 
+            MessageBox.Show("Das Spiel \"Sebastian Fitzek - Safehouse\" ist Eigentum des moses. Verlag. Dieses Programm ist ein Schulprojekt ohne jeglichen kommerziellen Nutzen." + 
+                            "\n\nDanke an moses. für das bereitstellen der originalen Bilder! (Rechte gehören dem Verlag)." +
+                            "\n\nTom Störmer, Jannis Edler, Alexander Deschner, Joschua Kux, Lennox Frank von der JPRS Friedberg");
     }
 }
