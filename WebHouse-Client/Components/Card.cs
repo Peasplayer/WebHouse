@@ -28,23 +28,27 @@ public class Card
         Panel.Paint += DrawCard;
     }
     
+    //Zeichnet eine Karte mit abgerundeten Ecken die hervirgehoben werden kann
     private void DrawCard(object? sender, PaintEventArgs e) 
     {
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;
 
-        int cornerRadius = Panel.Width / 20;     // z.B. 1/20 der Breite
-        int borderWidth = Panel.Width / 100;     // z.B. 1/100 der Breite
+        int cornerRadius = Panel.Width / 20;     //Berechnet den Radius der Ecken in Abhängigkeit von der Panel Größe damit siech diese an die größe des Bildschirms anpassen
+        int borderWidth = Panel.Width / 100;     //Berechnet die breite des Rahmens in Abhängigkeit von der Panel Größe damit siech diese an die größe des Bildschirms anpassen
 
-        using (GraphicsPath path = RoundedRectangle(new Rectangle(0, 0, Panel.Size.Width, Panel.Size.Height), cornerRadius))
+        using (GraphicsPath path = RoundedRectangle(new Rectangle(0, 0, Panel.Size.Width, Panel.Size.Height), cornerRadius)) //Karten werden wie das Rechteck mit abgerundeten Ecken gezeichnet
         using (SolidBrush brush = new SolidBrush(_color))
         using (Pen pen = new Pen(Color.White, borderWidth))
-        using (Pen highlightPen = new Pen(Color.HotPink, borderWidth + 1))
+        using (Pen highlightPen = new Pen(Color.HotPink, borderWidth + 1)) //Hebt die Karte durch einen Farblichen rahmen hervor
+        
         {
+            //Karte füllen
             g.FillPath(brush, path);
 
-            _additionalPaint?.Invoke(g);
+            _additionalPaint?.Invoke(g); //Zeichnet zusätzliche Elemente auf die Karte fals es welche gibt
 
+            //Zeichnet den Rahmen der Karte
             using (GraphicsPath borderPath = Outline(new Rectangle(0, 0, Panel.Size.Width, Panel.Size.Height), cornerRadius, borderWidth))
             {
                 g.DrawPath(Highlighted ? highlightPen : pen, borderPath);
@@ -52,6 +56,7 @@ public class Card
         }
     }
 
+    //Berechnet eine Rechteck mit abgerundeten Ecken. 
     private GraphicsPath RoundedRectangle(Rectangle rect, int cornerRadius)
     {
         int diameter = cornerRadius * 2;
@@ -64,6 +69,7 @@ public class Card
         return path;
     }
 
+    //Zeichnet den Rahmen der Karte
     private GraphicsPath Outline(Rectangle rect, int cornerRadius, int outlineWidth)
     {
         int diameter = cornerRadius * 2;
@@ -75,7 +81,7 @@ public class Card
         path.CloseFigure();
         return path;
     }
-    
+    //Wird ausgeführt den die Karte hervorgehoben werden soll
     public void SetHighlighted(bool highlighted)
     {
         Highlighted = highlighted;

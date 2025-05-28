@@ -6,17 +6,18 @@ namespace WebHouse_Client.Components;
 
 public class ChapterCard : IComponentCard
 {
-    public static ChapterCard? SelectedChapterCard;
+    public static ChapterCard? SelectedChapterCard; //Die aktuell ausgewählte ChapterCard
     
-    public Card CardComponent { get; }
-    public ChapterCardPile? Pile { get; set; }
-    public Panel Panel => CardComponent.Panel;
-    public Logic.ChapterCard Card { get; }
+    public Card CardComponent { get; } //Die Komponente die die Karte darstellt
+    public ChapterCardPile? Pile { get; set; } //Der Kartenstapel auf den die karte gelegt werden kann
+    public Panel Panel => CardComponent.Panel; //Panel das die Karte darstellt
+    public Logic.ChapterCard Card { get; } //Die Logik die die Karte haben soll
 
     public ChapterCard(Logic.ChapterCard card)
     {
         Card = card;
         
+        //Zeichnet die Karte 
         CardComponent = new Card(5, 10, Color.Black, 2, g =>
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -28,29 +29,32 @@ public class ChapterCard : IComponentCard
         });
         
         Panel.Tag = this; //Ermöglicht das zugreifen auf ein bestimmtes ChapterCard Objekt
+        //Wenn die Karte mit der Linken mouse Taste angeklickt wird wird die OnClick Methode aufgerufen
         Panel.MouseClick += (_, args) =>
         {
             if (args.Button == MouseButtons.Left)
                 OnClick();
         };
-        //new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
     }
 
+    //Wird ausgeführt wenn auf die Karte geklickt wird
     private void OnClick()
     {
+        //Wenn der Spieler nicht am Zug ist oder wenn das Spiel in einem Zustand ist in dem die Karten nicht ausgewählt werden sollen
         if (!NetworkManager.Instance.LocalPlayer.IsTurn || GameLogic.TurnState == 2)
             return;
         
         //Überprüfen ob eine EscapeCard ausgewählt ist
         if (EscapeCard.SelectedEscapeCard != null)
         {
+            //Wenn die Karte eine SpecialCard ist und keine Anforderungen hat wird sie abgewählt
             if (Card.IsSpecial && Card.Requirements.Count == 0)
             {
                 EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false);
                 EscapeCard.SelectedEscapeCard = null;
                 return;
             }
-            
+            //Wenn die ChapterCard auf einem Ablagestapel liegt oder eine SpecialCard ist
             if (Pile != null || Card.IsSpecial)
             {
                 //Überprüft ob die EscapeCard an die ChapterCard angelegt werden darf
@@ -66,11 +70,11 @@ public class ChapterCard : IComponentCard
                 EscapeCard.SelectedEscapeCard = null;
                 return;
             }
-            
+            //Wenn die EscapeCard nicht an die ChapterCard angelegt werden darf wird sie abgewählt und die Methode beendet
             EscapeCard.SelectedEscapeCard.CardComponent.SetHighlighted(false); 
             EscapeCard.SelectedEscapeCard = null;
         }
-
+        //Wenn die Karte eine SpecialCard ist wird sie nicht ausgewählt
         if (Card.IsSpecial)
             return;
         
@@ -91,7 +95,7 @@ public class ChapterCard : IComponentCard
             CardComponent.SetHighlighted(true);
         }
     }
-    
+    //Zeichnet den Titel der Karte. Die größe des textes ist abhängig von der größe des Panels und daher von der größe des Bildschirms
     private void DrawTitle(Graphics g)
     {
         Font font = new Font("Arial", Panel.Width, FontStyle.Bold, GraphicsUnit.Pixel); // größer (vorher 12)
@@ -102,6 +106,7 @@ public class ChapterCard : IComponentCard
         g.DrawString(Card.Chapter.ToString(), font, Brushes.White, textPosition);
     }
 
+    //Zeichnet den Pfeil der die Anzahl der Schritte anzeigt
     private void DrawArrow(Graphics g)
     {
         int shaftHeight = Panel.Height / 6;
@@ -136,7 +141,7 @@ public class ChapterCard : IComponentCard
         float textY = shaftRect.Top + (shaftRect.Height - textSize.Height) / 2;
         g.DrawString(text, numberFont, numberColor, textX, textY);
     }
-    
+    //Zeichnet die benötigten Farben für die Karte. Die größe der Kästen ist abhängig von der größe des Panels und daher von der größe des Bildschirms
     private void DrawNeededColors(Graphics g)
     {
         int dotWidth = Panel.Width / 8;
@@ -156,7 +161,7 @@ public class ChapterCard : IComponentCard
             g.FillPath(brush, path);
         }
     }
-
+    //Berechnet eine Rechteck mit abgerundeten Ecken.
     private GraphicsPath RoundedRectangle(Rectangle rect, int cornerRadius)
     {
         int diameter = cornerRadius * 2;
@@ -168,6 +173,7 @@ public class ChapterCard : IComponentCard
         path.CloseFigure();
         return path;
     }
+    //Malt eine Zahl oben rechts auf die Karte die anzeigt das nur EscapeCards angelegt werden können die größer oder gleich dieser Zahl sind
     private void DrawCounter(Graphics g)
     {
         if(Card.Counter > 0)

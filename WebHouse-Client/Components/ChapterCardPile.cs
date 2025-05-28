@@ -5,7 +5,7 @@ namespace WebHouse_Client.Components;
 
 public class ChapterCardPile
 {
-    public Panel Panel;
+    public Panel Panel; //Panel das den Kartenstapel darstellt
     public int Index;
     
     public ChapterCardPile(int index)
@@ -18,6 +18,7 @@ public class ChapterCardPile
             BorderStyle = BorderStyle.FixedSingle,
         };
 
+        //Reagiert wenn mit der linken Maustaste auf den Kartenstapel geklickt wird
         Panel.MouseClick += (_, args) =>
         {
             if (args.Button == MouseButtons.Left)
@@ -25,17 +26,20 @@ public class ChapterCardPile
         };
     }
 
+    //Wird ausgeführt wenn auf den Kartenstapel geklickt wird
     private void OnClick()
     {
+        //Wird nur ausgeführt wenn der Spieler am Zug ist und das Spiel in einem Zustand ist in dem die Karten ausgewählt werden können
         if (!NetworkManager.Instance.LocalPlayer.IsTurn || GameLogic.TurnState == 2)
             return;
         
+        //Überprüfen ob eine EscapeCard ausgewählt ist
         var selectedChapterCard = ChapterCard.SelectedChapterCard;
         if (selectedChapterCard == null)
         {
             return;
         }
-        
+        //Netztwerkaufruf um die ChapterCard auf dem Stapel zu platzieren
         NetworkManager.Rpc.PlaceChapterCard(selectedChapterCard.Card, Index);
 
         //Karte wird abgewählt

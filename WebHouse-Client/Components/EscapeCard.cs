@@ -7,21 +7,23 @@ namespace WebHouse_Client.Components;
 
 public class EscapeCard : IComponentCard
 {
-    public static EscapeCard? SelectedEscapeCard;
+    public static EscapeCard? SelectedEscapeCard; //Die aktuell ausgewählte EscapeCard
     
-    public Card CardComponent { get; }
-    public Panel Panel => CardComponent.Panel;
-    public Logic.EscapeCard Card { get; }
+    public Card CardComponent { get; } //Zugriff auf die Kartenkomponente auf der die EscaoeCard basiert
+    public Panel Panel => CardComponent.Panel; //Panel das die Karte darstellt
+    public Logic.EscapeCard Card { get; } //Die Logik die die Karte haben soll
 
     public EscapeCard(Logic.EscapeCard card)
     {
         Card = card;
         
+        //Zeichnet die Karte
         CardComponent = new Card(5, 10,
             Color.Black, 2, g =>
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-
+                
+                //Wenn es eine normale EscapeCard ist wird sie normal gezeichnet
                 if (Card.Type == Logic.EscapeCard.EscapeCardType.Normal)
                 {
                     SplashBackground(g);
@@ -30,6 +32,7 @@ public class EscapeCard : IComponentCard
                 }
                 else
                 {
+                    //Wenn es eine Verfolgerkarte ist wird diese mit ihrem Hintergrundbild gezeichnet
                     Image SplashBackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.Opponent.png"));
         
                     var rect = new Rectangle(Panel.ClientRectangle.Width / 20, Panel.ClientRectangle.Width / 20, 
@@ -38,6 +41,7 @@ public class EscapeCard : IComponentCard
                     g.FillRectangle(new SolidBrush(Color.Black), rect);
                     g.DrawImage(SplashBackgroundImage, rect);
 
+                    //Bestimmt was auf der Karte angezeigt wird
                     var text = card.Type == Logic.EscapeCard.EscapeCardType.OpponentSteps
                         ? card.Number.ToString()
                         : "[" + GameLogic.PlacedChapterCards.Count + "]" + (card.Number > 0 ? " + " + card.Number : "");
@@ -48,23 +52,24 @@ public class EscapeCard : IComponentCard
                 }
             });
         Panel.Tag = this; //Verbindet das Objekt Pannel mit seinem EscapeCard Objekt
+        //Wird ausgeführt wenn die Karte mit der linken Maustaste angeklickt wird
         Panel.MouseClick += (_, args) =>
         {
             if (args.Button == MouseButtons.Left)
                 OnClick();
         };
         
-        //new DraggableControl(Panel); //macht die Karte direkt bewegbar so das er DraggableControler nicht bei ersrstellen aufgerufen werden muss
     }
-
+    //Wurd ausgeführt wenn auf die Karte geklickt wird
     private void OnClick()
     {
+        //Wird nur ausgeführt wenn der Spieler am Zug ist und das Spiel in einem Zustand ist in dem die Karten ausgewählt werden können
         if (!NetworkManager.Instance.LocalPlayer.IsTurn || GameLogic.TurnState == 2)
             return;
-        
+        //Nur normale EscapeCards können ausgewählt werden
         if (Card.Type != Logic.EscapeCard.EscapeCardType.Normal)
             return;
-        
+        //Wenn bereits eine EscapeCard ausgewählt ist wird diese abgewählt
         if (SelectedEscapeCard != null)
         {
             SelectedEscapeCard.CardComponent.SetHighlighted(false);
@@ -89,7 +94,8 @@ public class EscapeCard : IComponentCard
         CardComponent.SetHighlighted(true);
     }
 
-    private void SplashBackground(Graphics g) //Splash Hintergrung
+    //Malt das Splash art auf die Karte
+    private void SplashBackground(Graphics g) 
     {
         Image SplashBackgroundImage = Image.FromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("WebHouse_Client.Resources.Background_Images.SplashBackground.png"));
         
@@ -100,6 +106,7 @@ public class EscapeCard : IComponentCard
         g.DrawImage(SplashBackgroundImage, rect);
     }
 
+    //Zeichnet die Kartennummer auf die Karte
     private void DrawNumber(Graphics g)
     {
         float fontSize = Panel.Height / 12f; // Schriftgröße relativ zur Panel-Höhe
@@ -117,9 +124,10 @@ public class EscapeCard : IComponentCard
         }
     }
 
-    private void DrawRoom(Graphics g) // Zeichnet den Raumnamen in der Kartenmitte
+    //Zeichnet den Raumnamen in der Kartenmitte
+    private void DrawRoom(Graphics g) 
     {
-        float fontSize = Panel.Height / 12f; // Schriftgröße relativ zur Panel-Höhe
+        float fontSize = Panel.Height / 12f; //Schriftgröße relativ zur Panel-Höhe
         using (Font font = new Font("Arial", fontSize, FontStyle.Bold, GraphicsUnit.Pixel))
         using (var brush = new SolidBrush(Color.Black))
         {

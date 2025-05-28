@@ -1,5 +1,6 @@
 ﻿namespace WebHouse_Client.Logic;
 
+//Die Farrben die eine Karte haben kann und die auf den ChapterCards angezeigt werden
 public enum CardColor
 {
     Red,
@@ -14,6 +15,7 @@ public static class CardColorConverter
 {
     public static Color GetColor(this CardColor cardColor)
     {
+        //Gibt den Farben ihre RGB Werte
         return cardColor switch
         {
             CardColor.Red => Color.FromArgb(255, 228, 3, 9),
